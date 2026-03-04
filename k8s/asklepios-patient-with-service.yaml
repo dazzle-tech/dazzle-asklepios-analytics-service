@@ -1,0 +1,46 @@
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+    name: asklepios-analytics-service
+    namespace: asklepios-sandbox
+spec:
+    type: ClusterIP
+    selector:
+        app: asklepios-analytics
+    ports:
+        - protocol: TCP
+          port: 8080
+          targetPort: 8080
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: asklepios-analytics
+    namespace: asklepios-sandbox
+spec:
+    selector:
+        matchLabels:
+            app: asklepios-analytics
+    replicas: 1
+    template:
+        metadata:
+            labels:
+                app: asklepios-analytics
+        spec:
+            containers:
+                - name: asklepios-analytics
+                  image: registry.digitalocean.com/asklepios/asklepios-analytics:v1
+                  env:
+                    - name: spring.profiles.active
+                      value: stage,api-docs
+                  imagePullPolicy: IfNotPresent
+                  ports:
+                      - containerPort: 8080
+                        name: asklepios-pat
+
+            imagePullSecrets:
+                - name: asklepios
+
