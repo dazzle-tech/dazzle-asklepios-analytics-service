@@ -13,4 +13,6 @@ public interface AddressRepository extends JpaRepository<Address, Long> {
     Optional<Address> findFirstByPatientIdAndIsCurrentTrueOrderByIdDesc(Long patientId);
 
     List<Address> findByPatientIdAndIsCurrentTrue(Long patientId);
+
+    Optional<Address> findFirstByPatientIdAndIsCurrentTrue(Long patientId);
 }
