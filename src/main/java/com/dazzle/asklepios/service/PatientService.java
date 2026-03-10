@@ -381,23 +381,32 @@ public class PatientService {
             List<Predicate> preds = new ArrayList<>();
 
             if (Boolean.TRUE.equals(fields.get("DOB"))) {
+                LOG.debug("Checking DOB field...");
                 if (duplicationLookupDTO.dateOfBirth() == null) {
+                    LOG.debug("DOB is required by rule but DTO has null → returning disjunction");
                     return criteriaBuilder.disjunction();
                 }
+                LOG.debug("Comparing dateOfBirth DB column with value={}", duplicationLookupDTO.dateOfBirth());
                 preds.add(criteriaBuilder.equal(patientRoot.get("dateOfBirth"), duplicationLookupDTO.dateOfBirth()));
             }
 
             if (Boolean.TRUE.equals(fields.get("GENDER"))) {
+                LOG.debug("Checking GENDER field...");
                 if (duplicationLookupDTO.gender() == null || duplicationLookupDTO.gender().isBlank()) {
+                    LOG.debug("GENDER is required by rule but DTO has blank/null → returning disjunction");
                     return criteriaBuilder.disjunction();
                 }
+                LOG.debug("Comparing sexAtBirth with value={}", duplicationLookupDTO.gender().trim());
                 preds.add(criteriaBuilder.equal(patientRoot.get("sexAtBirth"), duplicationLookupDTO.gender().trim()));
             }
 
             if (Boolean.TRUE.equals(fields.get("FIRST_NAME"))) {
+                LOG.debug("Checking FIRST_NAME field...");
                 if (duplicationLookupDTO.firstName() == null || duplicationLookupDTO.firstName().isBlank()) {
+                    LOG.debug("FIRST_NAME is required but DTO empty → returning disjunction");
                     return criteriaBuilder.disjunction();
                 }
+                LOG.debug("Comparing firstName (lowercase) with value={}", duplicationLookupDTO.firstName().trim().toLowerCase());
                 preds.add(criteriaBuilder.equal(
                         criteriaBuilder.lower(patientRoot.get("firstName")),
                         duplicationLookupDTO.firstName().trim().toLowerCase()
@@ -405,9 +414,12 @@ public class PatientService {
             }
 
             if (Boolean.TRUE.equals(fields.get("LAST_NAME"))) {
+                LOG.debug("Checking LAST_NAME field...");
                 if (duplicationLookupDTO.lastName() == null || duplicationLookupDTO.lastName().isBlank()) {
+                    LOG.debug("LAST_NAME required but DTO empty → returning disjunction");
                     return criteriaBuilder.disjunction();
                 }
+                LOG.debug("Comparing lastName (lowercase) with value={}", duplicationLookupDTO.lastName().trim().toLowerCase());
                 preds.add(criteriaBuilder.equal(
                         criteriaBuilder.lower(patientRoot.get("lastName")),
                         duplicationLookupDTO.lastName().trim().toLowerCase()
@@ -415,9 +427,12 @@ public class PatientService {
             }
 
             if (Boolean.TRUE.equals(fields.get("DOCUMENT_NO"))) {
+                LOG.debug("Checking DOCUMENT_NO field...");
                 if (duplicationLookupDTO.documentNo() == null || duplicationLookupDTO.documentNo().isBlank()) {
+                    LOG.debug("DOCUMENT_NO required but DTO empty → returning disjunction");
                     return criteriaBuilder.disjunction();
                 }
+                LOG.debug("Comparing primaryDocumentNumber with value={}", duplicationLookupDTO.documentNo().trim());
                 preds.add(criteriaBuilder.equal(
                         patientRoot.get("primaryDocumentNumber"),
                         duplicationLookupDTO.documentNo().trim()
@@ -452,7 +467,6 @@ public class PatientService {
         return value == null ? "" : value;
     }
 
-    // TODO move this logic to analytic service
     @Transactional(readOnly = true)
     public PatientInformationReportDTO getPatientInformationReport(Long patientId) {
 
@@ -545,6 +559,47 @@ public class PatientService {
                 insuranceProvider,
                 policyNumber,
                 preferredDoctor
+        );
+    }
+
+    // TODO move this logic to analytic service
+    @Transactional(readOnly = true)
+    public PatientLabelDTO getPatientLabel(Long patientId) {
+
+        LOG.debug("[PatientLabelService] GET_PATIENT_LABEL start patientId={}", patientId);
+
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new NotFoundAlertException(
+                        "Patient not found with id " + patientId,
+                        "patient",
+                        "notfound"
+                ));
+
+        String fullName = String.join(" ",
+                safe(patient.getFirstName()),
+                safe(patient.getSecondName()),
+                safe(patient.getThirdName()),
+                safe(patient.getLastName())
+        ).trim();
+
+        Integer age = null;
+        if (patient.getDateOfBirth() != null) {
+            age = Period.between(
+                    patient.getDateOfBirth().toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate(),
+                    LocalDate.now()
+            ).getYears();
+        }
+
+        return new PatientLabelDTO(
+                patient.getId(),
+                fullName,
+                patient.getMedicalRecordNumber(),
+                patient.getDateOfBirth(),
+                age,
+                patient.getSexAtBirth() != null ? patient.getSexAtBirth().name() : null,
+                patient.getCreatedDate() != null ? java.util.Date.from(patient.getCreatedDate()) : null
         );
     }
 }
