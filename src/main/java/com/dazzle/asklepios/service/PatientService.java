@@ -15,6 +15,7 @@ import com.dazzle.asklepios.repository.PatientRepository;
 import com.dazzle.asklepios.service.dto.patient.PatientCreateDTO;
 import com.dazzle.asklepios.service.dto.patient.PatientDuplicationLookupDTO;
 import com.dazzle.asklepios.service.dto.patient.PatientInformationReportDTO;
+import com.dazzle.asklepios.service.dto.patient.PatientLabelDTO;
 import com.dazzle.asklepios.service.dto.patient.PatientUpdateDTO;
 import com.dazzle.asklepios.service.dto.patient.UnknownPatientCreateDTO;
 import com.dazzle.asklepios.web.rest.errors.BadRequestAlertException;
@@ -55,8 +56,11 @@ public class PatientService {
 
     public PatientService(
             PatientRepository patientRepository,
-
-            PatientDocumentRepository patientDocumentRepository, DuplicationCandidateRepository duplicationCandidateRepository, AddressRepository addressRepository, PatientInsuranceRepository patientInsuranceRepository, PatientPreferredHealthProfessionalRepository patientPreferredHealthProfessionalRepository
+            PatientDocumentRepository patientDocumentRepository,
+            DuplicationCandidateRepository duplicationCandidateRepository,
+            AddressRepository addressRepository,
+            PatientInsuranceRepository patientInsuranceRepository,
+            PatientPreferredHealthProfessionalRepository patientPreferredHealthProfessionalRepository
     ) {
         this.patientRepository = patientRepository;
         this.patientDocumentRepository = patientDocumentRepository;
@@ -77,19 +81,14 @@ public class PatientService {
                 .secondName(dto.secondName())
                 .thirdName(dto.thirdName())
                 .lastName(dto.lastName())
-
                 .sexAtBirth(dto.sexAtBirth())
                 .dateOfBirth(dto.dateOfBirth())
-
-
                 .patientClasses(dto.patientClasses())
                 .isPrivatePatient(dto.isPrivatePatient())
-
                 .firstNameSecondaryLang(dto.firstNameSecondaryLang())
                 .secondNameSecondaryLang(dto.secondNameSecondaryLang())
                 .thirdNameSecondaryLang(dto.thirdNameSecondaryLang())
                 .lastNameSecondaryLang(dto.lastNameSecondaryLang())
-
                 .primaryMobileNumber(dto.primaryMobileNumber())
                 .secondMobileNumber(dto.secondMobileNumber())
                 .homePhone(dto.homePhone())
@@ -98,12 +97,10 @@ public class PatientService {
                 .receiveSms(dto.receiveSms())
                 .receiveEmail(dto.receiveEmail())
                 .preferredWayOfContact(dto.preferredWayOfContact())
-
                 .nativeLanguage(dto.nativeLanguage())
                 .emergencyContactName(dto.emergencyContactName())
                 .emergencyContactRelation(dto.emergencyContactRelation())
                 .emergencyContactPhone(dto.emergencyContactPhone())
-
                 .role(dto.role())
                 .maritalStatus(dto.maritalStatus())
                 .nationality(dto.nationality())
@@ -112,7 +109,6 @@ public class PatientService {
                 .occupation(dto.occupation())
                 .responsibleParty(dto.responsibleParty())
                 .educationalLevel(dto.educationalLevel())
-
                 .previousId(dto.previousId())
                 .archivingNumber(dto.archivingNumber())
                 .details(dto.details())
@@ -124,7 +120,6 @@ public class PatientService {
 
         try {
             return patientRepository.saveAndFlush(entity);
-
         } catch (DataIntegrityViolationException | JpaSystemException ex) {
             handleConstraintsOnCreateOrUpdate(ex);
             throw new BadRequestAlertException(
@@ -151,7 +146,6 @@ public class PatientService {
             if (mrn != null && !mrn.isBlank()) {
                 createdPatient.setFirstName("Unknown " + mrn);
                 createdPatient.setLastName(null);
-
                 createdPatient = patientRepository.saveAndFlush(createdPatient);
             }
 
@@ -171,7 +165,6 @@ public class PatientService {
         }
     }
 
-
     public Patient update(Long id, PatientUpdateDTO dto) {
         LOG.info("[UPDATE] Request to update Patient id={} payload={}", id, dto);
 
@@ -189,18 +182,14 @@ public class PatientService {
         existing.setSecondName(dto.secondName());
         existing.setThirdName(dto.thirdName());
         existing.setLastName(dto.lastName());
-
         existing.setSexAtBirth(dto.sexAtBirth());
         existing.setDateOfBirth(dto.dateOfBirth());
-
         existing.setPatientClasses(dto.patientClasses());
         existing.setIsPrivatePatient(dto.isPrivatePatient());
-
         existing.setFirstNameSecondaryLang(dto.firstNameSecondaryLang());
         existing.setSecondNameSecondaryLang(dto.secondNameSecondaryLang());
         existing.setThirdNameSecondaryLang(dto.thirdNameSecondaryLang());
         existing.setLastNameSecondaryLang(dto.lastNameSecondaryLang());
-
         existing.setPrimaryMobileNumber(dto.primaryMobileNumber());
         existing.setSecondMobileNumber(dto.secondMobileNumber());
         existing.setHomePhone(dto.homePhone());
@@ -209,12 +198,10 @@ public class PatientService {
         existing.setReceiveSms(dto.receiveSms());
         existing.setReceiveEmail(dto.receiveEmail());
         existing.setPreferredWayOfContact(dto.preferredWayOfContact());
-
         existing.setNativeLanguage(dto.nativeLanguage());
         existing.setEmergencyContactName(dto.emergencyContactName());
         existing.setEmergencyContactRelation(dto.emergencyContactRelation());
         existing.setEmergencyContactPhone(dto.emergencyContactPhone());
-
         existing.setRole(dto.role());
         existing.setMaritalStatus(dto.maritalStatus());
         existing.setNationality(dto.nationality());
@@ -223,21 +210,17 @@ public class PatientService {
         existing.setOccupation(dto.occupation());
         existing.setResponsibleParty(dto.responsibleParty());
         existing.setEducationalLevel(dto.educationalLevel());
-
         existing.setPreviousId(dto.previousId());
         existing.setArchivingNumber(dto.archivingNumber());
-
         existing.setDetails(dto.details());
         existing.setIsUnknown(Boolean.TRUE.equals(dto.isUnknown()));
         existing.setIsVerified(Boolean.TRUE.equals(dto.isVerified()));
         existing.setIsCompletedPatient(Boolean.TRUE.equals(dto.isCompletedPatient()));
         existing.setSecurityAccessLevel(dto.securityAccessLevel());
-
         existing.setLastModifiedDate(Instant.now());
 
         try {
             Patient updatedPatient = patientRepository.saveAndFlush(existing);
-
             LOG.info(
                     "Successfully updated patient id={} (medicalRecordNumber='{}')",
                     updatedPatient.getId(), updatedPatient.getMedicalRecordNumber()
@@ -247,13 +230,9 @@ public class PatientService {
         } catch (DataIntegrityViolationException | JpaSystemException exception) {
             LOG.error(
                     "Database constraint violation while updating patient id={}: {}",
-                    id,
-                    exception.getMessage(),
-                    exception
+                    id, exception.getMessage(), exception
             );
-
             handleConstraintsOnCreateOrUpdate(exception);
-
             throw new BadRequestAlertException(
                     "Database constraint violated while updating patient (check required fields or unique constraints).",
                     "patient",
@@ -264,52 +243,36 @@ public class PatientService {
 
     @Transactional(readOnly = true)
     public Page<Patient> findByMedicalRecordNumber(String medicalRecordNumber, Pageable pageable) {
-        LOG.debug(
-                "[FIND BY medicalRecordNumber] Searching patients by medicalRecordNumber='{}' pageable={}",
-                medicalRecordNumber, pageable
-        );
+        LOG.debug("[FIND BY medicalRecordNumber] Searching patients by medicalRecordNumber='{}' pageable={}", medicalRecordNumber, pageable);
         return patientRepository.findByMedicalRecordNumberContainingIgnoreCase(medicalRecordNumber, pageable);
     }
 
     @Transactional(readOnly = true)
     public Page<Patient> findByArchivingNumber(String archivingNumber, Pageable pageable) {
-        LOG.debug(
-                "[FIND BY ARCHIVING] Searching patients by archivingNumber='{}' pageable={}",
-                archivingNumber, pageable
-        );
+        LOG.debug("[FIND BY ARCHIVING] Searching patients by archivingNumber='{}' pageable={}", archivingNumber, pageable);
         return patientRepository.findByArchivingNumberContainingIgnoreCase(archivingNumber, pageable);
     }
 
     @Transactional(readOnly = true)
     public Page<Patient> findByPrimaryPhone(String primaryPhone, Pageable pageable) {
-        LOG.debug(
-                "[FIND BY PHONE] Searching patients by primaryPhone='{}' pageable={}",
-                primaryPhone, pageable
-        );
+        LOG.debug("[FIND BY PHONE] Searching patients by primaryPhone='{}' pageable={}", primaryPhone, pageable);
         return patientRepository.findByPrimaryMobileNumberContaining(primaryPhone, pageable);
     }
 
     @Transactional(readOnly = true)
     public Page<Patient> findByDateOfBirth(LocalDate dateOfBirth, Pageable pageable) {
-        LOG.debug(
-                "[FIND BY DOB] Searching patients by dateOfBirth={} pageable={}",
-                dateOfBirth, pageable
-        );
+        LOG.debug("[FIND BY DOB] Searching patients by dateOfBirth={} pageable={}", dateOfBirth, pageable);
         return patientRepository.findByDateOfBirth(dateOfBirth, pageable);
     }
 
     @Transactional(readOnly = true)
     public Page<Patient> findByFullName(String keyword, Pageable pageable) {
-        LOG.debug(
-                "[FIND BY NAME] Searching patients by keyword='{}' pageable={}",
-                keyword, pageable
-        );
+        LOG.debug("[FIND BY NAME] Searching patients by keyword='{}' pageable={}", keyword, pageable);
         return patientRepository
                 .findByFirstNameContainingIgnoreCaseOrSecondNameContainingIgnoreCaseOrThirdNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
                         keyword, keyword, keyword, keyword, pageable
                 );
     }
-
 
     @Transactional(readOnly = true)
     public Page<Patient> findUnknownPatients(Pageable pageable) {
@@ -329,7 +292,6 @@ public class PatientService {
     public List<Patient> findByIds(List<Long> ids) {
         LOG.debug("[BULK FIND] Fetching Patients by ids count={} ids={}", ids.size(), ids);
         List<Patient> patients = patientRepository.findAllById(ids);
-
         LOG.debug("[BULK FIND] Found Patients count={}", patients.size());
         return patients;
     }
@@ -337,7 +299,6 @@ public class PatientService {
     @Transactional(readOnly = true)
     public Patient findById(Long id) {
         LOG.debug("[FIND BY ID] Fetching Patient id={}", id);
-
         return patientRepository.findById(id)
                 .orElseThrow(() -> {
                     LOG.error("Patient not found with id={}", id);
@@ -385,7 +346,6 @@ public class PatientService {
             );
         }
 
-
         if (lower.contains("medical_record_number") && (lower.contains("null value") || lower.contains("not-null"))) {
             throw new BadRequestAlertException(
                     "medicalRecordNumber was not generated by the database (check entity mapping to allow DB default).",
@@ -400,7 +360,6 @@ public class PatientService {
                 "db.constraint"
         );
     }
-
 
     private Specification<Patient> buildDuplicationSpec(
             Map<String, Boolean> fields,
@@ -417,49 +376,28 @@ public class PatientService {
                     duplicationLookupDTO.dateOfBirth(),
                     duplicationLookupDTO.documentNo()
             );
-
             LOG.debug("Active Rule Fields => {}", fields);
 
             List<Predicate> preds = new ArrayList<>();
 
             if (Boolean.TRUE.equals(fields.get("DOB"))) {
-                LOG.debug("Checking DOB field...");
                 if (duplicationLookupDTO.dateOfBirth() == null) {
-                    LOG.debug("DOB is required by rule but DTO has null → returning disjunction");
                     return criteriaBuilder.disjunction();
                 }
-
-                LOG.debug("Comparing dateOfBirth DB column with value={}", duplicationLookupDTO.dateOfBirth());
-
-                preds.add(
-                        criteriaBuilder.equal(
-                                patientRoot.get("dateOfBirth"),
-                                duplicationLookupDTO.dateOfBirth()
-                        )
-                );
+                preds.add(criteriaBuilder.equal(patientRoot.get("dateOfBirth"), duplicationLookupDTO.dateOfBirth()));
             }
 
             if (Boolean.TRUE.equals(fields.get("GENDER"))) {
-                LOG.debug("Checking GENDER field...");
                 if (duplicationLookupDTO.gender() == null || duplicationLookupDTO.gender().isBlank()) {
-                    LOG.debug("GENDER is required by rule but DTO has blank/null → returning disjunction");
                     return criteriaBuilder.disjunction();
                 }
-
-                LOG.debug("Comparing sexAtBirth with value={}", duplicationLookupDTO.gender().trim());
                 preds.add(criteriaBuilder.equal(patientRoot.get("sexAtBirth"), duplicationLookupDTO.gender().trim()));
             }
 
             if (Boolean.TRUE.equals(fields.get("FIRST_NAME"))) {
-                LOG.debug("Checking FIRST_NAME field...");
                 if (duplicationLookupDTO.firstName() == null || duplicationLookupDTO.firstName().isBlank()) {
-                    LOG.debug("FIRST_NAME is required but DTO empty → returning disjunction");
                     return criteriaBuilder.disjunction();
                 }
-
-                LOG.debug("Comparing firstName (lowercase) with value={}",
-                        duplicationLookupDTO.firstName().trim().toLowerCase());
-
                 preds.add(criteriaBuilder.equal(
                         criteriaBuilder.lower(patientRoot.get("firstName")),
                         duplicationLookupDTO.firstName().trim().toLowerCase()
@@ -467,15 +405,9 @@ public class PatientService {
             }
 
             if (Boolean.TRUE.equals(fields.get("LAST_NAME"))) {
-                LOG.debug("Checking LAST_NAME field...");
                 if (duplicationLookupDTO.lastName() == null || duplicationLookupDTO.lastName().isBlank()) {
-                    LOG.debug("LAST_NAME required but DTO empty → returning disjunction");
                     return criteriaBuilder.disjunction();
                 }
-
-                LOG.debug("Comparing lastName (lowercase) with value={}",
-                        duplicationLookupDTO.lastName().trim().toLowerCase());
-
                 preds.add(criteriaBuilder.equal(
                         criteriaBuilder.lower(patientRoot.get("lastName")),
                         duplicationLookupDTO.lastName().trim().toLowerCase()
@@ -483,15 +415,9 @@ public class PatientService {
             }
 
             if (Boolean.TRUE.equals(fields.get("DOCUMENT_NO"))) {
-                LOG.debug("Checking DOCUMENT_NO field...");
                 if (duplicationLookupDTO.documentNo() == null || duplicationLookupDTO.documentNo().isBlank()) {
-                    LOG.debug("DOCUMENT_NO required but DTO empty → returning disjunction");
                     return criteriaBuilder.disjunction();
                 }
-
-                LOG.debug("Comparing primaryDocumentNumber with value={}",
-                        duplicationLookupDTO.documentNo().trim());
-
                 preds.add(criteriaBuilder.equal(
                         patientRoot.get("primaryDocumentNumber"),
                         duplicationLookupDTO.documentNo().trim()
@@ -504,7 +430,6 @@ public class PatientService {
             return criteriaBuilder.and(preds.toArray(new Predicate[0]));
         };
     }
-
 
     public Page<Patient> findDuplicationCandidates(PatientDuplicationLookupDTO duplicationLookupDTO, Pageable pageable) {
         if (duplicationLookupDTO == null || duplicationLookupDTO.ruleId() == null) {
@@ -527,16 +452,17 @@ public class PatientService {
         return value == null ? "" : value;
     }
 
+    // TODO move this logic to analytic service
     @Transactional(readOnly = true)
     public PatientInformationReportDTO getPatientInformationReport(Long patientId) {
 
         LOG.debug("[PatientReport] GET_PATIENT_INFORMATION_REPORT start patientId={}", patientId);
 
         Patient patient = patientRepository.findById(patientId)
-                .orElseThrow(() -> new BadRequestAlertException(
-                        "notfound",
-                        "patients",
-                        "Patient not found with id " + patientId
+                .orElseThrow(() -> new NotFoundAlertException(
+                        "Patient not found with id " + patientId,
+                        "patient",
+                        "notfound"
                 ));
 
         String fullName = String.join(" ",
@@ -547,7 +473,6 @@ public class PatientService {
         ).trim();
 
         Integer age = null;
-
         if (patient.getDateOfBirth() != null) {
             age = Period.between(
                     patient.getDateOfBirth().toInstant()
@@ -557,7 +482,6 @@ public class PatientService {
             ).getYears();
         }
 
-        // Primary Document
         PatientDocument document = patientDocumentRepository
                 .findFirstByPatientIdAndIsPrimaryTrue(patientId)
                 .orElse(null);
@@ -565,7 +489,6 @@ public class PatientService {
         String documentType = document != null ? document.getType().name() : null;
         String documentNumber = document != null ? document.getNumber() : null;
 
-        // Address
         Address address = addressRepository
                 .findFirstByPatientIdAndIsCurrentTrue(patientId)
                 .orElse(null);
@@ -576,17 +499,14 @@ public class PatientService {
 
         if (address != null) {
             street = address.getStreetName();
-
             if (address.getLocationJson() != null) {
                 if (address.getLocationJson().getArea() != null)
                     city = address.getLocationJson().getArea().getName();
-
                 if (address.getLocationJson().getCountry() != null)
                     country = address.getLocationJson().getCountry().getName();
             }
         }
 
-        // Insurance
         PatientInsurance insurance = patientInsuranceRepository
                 .findFirstByPatientIdAndIsPrimaryTrue(patientId)
                 .orElse(null);
@@ -594,7 +514,6 @@ public class PatientService {
         String insuranceProvider = insurance != null ? String.valueOf(insurance.getPayorId()) : null;
         String policyNumber = insurance != null ? String.valueOf(insurance.getPolicyNumber()) : null;
 
-        // Preferred Professional
         PatientPreferredHealthProfessional preferred =
                 patientPreferredHealthProfessionalRepository
                         .findFirstByPatientId(patientId)
@@ -603,7 +522,6 @@ public class PatientService {
         String preferredDoctor = preferred != null ? String.valueOf(preferred.getPractitionerId()) : null;
 
         return new PatientInformationReportDTO(
-
                 patient.getId(),
                 fullName,
                 patient.getMedicalRecordNumber(),
@@ -611,10 +529,8 @@ public class PatientService {
                 age,
                 patient.getSexAtBirth() != null ? patient.getSexAtBirth().name() : null,
                 null,
-
                 documentType,
                 documentNumber,
-
                 patient.getPrimaryMobileNumber(),
                 patient.getSecondMobileNumber(),
                 patient.getEmail(),
@@ -622,15 +538,12 @@ public class PatientService {
                 city,
                 null,
                 country,
-
                 patient.getEmergencyContactName(),
                 patient.getEmergencyContactRelation(),
                 patient.getEmergencyContactPhone(),
-
                 patient.getCreatedDate(),
                 insuranceProvider,
                 policyNumber,
-
                 preferredDoctor
         );
     }
