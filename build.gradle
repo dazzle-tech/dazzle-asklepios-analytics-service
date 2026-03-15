@@ -15,9 +15,13 @@ version = "0.0.1-SNAPSHOT"
 
 description = ""
 
-sourceCompatibility=17
-targetCompatibility=17
-assert System.properties["java.specification.version"] == "17" || "21" || "24"
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+def v = System.getProperty("java.specification.version")
+assert ["17","21","24"].contains(v) : "Unsupported Java version: ${v}"
 
 ext {
     springProfiles = ""
