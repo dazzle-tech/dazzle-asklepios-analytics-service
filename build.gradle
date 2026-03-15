@@ -6,8 +6,8 @@ plugins {
     id "com.gorylenko.gradle-git-properties"
     alias(libs.plugins.spring.boot)
     id "openapi-generator-conventions"
-//    id "gatling-conventions"
-//    id "code-quality-conventions"
+    // id "gatling-conventions"
+    // id "code-quality-conventions"
 }
 
 group = "com.dazzle.asklepios"
@@ -20,8 +20,9 @@ java {
         languageVersion = JavaLanguageVersion.of(21)
     }
 }
+
 def v = System.getProperty("java.specification.version")
-assert ["17","21","24"].contains(v) : "Unsupported Java version: ${v}"
+assert ["17", "21", "24"].contains(v) : "Unsupported Java version: ${v}"
 
 ext {
     springProfiles = ""
@@ -31,21 +32,14 @@ ext {
     if (project.hasProperty("e2e")) {
         springProfiles += ",e2e"
     }
-    springCloudVersion = "2024.0.1"
+    springBootVersion = "4.0.3"
+    springCloudVersion = "2025.1.1"
 }
 
 repositories {
-    // mavenLocal()
     mavenCentral()
 }
 
-apply plugin: 'io.spring.dependency-management'
-
-dependencyManagement {
-    imports {
-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-    }
-}
 if (project.hasProperty("prod")) {
     apply from: "gradle/profile_prod.gradle"
 } else {
@@ -85,17 +79,17 @@ springBoot {
 test {
     useJUnitPlatform()
     exclude "**/*IT*", "**/*IntTest*"
+    failOnNoDiscoveredTests = false
     testLogging {
-        events 'FAILED', 'SKIPPED'
+        events "FAILED", "SKIPPED"
     }
-    jvmArgs += '-Djava.security.egd=file:/dev/./urandom -Xmx512m'
-    // uncomment if the tests reports are not generated
-    // ignoreFailures true
+    jvmArgs += "-Djava.security.egd=file:/dev/./urandom -Xmx512m"
     reports.html.required = false
     testLogging.exceptionFormat "full"
 }
 
 check.dependsOn integrationTest
+
 task testReport(type: TestReport) {
     destinationDirectory = file("$buildDir/reports/tests")
     testResults.from(test)
@@ -112,59 +106,71 @@ gitProperties {
 }
 
 tasks.withType(com.gorylenko.GenerateGitPropertiesTask).configureEach {
-  outputs.doNotCacheIf("Task is always executed") { true }
+    outputs.doNotCacheIf("Task is always executed") { true }
 }
 
 configurations {
     providedRuntime
-    implementation.exclude module: "spring-boot-starter-tomcat"
 }
 
 dependencies {
-    // --- AWS SDK v2 for DigitalOcean Spaces ---
+    implementation platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+    implementation platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
+
+    compileOnly platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+    annotationProcessor platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+    testImplementation platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+    testRuntimeOnly platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+    developmentOnly platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+    testImplementation platform("org.testcontainers:testcontainers-bom:1.20.4")
+    testRuntimeOnly platform("org.testcontainers:testcontainers-bom:1.20.4")
     implementation platform("software.amazon.awssdk:bom:2.25.40")
+
     implementation "org.springframework.cloud:spring-cloud-starter-openfeign"
     implementation "software.amazon.awssdk:s3"
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
+
+    compileOnly "org.projectlombok:lombok"
+    annotationProcessor "org.projectlombok:lombok"
+
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-hppc"
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+
     testImplementation("com.tngtech.archunit:archunit-junit5-api:${archunitJunit5Version}") {
         exclude group: "org.slf4j", module: "slf4j-api"
     }
     testRuntimeOnly("com.tngtech.archunit:archunit-junit5-engine:${archunitJunit5Version}") {
         exclude group: "org.slf4j", module: "slf4j-api"
     }
-    implementation "io.micrometer:micrometer-registry-prometheus-simpleclient"
+
+    implementation "io.micrometer:micrometer-registry-prometheus"
     implementation "jakarta.annotation:jakarta.annotation-api"
     implementation "org.apache.commons:commons-lang3"
+
     annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
     implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
-    implementation "org.springframework.boot:spring-boot-loader-tools"
+
     implementation "org.springframework.boot:spring-boot-starter-actuator"
-    implementation "org.springframework.boot:spring-boot-starter-aop"
+    implementation "org.springframework:spring-aop"
+    implementation "org.aspectj:aspectjweaver"
     implementation "org.springframework.boot:spring-boot-starter-logging"
     implementation "org.springframework.boot:spring-boot-starter-mail"
     implementation "org.springframework.boot:spring-boot-starter-oauth2-resource-server"
     implementation "org.springframework.boot:spring-boot-starter-security"
-    testImplementation "org.springframework.boot:spring-boot-starter-test"
-    implementation "org.springframework.boot:spring-boot-starter-undertow"
-    modules {
-        module("org.springframework.boot:spring-boot-starter-tomcat") {
-            replacedBy("org.springframework.boot:spring-boot-starter-undertow", "Use Undertow instead of Tomcat")
-        }
-    }
     implementation "org.springframework.boot:spring-boot-starter-validation"
     implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa"
 
-    implementation 'com.fasterxml.jackson.core:jackson-databind'
-
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "org.springframework.boot:spring-boot-test"
+
+    implementation "com.fasterxml.jackson.core:jackson-databind"
     implementation "org.springframework.retry:spring-retry"
+
     implementation libs.jackson.databind.nullable
     implementation libs.springdoc.openapi.starter.webmvc.api
-    implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+
     implementation "org.springframework.security:spring-security-data"
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-hibernate6"
     implementation "com.fasterxml.jackson.module:jackson-module-jaxb-annotations"
@@ -172,18 +178,19 @@ dependencies {
     implementation "org.hibernate.orm:hibernate-core"
     implementation "org.hibernate.validator:hibernate-validator"
     implementation "org.postgresql:postgresql"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jdk8"
     testImplementation "org.testcontainers:jdbc"
     testImplementation "org.testcontainers:junit-jupiter"
     testImplementation "org.testcontainers:testcontainers"
-    implementation 'org.apache.commons:commons-csv:1.10.0'
+
+    implementation "org.apache.commons:commons-csv:1.10.0"
+
     annotationProcessor "org.glassfish.jaxb:jaxb-runtime"
-    annotationProcessor "org.hibernate.orm:hibernate-jpamodelgen"
-}
+    annotationProcessor "org.hibernate.orm:hibernate-processor"}
 
 task cleanResources(type: Delete) {
     delete "build/resources"
 }
-
 
 compileJava.dependsOn processResources
 processResources.dependsOn bootBuildInfo

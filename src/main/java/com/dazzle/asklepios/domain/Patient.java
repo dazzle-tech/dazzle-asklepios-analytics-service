@@ -19,8 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
-
+import org.hibernate.generator.EventType;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -38,7 +37,7 @@ public class Patient extends AbstractAuditingEntity<Long> implements Serializabl
     private Long id;
 
     @Column(name = "medical_record_number", insertable = false, updatable = false)
-    @Generated(GenerationTime.INSERT)
+    @Generated(event = EventType.INSERT)
     private String medicalRecordNumber;
 
     @Column(name = "first_name", length = 100)

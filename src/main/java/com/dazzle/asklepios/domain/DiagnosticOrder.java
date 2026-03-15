@@ -21,8 +21,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
-
+import org.hibernate.generator.EventType;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
@@ -41,7 +40,7 @@ public class DiagnosticOrder extends AbstractAuditingEntity implements Serializa
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Generated(event = EventType.INSERT)
     private Long id;
 
     @NotNull
@@ -65,7 +64,7 @@ public class DiagnosticOrder extends AbstractAuditingEntity implements Serializa
     @Column(name = "status", length = 50)
     private DiagnosticStatus status=DiagnosticStatus.NEW;;
 
-    @Generated(GenerationTime.INSERT)
+    @Generated(event = EventType.INSERT)
     @Column(name = "order_number", nullable = false)
     private Long orderNumber;
 
