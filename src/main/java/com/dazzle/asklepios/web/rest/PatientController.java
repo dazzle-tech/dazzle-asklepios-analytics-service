@@ -29,8 +29,8 @@ public class PatientController {
 
         LOG.debug("[PatientLabel] request patientId={}", id);
 
-        PatientLabelVM dto = patientService.getPatientLabel(id);
+        PatientLabelVM patientLabelVM = patientService.getPatientLabel(id);
 
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.ok(patientLabelVM);
     }
 }
