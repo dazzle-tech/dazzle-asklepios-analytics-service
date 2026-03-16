@@ -172,7 +172,7 @@ dependencies {
     implementation libs.springdoc.openapi.starter.webmvc.api
 
     implementation "org.springframework.security:spring-security-data"
-    implementation "com.fasterxml.jackson.datatype:jackson-datatype-hibernate6"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-hibernate7"
     implementation "com.fasterxml.jackson.module:jackson-module-jaxb-annotations"
     implementation "com.zaxxer:HikariCP"
     implementation "org.hibernate.orm:hibernate-core"
