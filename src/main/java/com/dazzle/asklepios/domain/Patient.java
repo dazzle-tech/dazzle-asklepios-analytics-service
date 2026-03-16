@@ -3,16 +3,13 @@ package com.dazzle.asklepios.domain;
 import com.dazzle.asklepios.domain.enumeration.Gender;
 import com.dazzle.asklepios.domain.enumeration.PreferredWayOfContact;
 import com.dazzle.asklepios.domain.enumeration.SecurityLevel;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.PastOrPresent;
@@ -26,7 +23,6 @@ import org.hibernate.annotations.GenerationTime;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Set;
 
 @Entity
 @Table(name = "patients")
@@ -164,7 +160,7 @@ public class Patient extends AbstractAuditingEntity<Long> implements Serializabl
     private Boolean isCompletedPatient;
 
     @Enumerated(EnumType.STRING)
-    @Column(name="security_access_level")
+    @Column(name = "security_access_level")
     private SecurityLevel securityAccessLevel;
 
     @AssertTrue(message = "When patient is not unknown, firstName, lastName, sexAtBirth, dateOfBirth, primaryMobileNumber and email are required")
