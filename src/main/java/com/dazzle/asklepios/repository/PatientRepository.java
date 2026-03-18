@@ -9,29 +9,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.time.LocalDate;
 import java.util.Optional;
 
-public interface PatientRepository  extends JpaRepository<Patient, Long>,
+public interface PatientRepository extends JpaRepository<Patient, Long>,
         JpaSpecificationExecutor<Patient> {
 
-
-    Page<Patient> findByMedicalRecordNumberContainingIgnoreCase(String medicalRecordNumber, Pageable pageable);
-
-    Page<Patient> findByArchivingNumberContainingIgnoreCase(String archivingNumber, Pageable pageable);
-
-    Page<Patient> findByPrimaryMobileNumberContaining(String primaryPhoneNumber, Pageable pageable);
-
-    Page<Patient> findByDateOfBirth(LocalDate dateOfBirth, Pageable pageable);
-
-    Page<Patient>
-    findByFirstNameContainingIgnoreCaseOrSecondNameContainingIgnoreCaseOrThirdNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
-            String firstName,
-            String secondName,
-            String thirdName,
-            String lastName,
-            Pageable pageable
-    );
-
-    Page<Patient> findByIsUnknownTrue(Pageable pageable);
-
-    Optional<Patient> findByPreviousId(String previousId);
 
 }

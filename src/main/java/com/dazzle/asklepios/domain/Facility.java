@@ -19,7 +19,6 @@ import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -49,7 +48,6 @@ public class Facility extends AbstractAuditingEntity<Long> implements Serializab
     @Column(nullable = false, length = 50)
     private String code;
 
-    private LocalDate registrationDate;
 
     @Column(length = 100)
     private String emailAddress;

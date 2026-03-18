@@ -19,46 +19,4 @@ import java.util.List;
 public interface DiagnosticOrderTestRepository extends JpaRepository<DiagnosticOrderTest, Long>,
         JpaSpecificationExecutor<DiagnosticOrderTest> {
 
-    Page<DiagnosticOrderTest> findByOrderId(Long orderId, Pageable pageable);
-
-    Page<DiagnosticOrderTest> findByOrderIdAndStatus(Long orderId, DiagnosticOrderTestStatus status, Pageable pageable);
-
-    Page<DiagnosticOrderTest> findByOrderIdAndStatusNotIn(Long orderId, Collection<DiagnosticOrderTestStatus> statuses, Pageable pageable);
-
-    @Query("""
-            select distinct t.processingStatus
-            from DiagnosticOrderTest t
-            where t.orderId = :orderId
-              and t.orderType = :type
-              and t.status <> com.dazzle.asklepios.domain.enumeration.DiagnosticOrderTestStatus.CANCELLED
-            """)
-    List<DiagnosticStatus> findDistinctProcessingStatuses(Long orderId, TestType type);
-
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("""
-    update DiagnosticOrderTest t
-       set t.status = :newStatus
-     where t.orderId = :orderId
-       and t.status <> com.dazzle.asklepios.domain.enumeration.DiagnosticOrderTestStatus.CANCELLED
-""")
-    int bulkUpdateStatusForOrder(Long orderId, DiagnosticOrderTestStatus newStatus);
-
-
-    boolean existsByOrderIdAndTestIdAndStatusNot(Long orderId, Long testId, DiagnosticOrderTestStatus status);
-
-    boolean existsByOrderIdAndTestIdAndIdNotAndStatusNot(@NotNull Long aLong, @NotNull Long aLong1, Long id, DiagnosticOrderTestStatus status);
-
-    @Query("""
-        select t.id
-        from DiagnosticOrderTest t
-        where t.orderId in :orderIds
-    """)
-    List<Long> findIdsByOrderIdIn(List<Long> orderIds);
-
-    @Query("""
-        select t.id, t.orderId
-        from DiagnosticOrderTest t
-        where t.id in :orderTestIds
-    """)
-    List<Object[]> findIdAndOrderIdByIdIn(List<Long> orderTestIds);
 }

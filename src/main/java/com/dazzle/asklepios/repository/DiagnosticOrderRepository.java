@@ -15,24 +15,6 @@ import java.util.List;
 @Repository
 public interface DiagnosticOrderRepository extends JpaRepository<DiagnosticOrder, Long>  , JpaSpecificationExecutor<DiagnosticOrder> {
 
-    Page<DiagnosticOrder> findByEncounterId(Long encounterId, Pageable pageable);
 
-    Page<DiagnosticOrder> findByPatient_Id(Long patientId, Pageable pageable);
-
-    Page<DiagnosticOrder> findByPatient_IdAndEncounterId(Long patientId, Long encounterId, Pageable pageable);
-
-    Page<DiagnosticOrder> findByEncounterIdAndStatus(Long encounterId, DiagnosticStatus status, Pageable pageable);
-
-    Page<DiagnosticOrder> findByPatient_IdAndStatus(Long patientId, DiagnosticStatus status, Pageable pageable);
-
-    Page<DiagnosticOrder> findByPatient_IdAndEncounterIdAndStatus(Long patientId, Long encounterId, DiagnosticStatus status, Pageable pageable);
-
-    @Query("""
-        select o.id
-        from DiagnosticOrder o
-        where o.patientId = :patientId
-          and o.createdDate between :from and :to
-    """)
-    List<Long> findIdsByPatientIdAndCreatedDateBetween(Long patientId, Instant from, Instant to);
 
 }
