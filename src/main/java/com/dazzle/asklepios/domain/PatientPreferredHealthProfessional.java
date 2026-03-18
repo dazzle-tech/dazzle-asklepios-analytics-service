@@ -43,6 +43,10 @@ public class PatientPreferredHealthProfessional extends AbstractAuditingEntity<L
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "practitioner_id", insertable = false, updatable = false)
+    private Practitioner practitioner;
+
     @NotNull
     @Column(name = "practitioner_id", nullable = false)
     private Long practitionerId;

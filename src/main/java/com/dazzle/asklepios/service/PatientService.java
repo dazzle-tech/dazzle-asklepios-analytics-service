@@ -6,12 +6,13 @@ import com.dazzle.asklepios.domain.Patient;
 import com.dazzle.asklepios.domain.PatientDocument;
 import com.dazzle.asklepios.domain.PatientInsurance;
 import com.dazzle.asklepios.domain.PatientPreferredHealthProfessional;
-import com.dazzle.asklepios.repository.AddressRepository;
+import com.dazzle.asklepios.domain.Practitioner;
 import com.dazzle.asklepios.repository.DuplicationCandidateRepository;
 import com.dazzle.asklepios.repository.PatientDocumentRepository;
 import com.dazzle.asklepios.repository.PatientInsuranceRepository;
 import com.dazzle.asklepios.repository.PatientPreferredHealthProfessionalRepository;
 import com.dazzle.asklepios.repository.PatientRepository;
+import com.dazzle.asklepios.repository.PractitionersRepository;
 import com.dazzle.asklepios.service.dto.patient.PatientCreateDTO;
 import com.dazzle.asklepios.service.dto.patient.PatientDuplicationLookupDTO;
 import com.dazzle.asklepios.service.dto.patient.PatientInformationReportDTO;
@@ -38,6 +39,8 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCause;
 
@@ -50,24 +53,42 @@ public class PatientService {
     private final PatientRepository patientRepository;
     private final PatientDocumentRepository patientDocumentRepository;
     private final DuplicationCandidateRepository duplicationCandidateRepository;
-    private final AddressRepository addressRepository;
+    private final AddressService addressService;
     private final PatientInsuranceRepository patientInsuranceRepository;
     private final PatientPreferredHealthProfessionalRepository patientPreferredHealthProfessionalRepository;
+    private final PractitionersRepository practitionersRepository;
+
 
     public PatientService(
             PatientRepository patientRepository,
             PatientDocumentRepository patientDocumentRepository,
             DuplicationCandidateRepository duplicationCandidateRepository,
-            AddressRepository addressRepository,
             PatientInsuranceRepository patientInsuranceRepository,
-            PatientPreferredHealthProfessionalRepository patientPreferredHealthProfessionalRepository
+            PatientPreferredHealthProfessionalRepository patientPreferredHealthProfessionalRepository,
+            PractitionersRepository practitionersRepository,
+            AddressService addressService
+
+
     ) {
         this.patientRepository = patientRepository;
         this.patientDocumentRepository = patientDocumentRepository;
         this.duplicationCandidateRepository = duplicationCandidateRepository;
-        this.addressRepository = addressRepository;
-        this.patientInsuranceRepository = patientInsuranceRepository;
+       this.patientInsuranceRepository = patientInsuranceRepository;
         this.patientPreferredHealthProfessionalRepository = patientPreferredHealthProfessionalRepository;
+        this.practitionersRepository = practitionersRepository;
+        this.addressService = addressService; // 👈
+
+    }
+
+    private String resolveRelationshipDisplay(String code) {
+        try {
+
+            return code;
+
+        } catch (Exception e) {
+            LOG.warn("Failed to resolve relationship display for code={}", code);
+            return code;
+        }
     }
 
     public Patient create(PatientCreateDTO dto) {
@@ -472,6 +493,8 @@ public class PatientService {
 
         LOG.debug("[PatientReport] GET_PATIENT_INFORMATION_REPORT start patientId={}", patientId);
 
+        /* ===================== 1. Patient ===================== */
+
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new NotFoundAlertException(
                         "Patient not found with id " + patientId,
@@ -496,6 +519,12 @@ public class PatientService {
             ).getYears();
         }
 
+        String gender = patient.getSexAtBirth() != null
+                ? patient.getSexAtBirth().name()
+                : null;
+
+        /* ===================== 2. Document ===================== */
+
         PatientDocument document = patientDocumentRepository
                 .findFirstByPatientIdAndIsPrimaryTrue(patientId)
                 .orElse(null);
@@ -503,57 +532,108 @@ public class PatientService {
         String documentType = document != null ? document.getType().name() : null;
         String documentNumber = document != null ? document.getNumber() : null;
 
-        Address address = addressRepository
-                .findFirstByPatientIdAndIsCurrentTrue(patientId)
-                .orElse(null);
+        /* ===================== 3. Address ===================== */
 
-        String street = null;
+        Address address = null;
+
+        try {
+            address = addressService.findCurrentByPatient(patientId);
+        } catch (Exception e) {
+            address = null;
+        }
+
         String city = null;
+        String state = null;
         String country = null;
 
-        if (address != null) {
-            street = address.getStreetName();
-            if (address.getLocationJson() != null) {
-                if (address.getLocationJson().getArea() != null)
-                    city = address.getLocationJson().getArea().getName();
-                if (address.getLocationJson().getCountry() != null)
-                    country = address.getLocationJson().getCountry().getName();
+        if (address != null && address.getLocationJson() != null) {
+
+            var location = address.getLocationJson();
+
+            // City = Area
+            if (location.getArea() != null) {
+                city = location.getArea().getName();
+            }
+
+            // State = District
+            if (location.getDistrict() != null) {
+                state = location.getDistrict().getName();
+            }
+
+            // Country
+            if (location.getCountry() != null) {
+                country = location.getCountry().getName();
             }
         }
+
+        // الشكل النهائي للعرض
+        String cityStateCountry = Stream.of(city, state, country)
+                .filter(v -> v != null && !v.isBlank())
+                .collect(Collectors.joining(" / "));
+
+        /* ===================== 4. Insurance ===================== */
+
+        String insuranceProvider = null;
+        String policyNumber = null;
 
         PatientInsurance insurance = patientInsuranceRepository
                 .findFirstByPatientIdAndIsPrimaryTrue(patientId)
                 .orElse(null);
 
-        String insuranceProvider = insurance != null ? String.valueOf(insurance.getPayorId()) : null;
-        String policyNumber = insurance != null ? String.valueOf(insurance.getPolicyNumber()) : null;
+        if (insurance != null) {
+            policyNumber = String.valueOf(insurance.getPolicyNumber());
+
+            if (insurance.getPayor() != null) {
+                insuranceProvider = insurance.getPayor().getName();
+            }
+        }
+
+        /* ===================== 5. Preferred Doctor ===================== */
+
+        String preferredDoctor = null;
 
         PatientPreferredHealthProfessional preferred =
                 patientPreferredHealthProfessionalRepository
                         .findFirstByPatientId(patientId)
                         .orElse(null);
 
-        String preferredDoctor = preferred != null ? String.valueOf(preferred.getPractitionerId()) : null;
+        if (preferred != null) {
+            Practitioner p = practitionersRepository
+                    .findById(preferred.getPractitionerId())
+                    .orElse(null);
+
+            if (p != null) {
+                preferredDoctor = p.getFirstName() + " " + p.getLastName();
+            }
+        }
+
+        /* ===================== 6. Emergency Contact ===================== */
+
+        String relationship = patient.getEmergencyContactRelation();
+
+        /* ===================== 7. DTO ===================== */
 
         return new PatientInformationReportDTO(
                 patient.getId(),
                 fullName,
                 patient.getMedicalRecordNumber(),
-                patient.getDateOfBirth().toInstant(),
+                patient.getDateOfBirth() != null ? patient.getDateOfBirth().toInstant() : null,
                 age,
-                patient.getSexAtBirth() != null ? patient.getSexAtBirth().name() : null,
+                gender,
                 null,
+
                 documentType,
                 documentNumber,
                 patient.getPrimaryMobileNumber(),
                 patient.getSecondMobileNumber(),
                 patient.getEmail(),
-                street,
-                city,
-                null,
-                country,
+
+                cityStateCountry, // 👈 city
+                null,             // 👈 state (ما بدناها)
+                country,          // 👈 country
+
                 patient.getEmergencyContactName(),
-                patient.getEmergencyContactRelation(),
+                relationship,
                 patient.getEmergencyContactPhone(),
                 patient.getCreatedDate(),
                 insuranceProvider,

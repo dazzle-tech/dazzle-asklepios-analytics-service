@@ -1,7 +1,6 @@
 package com.dazzle.asklepios.service.dto.patient;
 
 import java.time.Instant;
-
 public record PatientInformationReportDTO(
 
         Long patientId,
@@ -18,7 +17,6 @@ public record PatientInformationReportDTO(
         String mobileNumber,
         String secondaryPhone,
         String email,
-        String address,
         String city,
         String state,
         String country,

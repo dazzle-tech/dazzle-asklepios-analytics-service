@@ -2,6 +2,7 @@ package com.dazzle.asklepios.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -35,6 +36,10 @@ public class PatientInsurance extends AbstractAuditingEntity<Long> {
     @ManyToOne(optional = false)
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payor_id", insertable = false, updatable = false)
+    private Payor payor;
 
     @NotNull
     @Column(name = "payor_id", nullable = false)

@@ -1,0 +1,16 @@
+package com.dazzle.asklepios.domain.enumeration;
+
+public enum Specialty {
+    RESIDENT_DOCTOR,
+    GENERAL_PRACTITIONER,
+    EMERGENCY_ROOM_DOCTOR,
+    SPECIALIST,
+    NURSE_PRACTITIONER,
+    ICU_NURSE,
+    EMERGENCY_ROOM_NURSE,
+    CHIEF_NURSING_OFFICER,
+    CLINICAL_PHARMACIST,
+    PHARMACY_TECHNICIAN,
+    CHIEF_PHARMACIST
+
+    }
