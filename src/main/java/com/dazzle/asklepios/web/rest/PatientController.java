@@ -405,15 +405,6 @@ public class PatientController {
         Patient patient = patientService.findById(id);
         return ResponseEntity.ok(patient);
     }
-
-    @GetMapping("/label/{id}")
-    public ResponseEntity<PatientLabelDTO> getPatientLabel(@PathVariable Long id) {
-
-        LOG.debug("[PatientLabel] request patientId={}", id);
-
-        PatientLabelDTO dto = patientService.getPatientLabel(id);
-
-        return ResponseEntity.ok(dto);
-    }
+    
 }
 
