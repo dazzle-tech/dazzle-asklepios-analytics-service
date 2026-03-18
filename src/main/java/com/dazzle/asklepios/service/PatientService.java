@@ -627,9 +627,11 @@ public class PatientService {
                 patient.getPrimaryMobileNumber(),
                 patient.getSecondMobileNumber(),
                 patient.getEmail(),
-                cityStateCountry,
-                null,
-                null,
+
+                city,
+                state,
+                country,
+
                 patient.getEmergencyContactName(),
                 relationship,
                 patient.getEmergencyContactPhone(),
