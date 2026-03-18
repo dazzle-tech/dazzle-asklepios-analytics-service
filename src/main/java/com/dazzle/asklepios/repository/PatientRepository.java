@@ -31,7 +31,6 @@ public interface PatientRepository  extends JpaRepository<Patient, Long>,
     );
 
     Page<Patient> findByIsUnknownTrue(Pageable pageable);
-    Page<Patient> findDistinctByPatientDocuments_NumberContainingIgnoreCase(String numberPart, Pageable pageable);
     Optional<Patient> findByPreviousId(String previousId);
 
 }
