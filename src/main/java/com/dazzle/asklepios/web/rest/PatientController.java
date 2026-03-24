@@ -1,7 +1,7 @@
 package com.dazzle.asklepios.web.rest;
 
 import com.dazzle.asklepios.service.PatientService;
-import com.dazzle.asklepios.web.rest.vm.PatientLabelVM;
+import com.dazzle.asklepios.service.dto.patientLabel.PatientLabelDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -25,12 +25,12 @@ public class PatientController {
 
 
     @GetMapping("/label/{id}")
-    public ResponseEntity<PatientLabelVM> getPatientLabel(@PathVariable Long id) {
+    public ResponseEntity<PatientLabelDTO> getPatientLabel(@PathVariable Long id) {
 
         LOG.debug("[PatientLabel] request patientId={}", id);
 
-        PatientLabelVM patientLabelVM = patientService.getPatientLabel(id);
+        PatientLabelDTO patientLabelDTO = patientService.getPatientLabel(id);
 
-        return ResponseEntity.ok(patientLabelVM);
+        return ResponseEntity.ok(patientLabelDTO);
     }
 }

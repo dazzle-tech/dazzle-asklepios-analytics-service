@@ -3,8 +3,8 @@ package com.dazzle.asklepios.service;
 
 import com.dazzle.asklepios.domain.Patient;
 import com.dazzle.asklepios.repository.PatientRepository;
+import com.dazzle.asklepios.service.dto.patientLabel.PatientLabelDTO;
 import com.dazzle.asklepios.web.rest.errors.NotFoundAlertException;
-import com.dazzle.asklepios.web.rest.vm.PatientLabelVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ public class PatientService {
 
     // TODO move this logic to analytic service
     @Transactional(readOnly = true)
-    public PatientLabelVM getPatientLabel(Long patientId) {
+    public PatientLabelDTO getPatientLabel(Long patientId) {
 
         LOG.debug("[PatientLabelService] GET_PATIENT_LABEL start patientId={}", patientId);
 
@@ -56,7 +56,7 @@ public class PatientService {
             ).getYears();
         }
 
-        return new PatientLabelVM(
+        return new PatientLabelDTO(
                 patient.getId(),
                 fullName,
                 patient.getMedicalRecordNumber(),
