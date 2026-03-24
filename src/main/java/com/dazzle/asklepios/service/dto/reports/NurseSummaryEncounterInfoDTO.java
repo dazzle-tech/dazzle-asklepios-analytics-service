@@ -12,8 +12,8 @@ public record NurseSummaryEncounterInfoDTO(
         String priority,
         String status,
         String chiefComplaint,
-        Long facilityId,
-        Long departmentId,
+        String facilityName,
+        String departmentName,
         Instant createdDate
 ) {
 }

@@ -2,6 +2,7 @@ package com.dazzle.asklepios.service;
 
 import com.dazzle.asklepios.domain.AdditionalMeasurements;
 import com.dazzle.asklepios.domain.BodyMeasurements;
+import com.dazzle.asklepios.domain.Department;
 import com.dazzle.asklepios.domain.EncounterVaccination;
 import com.dazzle.asklepios.domain.Patient;
 import com.dazzle.asklepios.domain.PatientAllergies;
@@ -13,9 +14,10 @@ import com.dazzle.asklepios.domain.VitalSigns;
 import com.dazzle.asklepios.domain.enumeration.EncounterVaccinationStatus;
 import com.dazzle.asklepios.domain.enumeration.PatientAllergyStatus;
 import com.dazzle.asklepios.domain.enumeration.PatientWarningStatus;
+import com.dazzle.asklepios.repository.DepartmentsRepository;
 import com.dazzle.asklepios.repository.EncounterVaccinationRepository;
-//import com.dazzle.asklepios.repository.PatientAllergiesRepository;
 import com.dazzle.asklepios.repository.PatientAllergiesRepository;
+import com.dazzle.asklepios.repository.PatientEncounterRepository;
 import com.dazzle.asklepios.repository.PatientServiceAndProductRepository;
 import com.dazzle.asklepios.repository.PatientWarningsRepository;
 import com.dazzle.asklepios.service.dto.reports.NurseSummaryAdditionalMeasurementsDTO;
@@ -54,12 +56,12 @@ public class NurseSummaryReportService {
     private final VitalSignsService vitalSignsService;
     private final BodyMeasurementsService bodyMeasurementsService;
     private final AdditionalMeasurementsService additionalMeasurementsService;
-
+    private final DepartmentsRepository departmentsRepository;
     private final PatientAllergiesRepository patientAllergiesRepository;
     private final PatientWarningsRepository patientWarningsRepository;
     private final EncounterVaccinationRepository encounterVaccinationRepository;
     private final PatientServiceAndProductRepository patientServiceAndProductRepository;
-
+    private final PatientEncounterRepository encounterRepository;
     public NurseSummaryReportDTO getNurseSummaryReport(Long encounterId) {
         LOG.debug("[NURSE_SUMMARY] start encounterId={}", encounterId);
 
@@ -159,20 +161,50 @@ public class NurseSummaryReportService {
     }
 
     private NurseSummaryEncounterInfoDTO mapEncounter(PatientEncounter encounter) {
+
+        // ✅ نفس Radiology: نجيب encounter fresh من DB
+        PatientEncounter freshEncounter = encounterRepository.findById(encounter.getId())
+                .orElseThrow(() -> new NotFoundAlertException(
+                        "Encounter not found with id " + encounter.getId(),
+                        "patientEncounters",
+                        "notfound"
+                ));
+
+        Department department = departmentsRepository.findById(freshEncounter.getDepartmentId())
+                .orElseThrow(() -> new NotFoundAlertException(
+                        "Department not found with id " + freshEncounter.getDepartmentId(),
+                        "departments",
+                        "notfound"
+                ));
+
+        String facilityName = department.getFacility() != null
+                ? department.getFacility().getName()
+                : null;
+
+        String departmentName = department.getName();
+
+        System.out.println("Department: " + department);
+        System.out.println("Facility: " + department.getFacility());
+        System.out.println("Facility Name: " + department.getFacility().getName());
+        System.out.println("Department Name: " + department.getName());
         return new NurseSummaryEncounterInfoDTO(
-                encounter.getId(),
-                encounter.getEncounterNumber(),
-                encounter.getEncounterDate(),
-                encounter.getEncounterType() != null ? encounter.getEncounterType().name() : null,
-                encounter.getEncounterReason() != null ? encounter.getEncounterReason().name() : null,
-                encounter.getPriorityLevel() != null ? encounter.getPriorityLevel().name() : null,
-                encounter.getStatus() != null ? encounter.getStatus().name() : null,
-                encounter.getChiefComplaint(),
-                encounter.getFacilityId(),
-                encounter.getDepartmentId(),
-                encounter.getCreatedDate()
+                freshEncounter.getId(),
+                freshEncounter.getEncounterNumber(),
+                freshEncounter.getEncounterDate(),
+                freshEncounter.getEncounterType() != null ? freshEncounter.getEncounterType().name() : null,
+                freshEncounter.getEncounterReason() != null ? freshEncounter.getEncounterReason().name() : null,
+                freshEncounter.getPriorityLevel() != null ? freshEncounter.getPriorityLevel().name() : null,
+                freshEncounter.getStatus() != null ? freshEncounter.getStatus().name() : null,
+                freshEncounter.getChiefComplaint(),
+                facilityName,
+                departmentName,
+                freshEncounter.getCreatedDate()
         );
+
+
+
     }
+
 
     private NurseSummaryObservationDTO mapObservation(PatientObservationsComplaints entity) {
         return new NurseSummaryObservationDTO(
