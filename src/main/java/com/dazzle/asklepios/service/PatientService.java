@@ -17,6 +17,7 @@ import com.dazzle.asklepios.service.dto.patient.PatientCreateDTO;
 import com.dazzle.asklepios.service.dto.patient.PatientDuplicationLookupDTO;
 import com.dazzle.asklepios.service.dto.patient.PatientInformationReportDTO;
 import com.dazzle.asklepios.service.dto.patient.PatientUpdateDTO;
+import com.dazzle.asklepios.service.dto.patient.PatientWristbandDTO;
 import com.dazzle.asklepios.service.dto.patient.UnknownPatientCreateDTO;
 import com.dazzle.asklepios.web.rest.errors.BadRequestAlertException;
 import com.dazzle.asklepios.web.rest.errors.NotFoundAlertException;
@@ -33,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -642,5 +644,33 @@ public class PatientService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public PatientWristbandDTO getPatientWristband(Long patientId) {
 
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new NotFoundAlertException("Patient not found", "patient", "notfound"));
+
+        String fullName = (patient.getFirstName() + " " + patient.getLastName()).trim();
+
+        // TODO: replace with real data
+        String allergy = "No Allergy";
+        String bloodGroup = "O+";
+        LocalDateTime admission = LocalDateTime.now();
+        String facility = "Asklepios Hospital";
+
+        return new PatientWristbandDTO(
+                fullName,
+                patient.getMedicalRecordNumber(),
+                patient.getDateOfBirth(),
+                patient.getSexAtBirth() != null ? patient.getSexAtBirth().name() : null,
+
+                patient.getMedicalRecordNumber(), // barcode
+                patient.getId().toString(),       // QR
+
+                allergy,
+                bloodGroup,
+                admission,
+                facility
+        );
+    }
 }

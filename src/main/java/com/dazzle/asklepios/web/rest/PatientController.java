@@ -6,6 +6,7 @@ import com.dazzle.asklepios.service.dto.patient.PatientCreateDTO;
 import com.dazzle.asklepios.service.dto.patient.PatientDuplicationLookupDTO;
 import com.dazzle.asklepios.service.dto.patient.PatientInformationReportDTO;
 import com.dazzle.asklepios.service.dto.patient.PatientUpdateDTO;
+import com.dazzle.asklepios.service.dto.patient.PatientWristbandDTO;
 import com.dazzle.asklepios.service.dto.patient.UnknownPatientCreateDTO;
 import com.dazzle.asklepios.web.rest.Helper.PaginationUtil;
 import com.dazzle.asklepios.web.rest.errors.BadRequestAlertException;
@@ -418,6 +419,13 @@ public class PatientController {
                 patientService.getPatientInformationReport(patientId);
 
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/{patientId}/wristband")
+    public ResponseEntity<PatientWristbandDTO> getPatientWristband(
+            @PathVariable Long patientId
+    ) {
+        return ResponseEntity.ok(patientService.getPatientWristband(patientId));
     }
 }
 
