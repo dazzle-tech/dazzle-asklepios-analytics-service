@@ -1,7 +1,7 @@
 package com.dazzle.asklepios.web.rest;
 
 import com.dazzle.asklepios.service.DiagnosticOrderTestReportService;
-import com.dazzle.asklepios.web.rest.vm.RadiologyReportVM;
+import com.dazzle.asklepios.service.dto.RadiologyReportDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -25,11 +25,11 @@ public class DiagnosticOrderTestReportController {
     }
 
     @GetMapping("/radiology-reports/{reportId}")
-    public ResponseEntity<RadiologyReportVM> getRadiologyReport(@PathVariable Long reportId) {
+    public ResponseEntity<RadiologyReportDTO> getRadiologyReport(@PathVariable Long reportId) {
 
         LOG.debug("[RadiologyReportResource] GET_RADIOLOGY_REPORT - start. reportId={}", reportId);
 
-        RadiologyReportVM report = reportService.getRadiologyReport(reportId);
+        RadiologyReportDTO report = reportService.getRadiologyReport(reportId);
 
         LOG.debug("[RadiologyReportResource] GET_RADIOLOGY_REPORT - completed. reportId={}", reportId);
 

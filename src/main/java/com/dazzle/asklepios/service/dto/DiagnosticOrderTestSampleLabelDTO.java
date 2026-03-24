@@ -1,9 +1,9 @@
-package com.dazzle.asklepios.web.rest.vm;
+package com.dazzle.asklepios.service.dto;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
-public record DiagnosticOrderTestSampleLabelVM(
+public record DiagnosticOrderTestSampleLabelDTO(
         Long orderTestId,
         String patientName,
         String facilityName,

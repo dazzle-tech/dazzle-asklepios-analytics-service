@@ -1,9 +1,9 @@
-package com.dazzle.asklepios.web.rest.vm;
+package com.dazzle.asklepios.service.dto;
 
 import com.dazzle.asklepios.domain.enumeration.Gender;
 import java.util.Date;
 
-public record RadiologyReportVM(
+public record RadiologyReportDTO(
         String facilityName,
         String departmentName,
 

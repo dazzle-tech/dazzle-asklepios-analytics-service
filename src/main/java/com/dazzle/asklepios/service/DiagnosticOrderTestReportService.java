@@ -15,7 +15,7 @@ import com.dazzle.asklepios.repository.DiagnosticTestRepository;
 import com.dazzle.asklepios.repository.PatientEncounterRepository;
 import com.dazzle.asklepios.repository.PatientRepository;
 import com.dazzle.asklepios.web.rest.errors.BadRequestAlertException;
-import com.dazzle.asklepios.web.rest.vm.RadiologyReportVM;
+import com.dazzle.asklepios.service.dto.RadiologyReportDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -80,7 +80,7 @@ public class DiagnosticOrderTestReportService {
                 period.getDays() + " Days";
     }
 
-    public RadiologyReportVM getRadiologyReport(Long diagnosticTestReportId) {
+    public RadiologyReportDTO getRadiologyReport(Long diagnosticTestReportId) {
 
         LOG.debug("[RadiologyReportService] GET_RADIOLOGY_REPORT - start. reportId={}", diagnosticTestReportId);
 
@@ -160,7 +160,7 @@ public class DiagnosticOrderTestReportService {
                 test.getName()
         );
 
-        return new RadiologyReportVM(
+        return new RadiologyReportDTO(
                 facilityName,
                 departmentName,
 
