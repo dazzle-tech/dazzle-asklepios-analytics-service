@@ -45,6 +45,9 @@ public class Patient extends AbstractAuditingEntity<Long> implements Serializabl
     @Generated(GenerationTime.INSERT)
     private String medicalRecordNumber;
 
+    @OneToMany(mappedBy = "patient", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<PatientDocument> patientDocuments;
 
     @Column(name = "first_name", length = 100)
     private String firstName;

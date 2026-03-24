@@ -10,7 +10,4 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 public interface PatientRepository extends JpaRepository<Patient, Long>,
-        JpaSpecificationExecutor<Patient> {
-
-
-}
+        JpaSpecificationExecutor<Patient> { }
