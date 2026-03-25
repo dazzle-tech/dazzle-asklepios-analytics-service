@@ -167,7 +167,7 @@ public class Patient extends AbstractAuditingEntity<Long> implements Serializabl
     private Boolean isCompletedPatient;
 
     @Enumerated(EnumType.STRING)
-    @Column(name="security_access_level")
+    @Column(name = "security_access_level")
     private SecurityLevel securityAccessLevel;
 
     @AssertTrue(message = "When patient is not unknown, firstName, lastName, sexAtBirth, dateOfBirth, primaryMobileNumber and email are required")
