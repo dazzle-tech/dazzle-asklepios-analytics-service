@@ -1,9 +1,8 @@
 package com.dazzle.asklepios.config;
 
-import jakarta.servlet.*;
+import jakarta.servlet.ServletContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.web.server.*;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,7 +48,7 @@ public class WebConfigurer implements ServletContextInitializer {
         CorsConfiguration config = new CorsConfiguration();
 
         if (StringUtils.hasText(corsConfigProperties.getAllowedOrigins()) ||
-            StringUtils.hasText(corsConfigProperties.getAllowedOriginPatterns())) {
+                StringUtils.hasText(corsConfigProperties.getAllowedOriginPatterns())) {
 
             if (StringUtils.hasText(corsConfigProperties.getAllowedOrigins())) {
                 config.setAllowedOrigins(Arrays.asList(corsConfigProperties.getAllowedOrigins().split(",")));
@@ -73,7 +72,7 @@ public class WebConfigurer implements ServletContextInitializer {
                 source.registerCorsConfiguration("/swagger-ui/**", config);
             }
         }
-            return new CorsFilter(source);
-        }
+        return new CorsFilter(source);
     }
+}
 
