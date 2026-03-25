@@ -44,6 +44,7 @@ public class Patient extends AbstractAuditingEntity<Long> implements Serializabl
     @Column(name = "medical_record_number", insertable = false, updatable = false)
     @Generated(GenerationTime.INSERT)
     private String medicalRecordNumber;
+
     @OneToMany(mappedBy = "patient", fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<PatientDocument> patientDocuments;
