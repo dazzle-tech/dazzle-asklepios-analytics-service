@@ -43,9 +43,10 @@ public class PatientDiagnosis extends AbstractAuditingEntity<Long> implements Se
     @Column(name = "encounter_id", nullable = false)
     private Long encounterId;
 
-    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "diagnosis_id", nullable = false)
-    private Long diagnosisId;
+    @NotNull
+    private ICDDiagnosis diagnosis;
 
     @NotNull
     @Enumerated(EnumType.STRING)

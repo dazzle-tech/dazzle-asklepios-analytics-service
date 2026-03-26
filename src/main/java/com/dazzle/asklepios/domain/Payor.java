@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -16,9 +17,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.io.Serializable;
 import java.time.LocalDate;
+
 
 @Entity
 @Getter
@@ -28,6 +29,7 @@ import java.time.LocalDate;
 @Builder
 @EqualsAndHashCode(callSuper = false)
 @Table(name = "payor")
+
 public class Payor extends AbstractAuditingEntity<Long> implements Serializable {
 
     @Id
@@ -98,4 +100,5 @@ public class Payor extends AbstractAuditingEntity<Long> implements Serializable 
     @NotNull
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
+
 }

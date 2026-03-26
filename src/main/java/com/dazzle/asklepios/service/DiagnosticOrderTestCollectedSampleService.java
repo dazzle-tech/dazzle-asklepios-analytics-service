@@ -13,7 +13,7 @@ import com.dazzle.asklepios.repository.DiagnosticOrderTestRepository;
 import com.dazzle.asklepios.repository.DiagnosticTestRepository;
 import com.dazzle.asklepios.repository.PatientRepository;
 import com.dazzle.asklepios.web.rest.errors.BadRequestAlertException;
-import com.dazzle.asklepios.web.rest.vm.DiagnosticOrderTestSampleLabelVM;
+import com.dazzle.asklepios.service.dto.DiagnosticOrderTestSampleLabelDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -44,7 +44,7 @@ public class DiagnosticOrderTestCollectedSampleService {
     }
 
 
-    public DiagnosticOrderTestSampleLabelVM getSampleLabel(Long orderTestId) {
+    public DiagnosticOrderTestSampleLabelDTO getSampleLabel(Long orderTestId) {
 
         LOG.debug("[SampleLabelService] GET_SAMPLE_LABEL - start. orderTestId={}", orderTestId);
 
@@ -110,7 +110,7 @@ public class DiagnosticOrderTestCollectedSampleService {
                 test.getName()
         );
 
-        return new DiagnosticOrderTestSampleLabelVM(
+        return new DiagnosticOrderTestSampleLabelDTO(
                 orderTestId,
                 patientName,
                 facilityName,

@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.time.LocalDate;
 import java.util.Optional;
-
 public interface PatientRepository  extends JpaRepository<Patient, Long>,
         JpaSpecificationExecutor<Patient> {
 
@@ -31,6 +30,6 @@ public interface PatientRepository  extends JpaRepository<Patient, Long>,
     );
 
     Page<Patient> findByIsUnknownTrue(Pageable pageable);
-    Optional<Patient> findByPreviousId(String previousId);
 
 }
+

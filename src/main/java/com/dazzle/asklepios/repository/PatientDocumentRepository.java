@@ -9,16 +9,12 @@ import java.util.Optional;
 
 public interface PatientDocumentRepository extends JpaRepository<PatientDocument, Long> {
 
-    Page<PatientDocument> findByPatientId(Long patientId, Pageable pageable);
-
     Page<PatientDocument> findByIsPrimaryTrueAndNumberContainingIgnoreCase(
             String numberPart,
             Pageable pageable
     );
 
     Page<PatientDocument> findByNumberContainingIgnoreCase(String numberPart, Pageable pageable);
-    Optional<PatientDocument> findFirstByPatient_IdAndIsPrimaryTrue(Long patientId);
-    Optional<PatientDocument> findFirstByPatient_IdOrderByIdAsc(Long patientId);
-    Optional<PatientDocument> findByPatientIdAndIsPrimaryTrue(Long patientId);
     Optional<PatientDocument> findFirstByPatientIdAndIsPrimaryTrue(Long patientId);
+    Optional<PatientDocument> findTopByPatientIdAndIsPrimaryTrueOrderByIdDesc(Long patientId);
 }

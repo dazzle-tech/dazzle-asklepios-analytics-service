@@ -45,6 +45,9 @@ public class Patient extends AbstractAuditingEntity<Long> implements Serializabl
     @Generated(GenerationTime.INSERT)
     private String medicalRecordNumber;
 
+    @OneToMany(mappedBy = "patient", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<PatientDocument> patientDocuments;
 
     @Column(name = "first_name", length = 100)
     private String firstName;
@@ -164,7 +167,7 @@ public class Patient extends AbstractAuditingEntity<Long> implements Serializabl
     private Boolean isCompletedPatient;
 
     @Enumerated(EnumType.STRING)
-    @Column(name="security_access_level")
+    @Column(name = "security_access_level")
     private SecurityLevel securityAccessLevel;
 
     @AssertTrue(message = "When patient is not unknown, firstName, lastName, sexAtBirth, dateOfBirth, primaryMobileNumber and email are required")
