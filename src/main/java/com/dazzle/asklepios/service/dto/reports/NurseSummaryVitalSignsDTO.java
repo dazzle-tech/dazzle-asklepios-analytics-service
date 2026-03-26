@@ -10,6 +10,7 @@ public record NurseSummaryVitalSignsDTO(
         BigDecimal temperature,
         Integer oxygenSaturation,
         Integer respiratoryRate,
-        String notes
+        String notes,
+        Integer painDegree
 ) {
 }

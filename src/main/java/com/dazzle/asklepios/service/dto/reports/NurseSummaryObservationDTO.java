@@ -4,6 +4,8 @@ public record NurseSummaryObservationDTO(
         String reasonOfVisit,
         String functionalStatus,
         String patientConditions,
-        String cognitiveCheck
+        String cognitiveCheck,
+        String primaryDiagnosis,
+        String plan
 ) {
 }

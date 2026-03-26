@@ -5,6 +5,11 @@ public record NurseSummaryServiceProductDTO(
         String category,
         Long serviceId,
         Long productId,
-        Long quantity
-) {
+        Long quantity,
+        String name,
+        String code,
+        String unit,
+        String notes,
+        String orderedAt
+        ) {
 }

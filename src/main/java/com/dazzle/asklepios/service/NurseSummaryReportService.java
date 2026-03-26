@@ -6,6 +6,7 @@ import com.dazzle.asklepios.domain.Department;
 import com.dazzle.asklepios.domain.EncounterVaccination;
 import com.dazzle.asklepios.domain.Patient;
 import com.dazzle.asklepios.domain.PatientAllergies;
+import com.dazzle.asklepios.domain.PatientDiagnosis;
 import com.dazzle.asklepios.domain.PatientEncounter;
 import com.dazzle.asklepios.domain.PatientObservationsComplaints;
 import com.dazzle.asklepios.domain.PatientServiceAndProduct;
@@ -62,6 +63,7 @@ public class NurseSummaryReportService {
     private final EncounterVaccinationRepository encounterVaccinationRepository;
     private final PatientServiceAndProductRepository patientServiceAndProductRepository;
     private final PatientEncounterRepository encounterRepository;
+    private final PatientDiagnosisService patientDiagnosisService;
     public NurseSummaryReportDTO getNurseSummaryReport(Long encounterId) {
         LOG.debug("[NURSE_SUMMARY] start encounterId={}", encounterId);
 
@@ -71,10 +73,41 @@ public class NurseSummaryReportService {
         NurseSummaryPatientInfoDTO patientInfo = mapPatient(patient);
         NurseSummaryEncounterInfoDTO encounterInfo = mapEncounter(encounter);
 
+        // في getNurseSummaryReport، بعد mapObservation
         NurseSummaryObservationDTO observation = patientObservationsComplaintsService
                 .findLatestByEncounterId(encounterId)
                 .map(this::mapObservation)
                 .orElse(null);
+
+// أضف هاد الكود بعدها
+        String primaryDiagnosis = null;
+        try {
+            PatientDiagnosis diag = patientDiagnosisService
+                    .getPrimaryDiagnosisByEncounterId(encounterId);
+            primaryDiagnosis = diag.getDiagnosisId() != null
+                    ? String.valueOf(diag.getDiagnosisId())
+                    : null;
+        } catch (Exception ignored) {
+            // لا يوجد primary diagnosis — نتركها null
+        }
+
+// ثم إذا observation مش null، نعيد بناءها مع primaryDiagnosis
+        if (observation != null) {
+            observation = new NurseSummaryObservationDTO(
+                    observation.reasonOfVisit(),
+                    observation.functionalStatus(),
+                    observation.patientConditions(),
+                    observation.cognitiveCheck(),
+                    primaryDiagnosis,
+                    null  // plan
+            );
+        } else if (primaryDiagnosis != null) {
+            observation = new NurseSummaryObservationDTO(
+                    null, null, null, null,
+                    primaryDiagnosis,
+                    null
+            );
+        }
 
         NurseSummaryVitalSignsDTO vitalSigns = vitalSignsService
                 .findLatestByEncounterId(encounterId)
@@ -211,7 +244,9 @@ public class NurseSummaryReportService {
                 entity.getReasonOfVisit(),
                 entity.getFunctionalStatus(),
                 entity.getPatientConditions(),
-                entity.getCognitiveCheck()
+                entity.getCognitiveCheck(),
+                null,
+                null
         );
     }
 
@@ -224,7 +259,9 @@ public class NurseSummaryReportService {
                 entity.getTemperature(),
                 entity.getOxygenSaturation(),
                 entity.getRespiratoryRate(),
-                entity.getNotes()
+                entity.getNotes(),
+                // entity.getPainDegree()   // تأكد إنه موجود في VitalSigns entity
+                null
         );
     }
 
@@ -312,7 +349,16 @@ public class NurseSummaryReportService {
                 entity.getCategory() != null ? entity.getCategory().name() : null,
                 entity.getServiceId(),
                 entity.getProductId(),
-                entity.getQuantity()
+                entity.getQuantity(),
+//                entity.getName(),
+//                entity.getCode(),
+//                entity.getUnit(),
+//                entity.getNotes(),
+                null,
+                null,
+                null,
+                null,
+                entity.getCreatedDate() != null ? entity.getCreatedDate().toString() : null
         );
     }
 
