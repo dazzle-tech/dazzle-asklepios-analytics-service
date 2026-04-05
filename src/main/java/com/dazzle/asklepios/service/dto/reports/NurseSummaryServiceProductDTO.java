@@ -4,7 +4,5 @@ public record NurseSummaryServiceProductDTO(
         Long id,
         String category,
         Long quantity,
-        String code,
-        String notes,
-        String orderedAt
+        Long entityQuantity, String notes
 ) {}
