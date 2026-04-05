@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nurse Summary Report</title>
+    <style>
+        @page {
+            margin: 0;
+            size: A4;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+            line-height: 1.35;
+            font-size: 7pt;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+        }
+
+        .header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            border-bottom: 2px solid #1e293b;
+            padding-bottom: 20px;
+            margin-bottom: 10px;
+        }
+
+        .org-name {
+            font-size: 18pt;
+            font-weight: 900;
+            color: #001f3f;
+            line-height: 1.05;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            text-align: center;
+            margin: 0;
+        }
+
+        .dept-name {
+            font-size: 6pt;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-top: 2px;
+            text-align: center;
+        }
+
+        .doc-id {
+            font-size: 6.5pt;
+            font-weight: 700;
+            color: #1e293b;
+            text-align: right;
+        }
+
+        .main-title-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .main-title {
+            font-size: 10pt;
+            font-weight: 900;
+            letter-spacing: 5px;
+            color: #001f3f;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .title-underline {
+            width: 100px;
+            height: 2px;
+            background: #e2e8f0;
+            margin: 0 auto 10px;
+            position: relative;
+        }
+
+        .underline-accent {
+            position: absolute;
+            width: 32px;
+            height: 100%;
+            background: #001f3f;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .date-time-info {
+            display: table;
+            margin: 0 auto;
+            font-size: 7pt;
+            font-weight: 700;
+            color: #1e293b;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+
+        .date-time-info span {
+            display: table-cell;
+            padding: 0 12px;
+        }
+
+        .date-time-info strong {
+            font-weight: 900;
+            margin-left: 4px;
+        }
+
+        .report-section {
+            margin-bottom: 20px;
+        }
+
+        .section-header {
+            background: #f1f5f9;
+            border-left: 5px solid #001f3f;
+            padding: 6px 14px;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            font-size: 7pt;
+            font-weight: 900;
+            color: #001f3f;
+            letter-spacing: 0.8px;
+            margin: 5px;
+            text-transform: uppercase;
+        }
+
+        .section-header.blue {
+            border-left-color: #2980b9;
+        }
+
+        .section-header.green {
+            border-left-color: #27ae60;
+        }
+
+        .section-header.red {
+            border-left-color: #c0392b;
+        }
+
+        .section-header.orange {
+            border-left-color: #d35400;
+        }
+
+        .section-header.purple {
+            border-left-color: #8e44ad;
+        }
+
+        .section-header.teal {
+            border-left-color: #16a085;
+        }
+
+        .patient-grid {
+            display: table;
+            width: 100%;
+            border: 1px solid #dbe3ee;
+            background: #ffffff;
+        }
+
+        .patient-grid + .patient-grid {
+            margin-top: 4px;
+        }
+
+        .grid-row {
+            display: table;
+            width: 100%;
+            border-top: 0.8px solid #e5edf5;
+        }
+
+        .grid-row:first-child {
+            border-top: none;
+        }
+
+        .grid-2 .info-box {
+            width: 50%;
+        }
+
+        .grid-3 .info-box {
+            width: 33.33%;
+        }
+
+        .grid-4 .info-box {
+            width: 25%;
+        }
+
+        .info-box {
+            display: table-cell;
+            padding: 6px 8px;
+            border-right: 0.8px solid #e5edf5;
+            vertical-align: middle;
+            min-height: 38px;
+        }
+
+        .info-box.no-border {
+            border-right: none;
+        }
+
+        .info-label {
+            display: block;
+            font-size: 5.5pt;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 2px;
+        }
+
+        .info-value {
+            display: block;
+            font-size: 7pt;
+            font-weight: 800;
+            color: #1e293b;
+            text-transform: uppercase;
+            line-height: 1.1;
+        }
+
+        .badge-priority {
+            font-size: 5.8pt;
+            padding: 2px 5px;
+            line-height: 1;
+            display: inline-block;
+            border: 1px solid #2563eb;
+            background: #eff6ff;
+            color: #2563eb;
+            font-weight: 900;
+            border-radius: 3px;
+            text-transform: uppercase;
+        }
+
+        .kv-table {
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            border-collapse: separate;
+            border-spacing: 0;
+            overflow: hidden;
+        }
+
+        .kv-table tr td:first-child {
+            font-weight: 900;
+            font-size: 7pt;
+            color: #1e293b;
+            background: #f8fafc;
+            width: 160px;
+            border-right: 1px solid #e2e8f0;
+            padding: 8px 12px;
+        }
+
+        .kv-table tr td:last-child {
+            font-size: 7pt;
+            color: #334155;
+            padding: 8px 12px;
+        }
+
+        .kv-table tr {
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .kv-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .kv-table tr:nth-child(even) {
+            background: #fcfcfd;
+        }
+
+        .bool-yes {
+            display: inline-block;
+            border: 1px solid #27ae60;
+            background: #f0fdf4;
+            color: #27ae60;
+            font-size: 6.5pt;
+            font-weight: 900;
+            padding: 2px 7px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .bool-no {
+            display: inline-block;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            color: #94a3b8;
+            font-size: 6.5pt;
+            font-weight: 900;
+            padding: 2px 7px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .table-container {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #64748b;
+            text-transform: uppercase;
+            font-size: 6.8pt;
+            font-weight: 900;
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        td {
+            padding: 10px 14px;
+            font-size: 7.5pt;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+            vertical-align: top;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:nth-child(even) {
+            background: #fcfcfd;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-muted {
+            color: #64748b;
+        }
+
+        .badge-red {
+            display: inline-block;
+            border: 1px solid #c0392b;
+            background: #fef2f2;
+            color: #c0392b;
+            font-size: 6.5pt;
+            font-weight: 900;
+            padding: 3px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .badge-orange {
+            display: inline-block;
+            border: 1px solid #d35400;
+            background: #fff7ed;
+            color: #d35400;
+            font-size: 6.5pt;
+            font-weight: 900;
+            padding: 3px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .badge-blue {
+            display: inline-block;
+            border: 1px solid #2563eb;
+            background: #eff6ff;
+            color: #2563eb;
+            font-size: 6.5pt;
+            font-weight: 900;
+            padding: 3px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .item-table th {
+            font-size: 6.5pt;
+            padding: 10px 12px;
+        }
+
+        .item-table td {
+            padding: 9px 12px;
+            font-size: 7pt;
+        }
+
+        .item-name {
+            font-weight: 900;
+            font-size: 7.5pt;
+            text-transform: uppercase;
+        }
+
+        .empty-message {
+            background: #f8fafc;
+            border: 2px dashed #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            color: #94a3b8;
+            font-style: italic;
+            font-size: 7pt;
+        }
+
+        .footer {
+            display: table;
+            width: 100%;
+            margin-top: 28px;
+            padding-top: 28px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .footer-left {
+            display: table-cell;
+            width: 50%;
+            vertical-align: bottom;
+        }
+
+        .signature-line {
+            width: 220px;
+            height: 2px;
+            background: #e2e8f0;
+            margin-bottom: 8px;
+        }
+
+        .signature-label {
+            font-size: 6pt;
+            font-weight: 900;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-right {
+            display: table-cell;
+            width: 50%;
+            text-align: right;
+            vertical-align: top;
+        }
+
+        .auth-block {
+            display: inline-block;
+            text-align: left;
+        }
+
+        .auth-label {
+            display: block;
+            font-size: 6pt;
+            font-weight: 900;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 4px;
+        }
+
+        .auth-name {
+            font-size: 7pt;
+            font-weight: 900;
+            color: #1e293b;
+            line-height: 1.2;
+        }
+
+        .auth-sub {
+            font-size: 6.5pt;
+            font-weight: 700;
+            color: #64748b;
+            line-height: 1.2;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="header">
+        <div>
+            <img th:src="'data:image/png;base64,' + ${logo}" style="height:60px;"/>
+        </div>
+        <div style="text-align:center; flex:1;">
+            <h1 class="org-name" th:text="${report.encounterInfo?.facilityName}">FACILITY NAME</h1>
+            <div class="dept-name" th:text="${report.encounterInfo?.departmentName}">DEPARTMENT</div>
+        </div>
+        <div style="text-align:right;">
+            <p class="doc-id">
+                ENCOUNTER:
+                <span th:text="${report.encounterInfo?.encounterNumber ?: report.encounterInfo?.encounterId}">#—</span>
+            </p>
+        </div>
+    </div>
+
+    <div class="main-title-section">
+        <h1 class="main-title">NURSE SUMMARY REPORT</h1>
+        <div class="title-underline">
+            <div class="underline-accent"></div>
+        </div>
+        <div class="date-time-info">
+            <span>Generated At: <strong th:text="${report.generatedAt}">—</strong></span>
+        </div>
+    </div>
+
+    <section class="report-section">
+        <div class="section-header blue">
+            <h2 class="section-title">1. Patient Information</h2>
+        </div>
+
+        <div class="patient-grid">
+            <div class="grid-row grid-4">
+                <div class="info-box">
+                    <span class="info-label">Full Name</span>
+                    <span class="info-value" th:text="${report.patientInfo?.fullName}">—</span>
+                </div>
+                <div class="info-box">
+                    <span class="info-label">MRN</span>
+                    <span class="info-value" th:text="${report.patientInfo?.medicalRecordNumber}">—</span>
+                </div>
+                <div class="info-box">
+                    <span class="info-label">Gender</span>
+                    <span class="info-value" th:text="${report.patientInfo?.gender}">—</span>
+                </div>
+                <div class="info-box no-border">
+                    <span class="info-label">Date of Birth / Age</span>
+                    <span class="info-value">
+            <span th:text="${report.patientInfo?.dateOfBirth}">—</span>
+            <span th:if="${report.patientInfo?.age != null}"
+                  th:text="' (' + ${report.patientInfo?.age} + ' yrs)'"></span>
+          </span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="report-section">
+        <div class="section-header blue">
+            <h2 class="section-title">2. Encounter Information</h2>
+        </div>
+
+        <div class="patient-grid">
+            <div class="grid-row grid-4">
+                <div class="info-box">
+                    <span class="info-label">Facility</span>
+                    <span class="info-value" th:text="${report.encounterInfo?.facilityName}">—</span>
+                </div>
+                <div class="info-box">
+                    <span class="info-label">Department</span>
+                    <span class="info-value" th:text="${report.encounterInfo?.departmentName}">—</span>
+                </div>
+                <div class="info-box">
+                    <span class="info-label">Encounter Date</span>
+                    <span class="info-value" th:text="${report.encounterInfo?.encounterDate}">—</span>
+                </div>
+                <div class="info-box no-border">
+                    <span class="info-label">Encounter Type</span>
+                    <span class="info-value" th:text="${report.encounterInfo?.encounterType}">—</span>
+                </div>
+            </div>
+            <div class="grid-row grid-4">
+                <div class="info-box">
+                    <span class="info-label">Encounter ID</span>
+                    <span class="info-value"
+                          th:text="'#' + (${report.encounterInfo?.encounterId} ?: '')">—</span>
+                </div>
+                <div class="info-box">
+                    <span class="info-label">Encounter Number</span>
+                    <span class="info-value" th:text="${report.encounterInfo?.encounterNumber}">—</span>
+                </div>
+                <div class="info-box">
+                    <span class="info-label">Priority</span>
+                    <span class="badge-priority" th:text="${report.encounterInfo?.priority}">—</span>
+                </div>
+
+            </div>
+            <div class="grid-row grid-2">
+                <div class="info-box">
+                    <span class="info-label">Chief Complaint</span>
+                    <span class="info-value" th:text="${report.encounterInfo?.chiefComplaint}">—</span>
+                </div>
+                <div class="info-box no-border">
+                    <span class="info-label">Encounter Reason</span>
+                    <span class="info-value" th:text="${report.encounterInfo?.encounterReason}">—</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="report-section">
+        <div class="section-header blue">
+            <h2 class="section-title">3. Active Allergies</h2>
+        </div>
+
+        <div th:if="${report.allergies != null and !#lists.isEmpty(report.allergies)}"
+             class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th>Allergen Type</th>
+                    <th>Severity</th>
+                    <th>Criticality</th>
+                    <th>Certainty</th>
+                    <th>Reactions</th>
+                    <th>Onset</th>
+                    <th>Note</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="a : ${report.allergies}">
+                    <td class="text-muted" th:text="${a.allergenType}">—</td>
+                    <td><span class="badge-red" th:text="${a.severity}">—</span></td>
+                    <td th:text="${a.criticality}">—</td>
+                    <td th:text="${a.certainty}">—</td>
+                    <td th:text="${a.allergicReactions}">—</td>
+                    <td th:text="${a.onset}">—</td>
+                    <td class="text-muted" th:text="${a.note}">—</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="empty-message"
+             th:if="${report.allergies == null or #lists.isEmpty(report.allergies)}">
+            No active allergies recorded.
+        </div>
+    </section>
+
+    <section class="report-section">
+        <div class="section-header blue">
+            <h2 class="section-title">4. Active Warnings</h2>
+        </div>
+
+        <div th:if="${report.warnings != null and !#lists.isEmpty(report.warnings)}"
+             class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th>Warning Type</th>
+                    <th>Warning</th>
+                    <th>Severity</th>
+                    <th>Action Taken</th>
+                    <th>Note</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="w : ${report.warnings}">
+                    <td class="text-muted" th:text="${w.warningType}">—</td>
+                    <td th:text="${w.warning}">—</td>
+                    <td><span class="badge-orange" th:text="${w.severity}">—</span></td>
+                    <td th:text="${w.actionTaken}">—</td>
+                    <td class="text-muted" th:text="${w.note}">—</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="empty-message"
+             th:if="${report.warnings == null or #lists.isEmpty(report.warnings)}">
+            No active warnings recorded.
+        </div>
+    </section>
+
+    <section class="report-section">
+        <div class="section-header blue">
+            <h2 class="section-title">5. Clinical Observation</h2>
+        </div>
+
+        <div class="table-container">
+            <table class="kv-table">
+                <tbody>
+                <tr>
+                    <td>Reason of Visit</td>
+                    <td th:text="${report.observation?.reasonOfVisit}">—</td>
+                </tr>
+                <tr>
+                    <td>Diagnosis</td>
+                    <td th:text="${report.observation?.diagnosis}">—</td>
+                </tr>
+                <tr>
+                    <td>Plan</td>
+                    <td th:text="${report.observation?.plan}">—</td>
+                </tr>
+                <tr>
+                    <td>Patient Conditions</td>
+                    <td th:text="${report.observation?.patientConditions}">—</td>
+                </tr>
+                <tr>
+                    <td>Functional Status</td>
+                    <td th:text="${report.observation?.functionalStatus}">—</td>
+                </tr>
+                <tr>
+                    <td>Cognitive Check</td>
+                    <td th:text="${report.observation?.cognitiveCheck}">—</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="report-section">
+        <div class="section-header blue">
+            <h2 class="section-title">6. Vital Signs</h2>
+        </div>
+
+        <div class="table-container">
+            <table class="kv-table">
+                <tbody>
+                <tr>
+                    <td>Blood Pressure</td>
+                    <td>
+                        <span th:text="${report.vitalSigns?.bloodPressureSystolic}">—</span>
+                        /
+                        <span th:text="${report.vitalSigns?.bloodPressureDiastolic}">—</span>
+                        mmHg
+                    </td>
+                </tr>
+                <tr>
+                    <td>Heart Rate</td>
+                    <td><span th:text="${report.vitalSigns?.heartRate}">—</span> bpm</td>
+                </tr>
+                <tr>
+                    <td>Temperature</td>
+                    <td><span th:text="${report.vitalSigns?.temperature}">—</span> °C</td>
+                </tr>
+                <tr>
+                    <td>Oxygen Saturation</td>
+                    <td><span th:text="${report.vitalSigns?.oxygenSaturation}">—</span> %</td>
+                </tr>
+                <tr>
+                    <td>Respiratory Rate</td>
+                    <td><span th:text="${report.vitalSigns?.respiratoryRate}">—</span> /min</td>
+                </tr>
+                <tr>
+                    <td>Measurement Site</td>
+                    <td th:text="${report.vitalSigns?.measurementSite}">—</td>
+                </tr>
+                <tr>
+                    <td>Pain Degree</td>
+                    <td th:text="${report.vitalSigns?.painDegree}">—</td>
+                </tr>
+                <tr>
+                    <td>Pain Level</td>
+                    <td th:text="${report.vitalSigns?.painLevel}">—</td>
+                </tr>
+                <tr>
+                    <td>Pain Pattern</td>
+                    <td th:text="${report.vitalSigns?.painPattern}">—</td>
+                </tr>
+                <tr>
+                    <td>Pain Description</td>
+                    <td th:text="${report.vitalSigns?.painDescription}">—</td>
+                </tr>
+                <tr>
+                    <td>Notes</td>
+                    <td th:text="${report.vitalSigns?.notes}">—</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="report-section">
+        <div class="section-header blue">
+            <h2 class="section-title">7. Body Measurements</h2>
+        </div>
+
+        <div class="patient-grid">
+            <div class="grid-row grid-3">
+                <div class="info-box">
+                    <span class="info-label">Weight</span>
+                    <span class="info-value">
+            <span th:text="${report.bodyMeasurements?.weight}">—</span> kg
+          </span>
+                </div>
+                <div class="info-box">
+                    <span class="info-label">Height</span>
+                    <span class="info-value">
+            <span th:text="${report.bodyMeasurements?.height}">—</span> cm
+          </span>
+                </div>
+                <div class="info-box no-border">
+                    <span class="info-label">Head Circumference</span>
+                    <span class="info-value">
+            <span th:text="${report.bodyMeasurements?.headCircumference}">—</span> cm
+          </span>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="report-section">
+        <div class="section-header blue">
+            <h2 class="section-title">7. Ordered Diagnostics</h2>
+        </div>
+
+        <div th:if="${report.diagnosticsOrder != null and !#lists.isEmpty(report.diagnosticsOrder)}"
+             class="table-container">
+            <table class="item-table">
+                <thead>
+                <tr>
+                    <th>Test Name</th>
+                    <th>Test Type</th>
+                    <th>Order Number</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="d, iStat : ${report.diagnosticsOrder}">
+                    <td th:text="${d.testName}"></td>
+                    <td th:text="${d.testType}"></td>
+                    <td th:text="${d.orderNumber}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="empty-message"
+             th:if="${report.diagnosticsOrder == null or #lists.isEmpty(report.diagnosticsOrder)}">
+            No diagnostics ordered
+        </div>
+    </section>
+
+    <section class="report-section">
+        <div class="section-header blue">
+            <h2 class="section-title">8. Prescription Medications</h2>
+        </div>
+
+        <div th:if="${report.medications != null and !#lists.isEmpty(report.medications)}"
+             class="table-container">
+            <table class="item-table">
+                <thead>
+                <tr>
+                    <th>Medication Name</th>
+                    <th>Code</th>
+                    <th>Instructions Type</th>
+                    <th>Instructions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="m : ${report.medications}">
+                    <td th:text="${m.name}"></td>
+                    <td th:text="${m.code}"></td>
+                    <td th:text="${m.instructionsType}"></td>
+                    <td th:text="${m.instructions}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="empty-message"
+             th:if="${report.medications == null or #lists.isEmpty(report.medications)}">
+            No medications prescribed
+        </div>
+    </section>
+    <section class="report-section">
+        <div class="section-header blue">
+            <h2 class="section-title">9. Procedures</h2>
+        </div>
+
+        <div th:if="${report.procedures != null and !#lists.isEmpty(report.procedures)}"
+             class="table-container">
+            <table class="item-table">
+                <thead>
+                <tr>
+                    <th>Procedure Name</th>
+                    <th>Code</th>
+                    <th>Category</th>
+                    <th>Notes</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="p : ${report.procedures}">
+                    <td th:text="${p.name}"></td>
+                    <td th:text="${p.code}"></td>
+                    <td th:text="${p.categoryType}"></td>
+                    <td th:text="${p.notes}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="empty-message"
+             th:if="${report.procedures == null or #lists.isEmpty(report.procedures)}">
+            No procedures recorded
+        </div>
+    </section>
+
+    <div class="footer">
+        <div class="footer-left">
+            <div class="signature-line"></div>
+            <p class="signature-label">Nurse Signature</p>
+        </div>
+        <div class="footer-right">
+            <div class="auth-block">
+                <p class="auth-label">Digitally Authenticated By</p>
+                <div class="auth-name" th:text="${report.encounterInfo?.facilityName}">Facility</div>
+                <div class="auth-sub" th:text="${report.encounterInfo?.departmentName}">Department</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

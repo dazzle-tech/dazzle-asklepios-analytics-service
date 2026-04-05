@@ -24,6 +24,26 @@ public class PatientController {
     }
 
 
+    @GetMapping("/{patientId}/information-report")
+    public ResponseEntity<PatientInformationReportDTO> getPatientInformationReport(
+            @PathVariable Long patientId
+    ) {
+
+        LOG.debug("[PatientReport] GET_PATIENT_INFORMATION_REPORT request patientId={}", patientId);
+
+        PatientInformationReportDTO result =
+                patientService.getPatientInformationReport(patientId);
+
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/{patientId}/wristband")
+    public ResponseEntity<PatientWristbandDTO> getPatientWristband(
+            @PathVariable Long patientId
+    ) {
+        return ResponseEntity.ok(patientService.getPatientWristband(patientId));
+    }
+
     @GetMapping("/label/{id}")
     public ResponseEntity<PatientLabelDTO> getPatientLabel(@PathVariable Long id) {
 

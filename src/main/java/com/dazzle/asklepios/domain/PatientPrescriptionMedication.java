@@ -50,9 +50,6 @@ public class PatientPrescriptionMedication extends AbstractAuditingEntity<Long> 
     @Column(name = "instructions", columnDefinition = "text")
     private String instructions;
 
-    @Column(name = "prescription_id", length = 50)
-    private Long prescriptionId;
-
     @Column(name = "dose")
     private Long dose;
 
