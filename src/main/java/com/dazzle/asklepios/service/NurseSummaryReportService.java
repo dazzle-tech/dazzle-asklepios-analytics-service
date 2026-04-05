@@ -191,6 +191,7 @@ public class NurseSummaryReportService {
 
         Map<String, String> lovMap = buildLovMap(lovKeys);
 
+        // ── Build DTOs ─────────────────────────────────────────────────────────
 
         NurseSummaryPatientInfoDTO patientInfo = mapPatient(patient);
         NurseSummaryEncounterInfoDTO encounterInfo = mapEncounter(encounter);
@@ -223,6 +224,7 @@ public class NurseSummaryReportService {
                         : null
                 );
 
+        // ── Vital Signs + Pain (with LOV resolution) ──────────────────────────
 
         NurseSummaryVitalSignsDTO vitalSigns = null;
 
@@ -270,6 +272,7 @@ public class NurseSummaryReportService {
             }
         }
 
+        // ── Body / Additional Measurements ────────────────────────────────────
 
         NurseSummaryBodyMeasurementsDTO bodyMeasurements = bodyMeasurementsService
                 .findLatestByEncounterId(encounterId)
@@ -281,16 +284,21 @@ public class NurseSummaryReportService {
                 .map(this::mapAdditionalMeasurements)
                 .orElse(null);
 
+        // ── Allergies (with LOV resolution) ───────────────────────────────────
+
         List<NurseSummaryAllergyDTO> allergies = rawAllergies
                 .stream()
                 .map(a -> mapAllergy(a, lovMap))
                 .toList();
+
+        // ── Warnings (with LOV resolution) ────────────────────────────────────
 
         List<NurseSummaryWarningDTO> warnings = rawWarnings
                 .stream()
                 .map(entity -> mapWarning(entity, lovMap))
                 .toList();
 
+        // ── Vaccinations ──────────────────────────────────────────────────────
 
         List<NurseSummaryVaccinationDTO> vaccinations = encounterVaccinationRepository
                 .findByEncounterIdAndStatusNotOrderByCreatedDateAsc(
@@ -299,11 +307,14 @@ public class NurseSummaryReportService {
                 .map(this::mapVaccination)
                 .toList();
 
+        // ── Services & Products (with LOV resolution) ─────────────────────────
+
         List<NurseSummaryServiceProductDTO> servicesAndProducts = rawServicesAndProducts
                 .stream()
                 .map(entity -> mapServiceAndProduct(entity, lovMap))
                 .toList();
 
+        // ── Ordered Diagnostics ───────────────────────────────────────────────
 
         List<OrderedDiagnosticsDTO> diagnosticsOrder =
                 diagnosticOrderRepository
@@ -327,6 +338,7 @@ public class NurseSummaryReportService {
                         )
                         .toList();
 
+        // ── Medications ───────────────────────────────────────────────────────
 
         List<BrandMedicationsDTO> medications =
                 patientPrescriptionRepository
@@ -350,6 +362,7 @@ public class NurseSummaryReportService {
                         )
                         .toList();
 
+        // ── Procedures (with LOV resolution) ──────────────────────────────────
 
         List<ProceduresDTO> procedures = rawPatientProcedures
                 .stream()
@@ -385,6 +398,8 @@ public class NurseSummaryReportService {
                 Instant.now()
         );
     }
+
+    // ── Mappers ───────────────────────────────────────────────────────────────
 
     private NurseSummaryPatientInfoDTO mapPatient(Patient patient) {
         String fullName = buildFullName(
@@ -554,13 +569,12 @@ public class NurseSummaryReportService {
                 entity.getId(),
                 categoryDisplay,
                 entity.getServiceId() != null ? entity.getServiceId() : entity.getProductId(),
-                null,
                 entity.getQuantity(),
-                null,
-                null,
                 entity.getCreatedDate() != null ? entity.getCreatedDate().toString() : null
         );
     }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
 
     private String buildFullName(String first, String second, String third, String last) {
         return String.join(" ", safe(first), safe(second), safe(third), safe(last)).trim();

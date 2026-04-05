@@ -1,7 +1,11 @@
 package com.dazzle.asklepios.domain;
 
+import com.dazzle.asklepios.domain.enumeration.Currency;
+import com.dazzle.asklepios.domain.enumeration.FacilityType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -35,6 +39,41 @@ public class Facility extends AbstractAuditingEntity<Long> implements Serializab
     @Column(nullable = false, length = 255)
     private String name;
 
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 50)
+    private FacilityType type;
+
+    @NotNull
+    @Column(nullable = false, length = 50)
+    private String code;
+
+
+    @Column(length = 100)
+    private String emailAddress;
+
+    @Column(length = 100)
+    private String phone1;
+
+    @Column(length = 100)
+    private String phone2;
+
+    @Column(length = 100)
+    private String fax;
+
+    @Column(length = 100)
+    private String addressId;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
+    private Currency defaultCurrency;
+
+    @NotNull
+    @Column(nullable = false, length = 10)
+    private Boolean isActive = true;
+
+    @Column(name = "rule_id")
+    private Long ruleId;
 
 }
-

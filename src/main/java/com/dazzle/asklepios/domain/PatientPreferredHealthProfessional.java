@@ -1,15 +1,14 @@
 package com.dazzle.asklepios.domain;
 
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,7 +27,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode(callSuper = false)
-public class Department extends AbstractAuditingEntity<Long> implements Serializable {
+@Table(name = "patient_preferred_health_professional")
+public class PatientPreferredHealthProfessional extends AbstractAuditingEntity<Long> implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -38,14 +38,17 @@ public class Department extends AbstractAuditingEntity<Long> implements Serializ
     private Long id;
 
     @NotNull
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "facility_id", nullable = false, foreignKey = @ForeignKey(name = "fk_department_facility"))
-    private Facility facility;
-
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_id", nullable = false)
+    private Patient patient;
 
     @NotNull
-    @Column(nullable = false, length = 100)
-    private String name;
+    @Column(name = "practitioner_id", nullable = false)
+    private Long practitionerId;
 
+    @Column(name = "network_affiliation", length = 255)
+    private String networkAffiliation;
 
+    @Column(name = "related_with", length = 255)
+    private String relatedWith;
 }
