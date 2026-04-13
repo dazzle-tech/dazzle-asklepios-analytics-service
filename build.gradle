@@ -172,9 +172,9 @@ dependencies {
     testImplementation "org.testcontainers:jdbc"
     testImplementation "org.testcontainers:junit-jupiter"
     testImplementation "org.testcontainers:testcontainers"
-
-    implementation "org.apache.commons:commons-csv:1.10.0"
-
+    implementation 'org.apache.commons:commons-csv:1.10.0'
+    implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
+    implementation "com.itextpdf:html2pdf:5.0.4"
     annotationProcessor "org.glassfish.jaxb:jaxb-runtime"
     annotationProcessor "org.hibernate.orm:hibernate-processor"}
 
