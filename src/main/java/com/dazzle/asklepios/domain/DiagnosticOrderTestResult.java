@@ -30,7 +30,6 @@ import java.time.Instant;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @EqualsAndHashCode(callSuper = false)
 public class DiagnosticOrderTestResult extends AbstractAuditingEntity implements Serializable {
 

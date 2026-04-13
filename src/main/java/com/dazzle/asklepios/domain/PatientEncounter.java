@@ -29,7 +29,6 @@ import java.time.LocalDate;
 @Table(name = "patient_encounters")
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class PatientEncounter extends AbstractAuditingEntity<Long> implements Serializable {

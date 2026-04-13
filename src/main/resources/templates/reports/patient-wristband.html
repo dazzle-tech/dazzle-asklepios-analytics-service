@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Patient Wristband</title>
+  <style>
+    @page {
+      size: 120mm 55mm;
+      margin: 0;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      color: #111827;
+    }
+
+    body {
+      width: 120mm;
+      height: 55mm;
+    }
+
+    .label {
+      width: 120mm;
+      height: 55mm;
+      padding: 4mm 5mm;
+      position: relative;
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    .header {
+      display: table;
+      width: 100%;
+      margin-bottom: 2mm;
+    }
+
+    .header-left,
+    .header-right {
+      display: table-cell;
+      vertical-align: top;
+    }
+
+    .header-left {
+      width: 58%;
+    }
+
+    .header-right {
+      width: 42%;
+      text-align: right;
+    }
+
+    .title {
+      font-size: 15pt;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-top: 1mm;
+    }
+
+    .right-block {
+      display: inline-table;
+    }
+
+    .right-text,
+    .right-qr {
+      display: table-cell;
+      vertical-align: top;
+    }
+
+    .right-text {
+      text-align: right;
+      padding-right: 3mm;
+    }
+
+    .admission-date {
+      font-size: 8.5pt;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 2mm;
+      white-space: nowrap;
+    }
+
+    .facility {
+      font-size: 8pt;
+      line-height: 1.15;
+      max-width: 32mm;
+      word-break: break-word;
+    }
+
+    .qr {
+      width: 12mm;
+      height: 12mm;
+      object-fit: contain;
+      display: block;
+    }
+
+    .content {
+      width: 68mm;
+      margin-top: 1mm;
+    }
+
+    .row {
+      font-size: 9.5pt;
+      line-height: 1.4;
+      margin-bottom: 0.7mm;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .label-text {
+      font-weight: 700;
+    }
+
+    .alert {
+      color: #b91c1c;
+      font-weight: 700;
+    }
+
+    .barcode-box {
+      position: absolute;
+      right: 7mm;
+      bottom: 5mm;
+      width: 38mm;
+      text-align: center;
+    }
+
+    .barcode {
+      width: 38mm;
+      height: 10mm;
+      object-fit: fill;
+      display: block;
+    }
+
+    .barcode-text {
+      font-size: 7pt;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      margin-top: 0.8mm;
+    }
+  </style>
+</head>
+<body>
+<div class="label">
+
+  <div class="header">
+    <div class="header-left">
+      <div class="title">Patient Wristband</div>
+    </div>
+
+    <div class="header-right">
+      <div class="right-block">
+        <div class="right-text">
+          <div class="admission-date" th:text="${admissionDateTimeFormatted} ?: ''"></div>
+          <div class="facility" th:text="${wristband.facilityName} ?: ''"></div>
+        </div>
+
+        <div class="right-qr">
+          <img class="qr"
+               th:if="${qrImage != null and !#strings.isEmpty(qrImage)}"
+               th:src="'data:image/png;base64,' + ${qrImage}" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="row">
+      <span class="label-text">Name: </span>
+      <span th:text="${wristband.fullName} ?: ''"></span>
+    </div>
+
+    <div class="row">
+      <span class="label-text">MRN: </span>
+      <span th:text="${wristband.mrn} ?: ''"></span>
+    </div>
+
+    <div class="row">
+      <span class="label-text">DOB: </span>
+      <span th:text="${dateOfBirthFormatted} ?: ''"></span>
+    </div>
+
+    <div class="row">
+      <span class="label-text">Gender: </span>
+      <span th:text="${wristband.gender} ?: ''"></span>
+    </div>
+
+    <div class="row">
+      <span class="label-text">Blood Group: </span>
+      <span th:text="${wristband.bloodGroup} ?: ''"></span>
+    </div>
+
+    <div class="row" th:if="${wristband.allergyAlert != null and !#strings.isEmpty(wristband.allergyAlert)}">
+      <span class="label-text">Allergy: </span>
+      <span class="alert" th:text="${wristband.allergyAlert}"></span>
+    </div>
+  </div>
+
+  <div class="barcode-box">
+    <img class="barcode"
+         th:if="${barcodeImage != null and !#strings.isEmpty(barcodeImage)}"
+         th:src="'data:image/png;base64,' + ${barcodeImage}" />
+    <div class="barcode-text" th:text="${wristband.mrn} ?: ''"></div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -28,7 +28,6 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @EqualsAndHashCode(callSuper = false)
 @Table(name = "patient_documents")
 public class PatientDocument extends AbstractAuditingEntity<Long> implements Serializable {

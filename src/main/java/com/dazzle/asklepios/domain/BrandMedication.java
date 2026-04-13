@@ -21,7 +21,6 @@ import java.math.BigDecimal;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @EqualsAndHashCode(callSuper = false)
 @Table(name = "brand_medication")
 public class BrandMedication extends AbstractAuditingEntity<Long> implements Serializable {
