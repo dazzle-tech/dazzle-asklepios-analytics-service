@@ -1,6 +1,7 @@
 package com.dazzle.asklepios.web.rest;
 
 import com.dazzle.asklepios.service.DiagnosticOrderTestCollectedSampleService;
+import com.dazzle.asklepios.service.DiagnosticOrderTestSampleLabelPdfRenderService;
 import com.dazzle.asklepios.service.dto.DiagnosticOrderTestSampleLabelDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,13 +19,14 @@ public class DiagnosticOrderTestCollectedSampleController {
 
     private final DiagnosticOrderTestCollectedSampleService service;
 
-
+   private final DiagnosticOrderTestSampleLabelPdfRenderService diagnosticOrderTestSampleLabelPdfRenderService;
     public DiagnosticOrderTestCollectedSampleController(
-            DiagnosticOrderTestCollectedSampleService service
+            DiagnosticOrderTestCollectedSampleService service, DiagnosticOrderTestSampleLabelPdfRenderService diagnosticOrderTestSampleLabelPdfRenderService
 
     ) {
         this.service = service;
 
+        this.diagnosticOrderTestSampleLabelPdfRenderService = diagnosticOrderTestSampleLabelPdfRenderService;
     }
 
 
@@ -43,5 +45,14 @@ public class DiagnosticOrderTestCollectedSampleController {
         );
 
         return ResponseEntity.ok(sampleLabelVM);
+    }
+    @GetMapping("/diagnostic-order-tests/{orderTestId}/sample-label/pdf")
+    public ResponseEntity<byte[]> generateSampleLabelPdf(@PathVariable Long orderTestId) {
+        byte[] pdf = diagnosticOrderTestSampleLabelPdfRenderService.generateSampleLabelPdf(orderTestId);
+
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "inline; filename=sample-label-" + orderTestId + ".pdf")
+                .header("Content-Type", "application/pdf")
+                .body(pdf);
     }
 }
