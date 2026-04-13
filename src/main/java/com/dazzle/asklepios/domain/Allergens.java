@@ -11,7 +11,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,7 +24,6 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Table(name = "allergens")
 @EqualsAndHashCode(callSuper = false)
 public class Allergens extends AbstractAuditingEntity<Long> implements Serializable {

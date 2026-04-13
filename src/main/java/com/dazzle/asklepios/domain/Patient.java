@@ -21,8 +21,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
+
 
 import java.io.Serializable;
 import java.util.Date;
@@ -34,7 +33,6 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Patient extends AbstractAuditingEntity<Long> implements Serializable {
 
     @Id
@@ -42,7 +40,6 @@ public class Patient extends AbstractAuditingEntity<Long> implements Serializabl
     private Long id;
 
     @Column(name = "medical_record_number", insertable = false, updatable = false)
-    @Generated(GenerationTime.INSERT)
     private String medicalRecordNumber;
 
     @OneToMany(mappedBy = "patient", fetch = FetchType.LAZY)

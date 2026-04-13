@@ -89,7 +89,7 @@ public class PatientPrescriptionMedication extends AbstractAuditingEntity<Long> 
     @Column(name = "indication_use", columnDefinition = "text")
     private String indicationUse;
 
-   @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "indication_icd", nullable = false)
     private ICDDiagnosis indicationIcd;
 

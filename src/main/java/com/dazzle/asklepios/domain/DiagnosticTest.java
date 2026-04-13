@@ -17,7 +17,6 @@ import lombok.Setter;
 @Table(name = "diagnostic_test")
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class DiagnosticTest {

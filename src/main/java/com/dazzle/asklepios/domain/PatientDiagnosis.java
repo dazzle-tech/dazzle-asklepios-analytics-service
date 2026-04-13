@@ -27,7 +27,7 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+
 public class PatientDiagnosis extends AbstractAuditingEntity<Long> implements Serializable {
 
     @Id
