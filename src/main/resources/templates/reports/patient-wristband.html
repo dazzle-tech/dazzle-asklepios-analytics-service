@@ -159,7 +159,7 @@
       <div class="right-block">
         <div class="right-text">
           <div class="admission-date" th:text="${admissionDateTimeFormatted} ?: ''"></div>
-          <div class="facility" th:text="${wristband.facilityName} ?: ''"></div>
+          <div class="facility" dir="auto" th:text="${wristband.facilityName} ?: ''"></div>
         </div>
 
         <div class="right-qr">
@@ -174,7 +174,7 @@
   <div class="content">
     <div class="row">
       <span class="label-text">Name: </span>
-      <span th:text="${wristband.fullName} ?: ''"></span>
+      <span dir="auto" th:text="${wristband.fullName} ?: ''"></span>
     </div>
 
     <div class="row">
@@ -199,7 +199,7 @@
 
     <div class="row" th:if="${wristband.allergyAlert != null and !#strings.isEmpty(wristband.allergyAlert)}">
       <span class="label-text">Allergy: </span>
-      <span class="alert" th:text="${wristband.allergyAlert}"></span>
+      <span class="alert" dir="auto" th:text="${wristband.allergyAlert}"></span>
     </div>
   </div>
 

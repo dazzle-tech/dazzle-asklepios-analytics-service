@@ -1,26 +1,23 @@
 package com.dazzle.asklepios.service;
 
 import com.dazzle.asklepios.service.dto.patient.PatientWristbandDTO;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.EncodeHintType;
-import com.google.zxing.MultiFormatWriter;
-import com.google.zxing.common.BitMatrix;
-import com.itextpdf.html2pdf.ConverterProperties;
-import com.itextpdf.html2pdf.HtmlConverter;
+import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserContext;
+import com.microsoft.playwright.BrowserType;
+import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Playwright;
+import com.microsoft.playwright.options.LoadState;
+import com.microsoft.playwright.options.WaitUntilState;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
-import java.util.Base64;
-import java.util.EnumMap;
-import java.util.Map;
+
+import static com.dazzle.asklepios.web.rest.Helper.BarcodeImageUtil.generateCode128BarcodeBase64;
+import static com.dazzle.asklepios.web.rest.Helper.BarcodeImageUtil.generateQrBase64;
 
 @Service
 @RequiredArgsConstructor
@@ -54,11 +51,35 @@ public class PatientWristbandPdfRenderService {
 
         String html = templateEngine.process("reports/patient-wristband", context);
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ConverterProperties props = new ConverterProperties();
-        HtmlConverter.convertToPdf(html, outputStream, props);
+        return renderPdfWithChromium(html);
+    }
 
-        return outputStream.toByteArray();
+    private byte[] renderPdfWithChromium(String html) {
+        try (Playwright playwright = Playwright.create()) {
+            Browser browser = playwright.chromium().launch(
+                    new BrowserType.LaunchOptions().setHeadless(true)
+            );
+
+            BrowserContext browserContext = browser.newContext();
+            Page page = browserContext.newPage();
+
+            page.setContent(
+                    html,
+                    new Page.SetContentOptions().setWaitUntil(WaitUntilState.NETWORKIDLE)            );
+
+            byte[] pdfBytes = page.pdf(
+                    new Page.PdfOptions()
+                            .setPrintBackground(true)
+                            .setPreferCSSPageSize(true)
+            );
+
+            browserContext.close();
+            browser.close();
+
+            return pdfBytes;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate wristband PDF with Chromium", e);
+        }
     }
 
     private String buildQrValue(PatientWristbandDTO dto,
@@ -76,72 +97,5 @@ public class PatientWristbandPdfRenderService {
 
     private String nullSafe(String value) {
         return value == null || value.isBlank() ? "—" : value;
-    }
-
-    private String generateQrBase64(String content, int width, int height) {
-        try {
-            Map<EncodeHintType, Object> hints = new EnumMap<>(EncodeHintType.class);
-
-            BitMatrix bitMatrix = new MultiFormatWriter().encode(
-                    content,
-                    BarcodeFormat.QR_CODE,
-                    width,
-                    height,
-                    hints
-            );
-
-            BufferedImage image = toBufferedImage(bitMatrix);
-            return toBase64Png(image);
-        } catch (Exception e) {
-            return "";
-        }
-    }
-
-    private String generateCode128BarcodeBase64(String content, int width, int height) {
-        try {
-            BitMatrix bitMatrix = new MultiFormatWriter().encode(
-                    nullSafe(content),
-                    BarcodeFormat.CODE_128,
-                    width,
-                    height
-            );
-
-            BufferedImage image = toBufferedImage(bitMatrix);
-            return toBase64Png(image);
-        } catch (Exception e) {
-            return "";
-        }
-    }
-
-    private BufferedImage toBufferedImage(BitMatrix matrix) {
-        int width = matrix.getWidth();
-        int height = matrix.getHeight();
-
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        Graphics2D graphics = image.createGraphics();
-        graphics.setColor(Color.WHITE);
-        graphics.fillRect(0, 0, width, height);
-        graphics.setColor(Color.BLACK);
-
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                if (matrix.get(x, y)) {
-                    image.setRGB(x, y, Color.BLACK.getRGB());
-                }
-            }
-        }
-
-        graphics.dispose();
-        return image;
-    }
-
-    private String toBase64Png(BufferedImage image) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(image, "png", baos);
-            return Base64.getEncoder().encodeToString(baos.toByteArray());
-        } catch (Exception e) {
-            return "";
-        }
     }
 }

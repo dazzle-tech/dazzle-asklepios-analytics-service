@@ -176,6 +176,7 @@ dependencies {
     implementation "com.itextpdf:html2pdf:5.0.4"
     implementation 'com.google.zxing:core:3.5.3'
     implementation 'com.google.zxing:javase:3.5.3'
+    implementation 'com.microsoft.playwright:playwright:1.45.0'
     annotationProcessor "org.glassfish.jaxb:jaxb-runtime"
     annotationProcessor "org.hibernate.orm:hibernate-processor"}
 
