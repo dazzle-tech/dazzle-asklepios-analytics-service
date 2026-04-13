@@ -53,7 +53,6 @@ public class DiagnosticTestProfile {
     @Column(name = "list_of_value_id")
     private String listOfValueId;
 
-    @Builder.Default
     @Column(name ="is_active",nullable = false)
     private Boolean isActive = true;
 
