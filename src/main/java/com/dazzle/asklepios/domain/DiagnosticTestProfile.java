@@ -1,6 +1,6 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.DocumentType;
+import com.dazzle.asklepios.domain.enumeration.TestResultType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,47 +15,46 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serial;
-import java.io.Serializable;
-
 @Entity
+@Table(name = "diagnostic_test_profile")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
-@Table(name = "patient_documents")
-public class PatientDocument extends AbstractAuditingEntity<Long> implements Serializable {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
+public class DiagnosticTestProfile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "patient_id", nullable = false)
-    private Patient patient;
+    @JoinColumn(name = "test_id", nullable = false)
+    private DiagnosticTest test;
 
-    @Column(name = "country_id", nullable = false)
-    private Long countryId;
+    @NotNull(message = "Name cannot be null")
+    @Column(nullable = false)
+    private String name;
+
+    private String resultUnit;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false, length = 255)
-    private DocumentType type;
-
-    @Column(name = "number", nullable = false, length = 255)
-    private String number;
+    @Column(name = "result_type", nullable = false)
+    private TestResultType resultType;
 
     @NotNull
-    @Column(name = "is_primary", nullable = false)
-    private Boolean isPrimary = Boolean.FALSE;
+    @Column(name = "is_default")
+    private Boolean isDefault = false;
+
+    @Column(name = "list_of_value_id")
+    private String listOfValueId;
+
+    @Column(name ="is_active",nullable = false)
+    private Boolean isActive = true;
+
 }
+

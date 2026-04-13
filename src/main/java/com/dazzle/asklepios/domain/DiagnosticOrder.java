@@ -15,13 +15,11 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
+
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -33,7 +31,6 @@ import java.time.Instant;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @EqualsAndHashCode(callSuper = false)
 public class DiagnosticOrder extends AbstractAuditingEntity implements Serializable {
 
@@ -63,9 +60,8 @@ public class DiagnosticOrder extends AbstractAuditingEntity implements Serializa
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 50)
-    private DiagnosticStatus status=DiagnosticStatus.NEW;;
+    private DiagnosticStatus status=DiagnosticStatus.NEW;
 
-    @Generated(GenerationTime.INSERT)
     @Column(name = "order_number", nullable = false)
     private Long orderNumber;
 

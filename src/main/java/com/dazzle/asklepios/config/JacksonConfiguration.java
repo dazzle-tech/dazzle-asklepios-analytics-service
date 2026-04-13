@@ -3,8 +3,8 @@ package com.dazzle.asklepios.config;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.datatype.hibernate6.Hibernate6Module;
-import com.fasterxml.jackson.datatype.hibernate6.Hibernate6Module.Feature;
+import com.fasterxml.jackson.datatype.hibernate7.Hibernate7Module;
+import com.fasterxml.jackson.datatype.hibernate7.Hibernate7Module.Feature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
@@ -42,7 +42,8 @@ public class JacksonConfiguration {
      * Support for Hibernate types in Jackson.
      */
     @Bean
-    public Hibernate6Module hibernate6Module() {
-        return new Hibernate6Module().configure(Feature.SERIALIZE_IDENTIFIER_FOR_LAZY_NOT_LOADED_OBJECTS, true);
+    public Hibernate7Module hibernate7Module() {
+        return new Hibernate7Module()
+                .configure(Feature.SERIALIZE_IDENTIFIER_FOR_LAZY_NOT_LOADED_OBJECTS, true);
     }
 }
