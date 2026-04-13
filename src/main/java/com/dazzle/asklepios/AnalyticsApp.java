@@ -15,14 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.core.env.Environment;
 
 
 @SpringBootApplication
-@EnableCaching
-@EnableFeignClients
 public class AnalyticsApp {
 
     private static final Logger LOG = LoggerFactory.getLogger(AnalyticsApp.class);
