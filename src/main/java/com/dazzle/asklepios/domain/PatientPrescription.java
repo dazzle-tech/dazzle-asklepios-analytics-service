@@ -71,6 +71,5 @@ public class PatientPrescription extends AbstractAuditingEntity<Long> implements
     private Long toDepartmentId;
 
     @OneToMany(mappedBy = "prescriptionHeader", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
     private List<PatientPrescriptionMedication> medications = new ArrayList<>();
 }

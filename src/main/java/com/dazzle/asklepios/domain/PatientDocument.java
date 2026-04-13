@@ -56,7 +56,6 @@ public class PatientDocument extends AbstractAuditingEntity<Long> implements Ser
     private String number;
 
     @NotNull
-    @Builder.Default
     @Column(name = "is_primary", nullable = false)
     private Boolean isPrimary = Boolean.FALSE;
 }
