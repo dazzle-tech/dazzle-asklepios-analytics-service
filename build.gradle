@@ -1,3 +1,5 @@
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
 plugins {
     id "java"
     id "maven-publish"
@@ -17,12 +19,12 @@ description = ""
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
 def v = System.getProperty("java.specification.version")
-assert ["17", "21", "24"].contains(v) : "Unsupported Java version: ${v}"
+assert ["17", "21", "25"].contains(v) : "Unsupported Java version: ${v}"
 
 ext {
     springProfiles = ""
@@ -32,7 +34,6 @@ ext {
     if (project.hasProperty("e2e")) {
         springProfiles += ",e2e"
     }
-    springBootVersion = "4.0.3"
     springCloudVersion = "2025.1.1"
 }
 
@@ -114,14 +115,15 @@ configurations {
 }
 
 dependencies {
-    implementation platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+    implementation platform(SpringBootPlugin.BOM_COORDINATES)
+    compileOnly platform(SpringBootPlugin.BOM_COORDINATES)
+    annotationProcessor platform(SpringBootPlugin.BOM_COORDINATES)
+    testImplementation platform(SpringBootPlugin.BOM_COORDINATES)
+    testRuntimeOnly platform(SpringBootPlugin.BOM_COORDINATES)
+    developmentOnly platform(SpringBootPlugin.BOM_COORDINATES)
+
     implementation platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
 
-    compileOnly platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
-    annotationProcessor platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
-    testImplementation platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
-    testRuntimeOnly platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
-    developmentOnly platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
     testImplementation platform("org.testcontainers:testcontainers-bom:1.20.4")
     testRuntimeOnly platform("org.testcontainers:testcontainers-bom:1.20.4")
     implementation platform("software.amazon.awssdk:bom:2.25.40")
@@ -147,7 +149,6 @@ dependencies {
     implementation "org.mapstruct:mapstruct:${mapstructVersion}"
 
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
-
     implementation "org.springframework.boot:spring-boot-starter-actuator"
     implementation "org.springframework:spring-aop"
     implementation "org.aspectj:aspectjweaver"
@@ -165,10 +166,10 @@ dependencies {
     implementation libs.springdoc.openapi.starter.webmvc.api
 
     implementation "org.springframework.security:spring-security-data"
-    implementation "com.fasterxml.jackson.datatype:jackson-datatype-hibernate7"
     implementation "com.fasterxml.jackson.module:jackson-module-jaxb-annotations"
     implementation "org.postgresql:postgresql"
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-jdk8"
+
     testImplementation "org.testcontainers:jdbc"
     testImplementation "org.testcontainers:junit-jupiter"
     testImplementation "org.testcontainers:testcontainers"
@@ -176,7 +177,8 @@ dependencies {
     implementation "org.apache.commons:commons-csv:1.10.0"
 
     annotationProcessor "org.glassfish.jaxb:jaxb-runtime"
-    annotationProcessor "org.hibernate.orm:hibernate-processor"}
+    annotationProcessor "org.hibernate.orm:hibernate-processor"
+}
 
 task cleanResources(type: Delete) {
     delete "build/resources"
