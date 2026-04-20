@@ -1,15 +1,18 @@
 package com.dazzle.asklepios.service;
 
 import com.dazzle.asklepios.service.dto.RadiologyReportDTO;
-import com.itextpdf.html2pdf.ConverterProperties;
-import com.itextpdf.html2pdf.HtmlConverter;
+import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserContext;
+import com.microsoft.playwright.BrowserType;
+import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Playwright;
+import com.microsoft.playwright.options.WaitUntilState;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.Base64;
 
@@ -29,11 +32,36 @@ public class RadiologyPdfRenderService {
 
         String html = templateEngine.process("reports/radiology-report", context);
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ConverterProperties props = new ConverterProperties();
-        HtmlConverter.convertToPdf(html, outputStream, props);
+        return renderPdfWithChromium(html);
+    }
 
-        return outputStream.toByteArray();
+    private byte[] renderPdfWithChromium(String html) {
+        try (Playwright playwright = Playwright.create()) {
+            Browser browser = playwright.chromium().launch(
+                    new BrowserType.LaunchOptions().setHeadless(true)
+            );
+
+            BrowserContext browserContext = browser.newContext();
+            Page page = browserContext.newPage();
+
+            page.setContent(
+                    html,
+                    new Page.SetContentOptions().setWaitUntil(WaitUntilState.NETWORKIDLE)
+            );
+
+            byte[] pdfBytes = page.pdf(
+                    new Page.PdfOptions()
+                            .setPrintBackground(true)
+                            .setPreferCSSPageSize(true)
+            );
+
+            browserContext.close();
+            browser.close();
+
+            return pdfBytes;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate radiology PDF with Chromium: " + e.getMessage(), e);
+        }
     }
 
     private String getLogoBase64() {
