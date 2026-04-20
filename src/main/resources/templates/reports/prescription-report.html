@@ -677,7 +677,6 @@
           <th>Duration</th>
           <th class="text-center">Refills</th>
           <th>Administration Instructions</th>
-          <th class="text-center">Valid Until</th>
           <th>Indication</th>
         </tr>
         </thead>
@@ -688,7 +687,6 @@
           <td th:text="${med.duration}">Duration</td>
           <td class="text-center" th:text="${med.numberOfRefills}">0</td>
           <td class="text-muted" th:text="${med.administrationInstructions}">Admin instruction</td>
-          <td class="text-center font-bold" th:text="${med.validUntil}">Valid</td>
           <td class="text-muted" th:text="${med.indicationIcd}">Indication</td>
         </tr>
         </tbody>

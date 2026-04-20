@@ -102,17 +102,7 @@ public class PatientEncounter extends AbstractAuditingEntity<Long> implements Se
     @Column(name = "chief_complaint", columnDefinition = "text")
     private String chiefComplaint;
 
-    @NotNull
 
-    @Column(name = "has_prescription", nullable = false)
-    private Boolean hasPrescription = false;
 
-    @NotNull
 
-    @Column(name = "has_order", nullable = false)
-    private Boolean hasOrder = false;
-
-    @NotNull
-    @Column(name = "is_observed", nullable = false)
-    private Boolean isObserved = false;
 }
