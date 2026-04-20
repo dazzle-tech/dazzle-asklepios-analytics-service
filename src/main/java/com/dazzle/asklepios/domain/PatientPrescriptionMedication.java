@@ -50,8 +50,6 @@ public class PatientPrescriptionMedication extends AbstractAuditingEntity<Long> 
     @Column(name = "instructions", columnDefinition = "text")
     private String instructions;
 
-    @Column(name = "prescription_id", length = 50)
-    private Long prescriptionId;
 
     @Column(name = "dose")
     private Long dose;
@@ -77,8 +75,6 @@ public class PatientPrescriptionMedication extends AbstractAuditingEntity<Long> 
     @Column(name = "maximum_dose")
     private Long maximumDose;
 
-    @Column(name = "valid_util")
-    private LocalDate validUtil;
 
     @Column(name = "allowed_substitute")
     private Boolean allowedSubstitute;
@@ -89,7 +85,7 @@ public class PatientPrescriptionMedication extends AbstractAuditingEntity<Long> 
     @Column(name = "indication_use", columnDefinition = "text")
     private String indicationUse;
 
-   @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "indication_icd", nullable = false)
     private ICDDiagnosis indicationIcd;
 

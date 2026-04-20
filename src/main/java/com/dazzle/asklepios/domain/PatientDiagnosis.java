@@ -27,7 +27,7 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+
 public class PatientDiagnosis extends AbstractAuditingEntity<Long> implements Serializable {
 
     @Id
@@ -55,11 +55,9 @@ public class PatientDiagnosis extends AbstractAuditingEntity<Long> implements Se
 
     @NotNull
     @Column(name = "suspected", nullable = false)
-    @Builder.Default
     private Boolean suspected = false;
 
     @NotNull
     @Column(name = "major", nullable = false)
-    @Builder.Default
     private Boolean major = false;
 }

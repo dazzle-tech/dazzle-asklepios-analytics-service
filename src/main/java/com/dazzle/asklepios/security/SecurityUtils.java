@@ -13,7 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
-import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 /**
  * Utility class for Spring Security.
  */

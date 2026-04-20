@@ -25,7 +25,6 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @EqualsAndHashCode(callSuper = false)
 public class Department extends AbstractAuditingEntity<Long> implements Serializable {
 

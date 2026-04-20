@@ -21,7 +21,6 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Immutable
 @Table(name = "icd_diagnosis")
 public class ICDDiagnosis implements Serializable {

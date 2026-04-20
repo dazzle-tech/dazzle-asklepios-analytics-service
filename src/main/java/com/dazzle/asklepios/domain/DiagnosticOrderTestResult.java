@@ -1,7 +1,8 @@
+
 package com.dazzle.asklepios.domain;
 
 import com.dazzle.asklepios.domain.enumeration.DiagnosticStatus;
-import com.dazzle.asklepios.domain.enumeration.RadiologyImageStatus;
+import com.dazzle.asklepios.domain.enumeration.diagnostictest.TestResultMarker;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -20,18 +21,17 @@ import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.Instant;
 
 @Entity
-@Table(
-        name = "diagnostic_order_tests_report")
-
+@Table(name = "diagnostic_order_tests_result")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class DiagnosticOrderTestReport extends AbstractAuditingEntity implements Serializable {
+public class DiagnosticOrderTestResult extends AbstractAuditingEntity implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -40,15 +40,22 @@ public class DiagnosticOrderTestReport extends AbstractAuditingEntity implements
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
+
     @Column(name = "order_test_id", nullable = false)
     private Long orderTestId;
 
-    @Column(name = "report", columnDefinition = "text")
-    private String report;
+    @Column(name = "profile_test_id", nullable = false)
+    private Long profileTestId;
 
-    @Column(name = "severity", length = 50)
-    private String severity;
+    @Column(name = "result_value_number", precision = 19, scale = 2)
+    private BigDecimal resultValueNumber;
+
+    @Column(name = "result_value_text", columnDefinition = "text")
+    private String resultValueText;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "marker", length = 50)
+    private TestResultMarker marker;
 
     @Column(name = "approved_by", length = 50)
     private String approvedBy;
@@ -71,19 +78,11 @@ public class DiagnosticOrderTestReport extends AbstractAuditingEntity implements
     @Column(name = "review_date")
     private Instant reviewDate;
 
-    @Column(name = "second_approved_by")
-    private String secondApprovedBy;
-
-    @Column(name = "second_approved_date")
-    private Instant secondApprovedDate;
-
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "processing_status", length = 50)
-    private DiagnosticStatus processingStatus;
+    private DiagnosticStatus processingStatus=DiagnosticStatus.NEW;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(name = "image_status", length = 50)
-    private RadiologyImageStatus imageStatus;
+    @Column(name = "normal_range_value", length = 150)
+    private String normalRangeValue;
 }
