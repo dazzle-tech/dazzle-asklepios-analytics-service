@@ -98,7 +98,11 @@ task integrationTestReport(type: TestReport) {
     destinationDirectory = file("$buildDir/reports/tests")
     testResults.from(integrationTest)
 }
-
+tasks.register('playwrightInstall', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.microsoft.playwright.CLI'
+    args 'install', 'chromium'
+}
 gitProperties {
     failOnNoGitDirectory = false
     keys = ["git.branch", "git.commit.id.abbrev", "git.commit.id.describe"]
