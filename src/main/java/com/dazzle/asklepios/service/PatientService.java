@@ -265,6 +265,53 @@ public class PatientService {
     }
 
     @Transactional(readOnly = true)
+    public Page<Patient> findByMedicalRecordNumber(String medicalRecordNumber, Pageable pageable) {
+        LOG.debug("[FIND BY medicalRecordNumber] Searching patients by medicalRecordNumber='{}' pageable={}", medicalRecordNumber, pageable);
+        return patientRepository.findByMedicalRecordNumberContainingIgnoreCase(medicalRecordNumber, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Patient> findByArchivingNumber(String archivingNumber, Pageable pageable) {
+        LOG.debug("[FIND BY ARCHIVING] Searching patients by archivingNumber='{}' pageable={}", archivingNumber, pageable);
+        return patientRepository.findByArchivingNumberContainingIgnoreCase(archivingNumber, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Patient> findByPrimaryPhone(String primaryPhone, Pageable pageable) {
+        LOG.debug("[FIND BY PHONE] Searching patients by primaryPhone='{}' pageable={}", primaryPhone, pageable);
+        return patientRepository.findByPrimaryMobileNumberContaining(primaryPhone, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Patient> findByDateOfBirth(LocalDate dateOfBirth, Pageable pageable) {
+        LOG.debug("[FIND BY DOB] Searching patients by dateOfBirth={} pageable={}", dateOfBirth, pageable);
+        return patientRepository.findByDateOfBirth(dateOfBirth, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Patient> findByFullName(String keyword, Pageable pageable) {
+        LOG.debug("[FIND BY NAME] Searching patients by keyword='{}' pageable={}", keyword, pageable);
+        return patientRepository
+                .findByFirstNameContainingIgnoreCaseOrSecondNameContainingIgnoreCaseOrThirdNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
+                        keyword, keyword, keyword, keyword, pageable
+                );
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Patient> findUnknownPatients(Pageable pageable) {
+        LOG.debug("[FIND UNKNOWN] Fetching unknown patients with pageable={}", pageable);
+        return patientRepository.findByIsUnknownTrue(pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Patient> findByPrimaryDocumentNumber(String numberPart, Pageable pageable) {
+        LOG.debug("[FIND BY PRIMARY DOCUMENT] numberPart='{}' pageable={}", numberPart, pageable);
+        Page<PatientDocument> docsPage =
+                patientDocumentRepository.findByIsPrimaryTrueAndNumberContainingIgnoreCase(numberPart, pageable);
+        return docsPage.map(PatientDocument::getPatient);
+    }
+
+    @Transactional(readOnly = true)
     public List<Patient> findByIds(List<Long> ids) {
         LOG.debug("[BULK FIND] Fetching Patients by ids count={} ids={}", ids.size(), ids);
         List<Patient> patients = patientRepository.findAllById(ids);
@@ -441,6 +488,191 @@ public class PatientService {
 
     private String safe(String value) {
         return value == null ? "" : value;
+    }
+
+    @Transactional(readOnly = true)
+    public PatientInformationReportDTO getPatientInformationReport(Long patientId) {
+
+        LOG.debug("[PatientReport] GET_PATIENT_INFORMATION_REPORT start patientId={}", patientId);
+
+        /* ===================== 1. Patient ===================== */
+
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new NotFoundAlertException(
+                        "Patient not found with id " + patientId,
+                        "patient",
+                        "notfound"
+                ));
+
+        String fullName = String.join(" ",
+                safe(patient.getFirstName()),
+                safe(patient.getSecondName()),
+                safe(patient.getThirdName()),
+                safe(patient.getLastName())
+        ).trim();
+
+        Integer age = null;
+        if (patient.getDateOfBirth() != null) {
+            age = Period.between(
+                    patient.getDateOfBirth().toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate(),
+                    LocalDate.now()
+            ).getYears();
+        }
+
+        String gender = patient.getSexAtBirth() != null
+                ? patient.getSexAtBirth().name()
+                : null;
+
+        /* ===================== 2. Document ===================== */
+
+        PatientDocument document = patientDocumentRepository
+                .findFirstByPatientIdAndIsPrimaryTrue(patientId)
+                .orElse(null);
+
+        String documentType = document != null ? document.getType().name() : null;
+        String documentNumber = document != null ? document.getNumber() : null;
+
+        /* ===================== 3. Address ===================== */
+
+        /* ===================== 3. Address ===================== */
+
+        Address address = null;
+
+        try {
+            address = addressService.findCurrentByPatient(patientId);
+        } catch (Exception e) {
+            address = null;
+        }
+
+        String city = null;
+        String state = null;
+        String country = null;
+
+        if (address != null && address.getLocationJson() != null) {
+
+            var location = address.getLocationJson();
+
+            if (location.getArea() != null) {
+                city = location.getArea().getName();
+            }
+
+            if (location.getDistrict() != null) {
+                state = location.getDistrict().getName();
+            }
+
+            if (location.getCountry() != null) {
+                country = location.getCountry().getName();
+            }
+        }
+
+        String cityStateCountry = Stream.of(city, state, country)
+                .filter(v -> v != null && !v.isBlank())
+                .collect(Collectors.joining(" / "));
+        /* ===================== 4. Insurance ===================== */
+
+        String insuranceProvider = null;
+        String policyNumber = null;
+
+        PatientInsurance insurance = patientInsuranceRepository
+                .findFirstByPatientIdAndIsPrimaryTrue(patientId)
+                .orElse(null);
+
+        if (insurance != null) {
+            policyNumber = String.valueOf(insurance.getPolicyNumber());
+
+            // 🔥 FIX: بدل ID → اسم الـ Payor
+            if (insurance.getPayor() != null) {
+                insuranceProvider = insurance.getPayor().getName(); // تأكد من field
+            }
+        }
+
+        /* ===================== 5. Preferred Doctor ===================== */
+
+
+        String preferredDoctor = null;
+
+        PatientPreferredHealthProfessional preferred =
+                patientPreferredHealthProfessionalRepository
+                        .findFirstByPatientId(patientId)
+                        .orElse(null);
+
+
+        if (preferred != null) {
+            Practitioner p = practitionersRepository
+                    .findById(preferred.getPractitionerId())
+                    .orElse(null);
+
+            if (p != null) {
+                preferredDoctor = p.getFirstName() + " " + p.getLastName();
+            }
+        }
+
+        /* ===================== 6. Emergency Contact ===================== */
+
+        String relationship = patient.getEmergencyContactRelation();
+
+
+        /* ===================== 7. DTO ===================== */
+
+        return new PatientInformationReportDTO(
+                patient.getId(),
+                fullName,
+                patient.getMedicalRecordNumber(),
+                patient.getDateOfBirth() != null ? patient.getDateOfBirth().toInstant() : null,
+                age,
+                gender,
+                null,
+
+                documentType,
+                documentNumber,
+                patient.getPrimaryMobileNumber(),
+                patient.getSecondMobileNumber(),
+                patient.getEmail(),
+
+                city,
+                state,
+                country,
+
+                patient.getEmergencyContactName(),
+                relationship,
+                patient.getEmergencyContactPhone(),
+                patient.getCreatedDate(),
+                insuranceProvider,
+                policyNumber,
+                preferredDoctor
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public PatientWristbandDTO getPatientWristband(Long patientId) {
+
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new NotFoundAlertException("Patient not found", "patient", "notfound"));
+
+        String fullName = (patient.getFirstName() + " " + patient.getLastName()).trim();
+
+        // TODO: replace with real data
+        String allergy = "No Allergy";
+        String bloodGroup = "O+";
+        LocalDateTime admission = LocalDateTime.now();
+        String facility = "Asklepios Hospital";
+
+        return new PatientWristbandDTO(
+                fullName,
+                patient.getMedicalRecordNumber(),
+                patient.getDateOfBirth(),
+                patient.getSexAtBirth() != null ? patient.getSexAtBirth().name() : null,
+
+                patient.getMedicalRecordNumber(), // barcode
+                patient.getId().toString(),       // QR
+
+                allergy,
+                bloodGroup,
+                admission,
+                facility
+        );
     }
 
     @Transactional(readOnly = true)

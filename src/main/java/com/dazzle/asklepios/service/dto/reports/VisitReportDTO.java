@@ -16,9 +16,9 @@ public record VisitReportDTO(
         List<NurseSummaryAllergyDTO> allergies,
         List<NurseSummaryWarningDTO> warnings,
 
-        List<OrderedDiagnosticsDTO> diagnostics,
-        List<BrandMedicationsDTO> medications,
-        List<ProceduresDTO> procedures,
+        List<NurseSummaryServiceProductDTO> diagnostics,
+        List<NurseSummaryServiceProductDTO> medications,
+        List<NurseSummaryServiceProductDTO> procedures,
         String physicianFullName,
 
         Instant generatedAt

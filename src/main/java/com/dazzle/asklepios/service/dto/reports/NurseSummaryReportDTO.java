@@ -1,6 +1,7 @@
 package com.dazzle.asklepios.service.dto.reports;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 
 public record NurseSummaryReportDTO(
@@ -16,12 +17,7 @@ public record NurseSummaryReportDTO(
         List<NurseSummaryAllergyDTO> allergies,
         List<NurseSummaryWarningDTO> warnings,
         List<NurseSummaryVaccinationDTO> vaccinations,
-
         List<NurseSummaryServiceProductDTO> servicesAndProducts,
-
-        List<OrderedDiagnosticsDTO> diagnosticsOrder,
-        List<BrandMedicationsDTO> medications,
-        List<ProceduresDTO> procedures,
 
         Instant generatedAt
 ) {

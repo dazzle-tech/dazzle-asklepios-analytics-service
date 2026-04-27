@@ -11,9 +11,6 @@ public record NurseSummaryVitalSignsDTO(
         Integer oxygenSaturation,
         Integer respiratoryRate,
         String notes,
-        String painDegree,
-        String painLevel,
-        String painPattern,
-        String painDescription
+        Integer painDegree
 ) {
 }
