@@ -21,8 +21,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
+
 
 import java.io.Serializable;
 import java.util.Date;
@@ -34,7 +33,6 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Patient extends AbstractAuditingEntity<Long> implements Serializable {
 
     @Id
@@ -42,9 +40,11 @@ public class Patient extends AbstractAuditingEntity<Long> implements Serializabl
     private Long id;
 
     @Column(name = "medical_record_number", insertable = false, updatable = false)
-    @Generated(GenerationTime.INSERT)
     private String medicalRecordNumber;
 
+    @OneToMany(mappedBy = "patient", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<PatientDocument> patientDocuments;
 
     @Column(name = "first_name", length = 100)
     private String firstName;
@@ -164,7 +164,7 @@ public class Patient extends AbstractAuditingEntity<Long> implements Serializabl
     private Boolean isCompletedPatient;
 
     @Enumerated(EnumType.STRING)
-    @Column(name="security_access_level")
+    @Column(name = "security_access_level")
     private SecurityLevel securityAccessLevel;
 
     @AssertTrue(message = "When patient is not unknown, firstName, lastName, sexAtBirth, dateOfBirth, primaryMobileNumber and email are required")

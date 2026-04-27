@@ -1,7 +1,8 @@
 package com.dazzle.asklepios.web.rest;
 
 import com.dazzle.asklepios.service.DiagnosticOrderTestCollectedSampleService;
-import com.dazzle.asklepios.web.rest.vm.DiagnosticOrderTestSampleLabelVM;
+import com.dazzle.asklepios.service.DiagnosticOrderTestSampleLabelPdfRenderService;
+import com.dazzle.asklepios.service.dto.DiagnosticOrderTestSampleLabelDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -18,22 +19,23 @@ public class DiagnosticOrderTestCollectedSampleController {
 
     private final DiagnosticOrderTestCollectedSampleService service;
 
-
+   private final DiagnosticOrderTestSampleLabelPdfRenderService diagnosticOrderTestSampleLabelPdfRenderService;
     public DiagnosticOrderTestCollectedSampleController(
-            DiagnosticOrderTestCollectedSampleService service
+            DiagnosticOrderTestCollectedSampleService service, DiagnosticOrderTestSampleLabelPdfRenderService diagnosticOrderTestSampleLabelPdfRenderService
 
     ) {
         this.service = service;
 
+        this.diagnosticOrderTestSampleLabelPdfRenderService = diagnosticOrderTestSampleLabelPdfRenderService;
     }
 
 
     @GetMapping("/diagnostic-order-test-collected-samples/sample-label/{orderTestId}")
-    public ResponseEntity<DiagnosticOrderTestSampleLabelVM> getSampleLabel(@PathVariable Long orderTestId) {
+    public ResponseEntity<DiagnosticOrderTestSampleLabelDTO> getSampleLabel(@PathVariable Long orderTestId) {
 
         LOG.debug("[SampleLabel] GET_SAMPLE_LABEL - request received. orderTestId={}", orderTestId);
 
-        DiagnosticOrderTestSampleLabelVM sampleLabelVM = service.getSampleLabel(orderTestId);
+        DiagnosticOrderTestSampleLabelDTO sampleLabelVM = service.getSampleLabel(orderTestId);
 
         LOG.debug(
                 "[SampleLabel] GET_SAMPLE_LABEL - response ready. orderTestId={} patientName={} testName={}",
@@ -43,5 +45,14 @@ public class DiagnosticOrderTestCollectedSampleController {
         );
 
         return ResponseEntity.ok(sampleLabelVM);
+    }
+    @GetMapping("/diagnostic-order-tests/{orderTestId}/sample-label/pdf")
+    public ResponseEntity<byte[]> generateSampleLabelPdf(@PathVariable Long orderTestId) {
+        byte[] pdf = diagnosticOrderTestSampleLabelPdfRenderService.generateSampleLabelPdf(orderTestId);
+
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "inline; filename=sample-label-" + orderTestId + ".pdf")
+                .header("Content-Type", "application/pdf")
+                .body(pdf);
     }
 }

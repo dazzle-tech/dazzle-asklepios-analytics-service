@@ -12,7 +12,6 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,10 +20,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(  name = "patient_insurances")
+@Table(name = "patient_insurances")
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class PatientInsurance extends AbstractAuditingEntity<Long> {
@@ -37,13 +35,10 @@ public class PatientInsurance extends AbstractAuditingEntity<Long> {
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "payor_id", insertable = false, updatable = false)
-    private Payor payor;
-
     @NotNull
-    @Column(name = "payor_id", nullable = false)
-    private Long payorId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payor_id", nullable = false)
+    private Payor payor;
 
     @NotNull
     @Column(name = "plan_id")
@@ -59,7 +54,8 @@ public class PatientInsurance extends AbstractAuditingEntity<Long> {
     @Column(name = "group_number")
     private Long groupNumber;
 
-    @Future @NotNull
+    @Future
+    @NotNull
     @Column(name = "expiration_date", nullable = false)
     private LocalDate expirationDate;
 
