@@ -1,5 +1,6 @@
 package com.dazzle.asklepios.service;
 
+import com.dazzle.asklepios.domain.ApLovValue;
 import com.dazzle.asklepios.domain.Department;
 import com.dazzle.asklepios.domain.DiagnosticOrder;
 import com.dazzle.asklepios.domain.DiagnosticOrderTest;
@@ -10,6 +11,7 @@ import com.dazzle.asklepios.domain.DiagnosticTestProfile;
 import com.dazzle.asklepios.domain.Patient;
 import com.dazzle.asklepios.domain.PatientEncounter;
 import com.dazzle.asklepios.domain.enumeration.TestResultType;
+import com.dazzle.asklepios.repository.ApLovValueRepository;
 import com.dazzle.asklepios.repository.DepartmentsRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderTestRepository;
@@ -51,10 +53,11 @@ public class DiagnosticOrderTestResultReportService {
     private final DepartmentsRepository departmentRepository;
     private final PatientEncounterRepository encounterRepository;
     private final DiagnosticTestProfileRepository diagnosticTestProfileRepository;
+    private final ApLovValueRepository apLovValueRepository;
 
     public DiagnosticOrderTestResultReportService(
             DiagnosticOrderTestResultRepository diagnosticOrderTestResultRepository,
-            DiagnosticOrderTestRepository diagnosticOrderTestRepository, DiagnosticOrderRepository orderRepository, PatientRepository patientRepository, DiagnosticTestRepository diagnosticTestRepository, DepartmentsRepository departmentRepository, PatientEncounterRepository encounterRepository, DiagnosticTestProfileRepository diagnosticTestProfileRepository
+            DiagnosticOrderTestRepository diagnosticOrderTestRepository, DiagnosticOrderRepository orderRepository, PatientRepository patientRepository, DiagnosticTestRepository diagnosticTestRepository, DepartmentsRepository departmentRepository, PatientEncounterRepository encounterRepository, DiagnosticTestProfileRepository diagnosticTestProfileRepository, ApLovValueRepository apLovValueRepository
     ) {
         this.diagnosticOrderTestResultRepository = diagnosticOrderTestResultRepository;
         this.diagnosticOrderTestRepository = diagnosticOrderTestRepository;
@@ -64,6 +67,7 @@ public class DiagnosticOrderTestResultReportService {
         this.departmentRepository = departmentRepository;
         this.encounterRepository = encounterRepository;
         this.diagnosticTestProfileRepository = diagnosticTestProfileRepository;
+        this.apLovValueRepository = apLovValueRepository;
     }
 
 
@@ -191,9 +195,12 @@ public class DiagnosticOrderTestResultReportService {
                 testProfile.getName(),
 
                 testProfile.getResultType()== TestResultType.LOV? result.getResultValueText() : result.getResultValueNumber().toString(),
-                testProfile.getResultUnit(),
+                apLovValueRepository.findById(String.valueOf( testProfile.getResultUnit()))
+                        .map(ApLovValue::getLovDisplayVale)
+                        .orElse(null),
                 result.getMarker(),
-                result.getReviewDate()
+                result.getReviewDate(),
+                result.getReviewBy()
         );
     }
 }

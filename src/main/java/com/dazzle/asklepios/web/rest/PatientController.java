@@ -2,12 +2,8 @@ package com.dazzle.asklepios.web.rest;
 
 import com.dazzle.asklepios.domain.Patient;
 import com.dazzle.asklepios.service.PatientService;
-import com.dazzle.asklepios.service.dto.patient.PatientCreateDTO;
-import com.dazzle.asklepios.service.dto.patient.PatientDuplicationLookupDTO;
-import com.dazzle.asklepios.service.dto.patient.PatientInformationReportDTO;
-import com.dazzle.asklepios.service.dto.patient.PatientUpdateDTO;
+import com.dazzle.asklepios.service.PatientWristbandPdfRenderService;
 import com.dazzle.asklepios.service.dto.patient.PatientWristbandDTO;
-import com.dazzle.asklepios.service.dto.patient.UnknownPatientCreateDTO;
 import com.dazzle.asklepios.service.dto.patientLabel.PatientLabelDTO;
 import com.dazzle.asklepios.web.rest.Helper.PaginationUtil;
 import com.dazzle.asklepios.web.rest.errors.BadRequestAlertException;
@@ -44,9 +40,10 @@ public class PatientController {
             LoggerFactory.getLogger(PatientController.class);
 
     private final PatientService patientService;
-
-    public PatientController(PatientService patientService) {
+   private final PatientWristbandPdfRenderService patientWristbandPdfRenderService;
+    public PatientController(PatientService patientService, PatientWristbandPdfRenderService patientWristbandPdfRenderService) {
         this.patientService = patientService;
+        this.patientWristbandPdfRenderService = patientWristbandPdfRenderService;
     }
 
 
@@ -438,6 +435,21 @@ public class PatientController {
 
         return ResponseEntity.ok(patientLabelDTO);
     }
+    @GetMapping("/{patientId}/wristband")
+    public ResponseEntity<PatientWristbandDTO> getPatientWristband(
+            @PathVariable Long patientId
+    ) {
+        return ResponseEntity.ok(patientService.getPatientWristband(patientId));
+    }
+    @GetMapping("/{patientId}/wristband/pdf")
+    public ResponseEntity<byte[]> generateWristbandPdf(@PathVariable Long patientId) {
+
+        byte[] pdf = patientWristbandPdfRenderService.generateWristbandPdf(patientId);
+
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "inline; filename=wristband-" + patientId + ".pdf")
+                .header("Content-Type", "application/pdf")
+                .body(pdf);
+    }
+
 }
-
-

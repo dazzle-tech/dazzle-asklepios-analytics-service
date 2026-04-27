@@ -29,7 +29,6 @@ import java.time.LocalDate;
 @Table(name = "patient_encounters")
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class PatientEncounter extends AbstractAuditingEntity<Long> implements Serializable {
@@ -103,18 +102,7 @@ public class PatientEncounter extends AbstractAuditingEntity<Long> implements Se
     @Column(name = "chief_complaint", columnDefinition = "text")
     private String chiefComplaint;
 
-    @NotNull
-    @Builder.Default
-    @Column(name = "has_prescription", nullable = false)
-    private Boolean hasPrescription = false;
 
-    @NotNull
-    @Builder.Default
-    @Column(name = "has_order", nullable = false)
-    private Boolean hasOrder = false;
 
-    @NotNull
-    @Builder.Default
-    @Column(name = "is_observed", nullable = false)
-    private Boolean isObserved = false;
+
 }
