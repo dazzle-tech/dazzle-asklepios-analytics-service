@@ -27,6 +27,7 @@ public record LaboratoryResultReportDTO(
         String result,
         String unit,
         TestResultMarker marker,
-        Instant reviewedDate
+        Instant reviewedDate,
+        String reviewedBy
 ) {
 }

@@ -25,7 +25,6 @@ import java.time.Instant;
 @Table(name = "patient_warnings")
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class PatientWarnings extends AbstractAuditingEntity<Long> implements Serializable {

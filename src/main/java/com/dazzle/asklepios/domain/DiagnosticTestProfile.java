@@ -23,7 +23,6 @@ import lombok.Setter;
 @Table(name = "diagnostic_test_profile")
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class DiagnosticTestProfile {
@@ -48,14 +47,12 @@ public class DiagnosticTestProfile {
     private TestResultType resultType;
 
     @NotNull
-    @Builder.Default
     @Column(name = "is_default")
     private Boolean isDefault = false;
 
     @Column(name = "list_of_value_id")
     private String listOfValueId;
 
-    @Builder.Default
     @Column(name ="is_active",nullable = false)
     private Boolean isActive = true;
 

@@ -1,6 +1,6 @@
 package com.dazzle.asklepios.service;
 
-import com.dazzle.asklepios.service.dto.prescription.PrescriptionPrintDTO;
+import com.dazzle.asklepios.service.dto.LaboratoryResultReportDTO;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.BrowserType;
@@ -14,24 +14,24 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.Base64;
 
 @Service
 @RequiredArgsConstructor
-public class PrescriptionPdfRenderService {
+public class LaboratoryPdfRenderService {
 
     private final SpringTemplateEngine templateEngine;
-    private final PrescriptionReportService prescriptionReportService;
+    private final DiagnosticOrderTestResultReportService diagnosticOrderTestResultReportService;
 
-    public byte[] generatePrescriptionPdf(Long prescriptionId) {
-        PrescriptionPrintDTO dto = prescriptionReportService.getPrescriptionPrint(prescriptionId);
+    public byte[] generateLaboratoryPdf(Long diagnosticTestResultId) {
+        LaboratoryResultReportDTO dto =
+                diagnosticOrderTestResultReportService.getLaboratoryResult(diagnosticTestResultId);
 
         Context context = new Context();
         context.setVariable("report", dto);
         context.setVariable("logo", getLogoBase64());
 
-        String html = templateEngine.process("reports/prescription-report", context);
+        String html = templateEngine.process("reports/laboratory-result-report", context);
 
         return renderPdfWithChromium(html);
     }
@@ -61,7 +61,7 @@ public class PrescriptionPdfRenderService {
 
             return pdfBytes;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to generate prescription PDF with Chromium: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to generate laboratory PDF with Chromium: " + e.getMessage(), e);
         }
     }
 

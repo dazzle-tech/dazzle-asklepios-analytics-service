@@ -9,7 +9,6 @@ public record PrescriptionMedicationDTO(
         Boolean refillAllowed,
         Long numberOfRefills,
         String administrationInstructions,
-        LocalDate validUntil,
         Boolean substitutionAllowed,
         String indicationIcd
 ) {
