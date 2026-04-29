@@ -503,7 +503,10 @@
             <div class="underline-accent"></div>
         </div>
         <div class="date-time-info">
-            <span>Generated At: <strong th:text="${report.generatedAt}">—</strong></span>
+    <span>
+        Generated At:
+        <strong th:text="${#temporals.format(report.generatedAt, 'yyyy-MM-dd HH:mm')}">—</strong>
+    </span>
         </div>
     </div>
 
@@ -529,9 +532,11 @@
                 <div class="info-box no-border">
                     <span class="info-label">Date of Birth / Age</span>
                     <span class="info-value">
-            <span th:text="${report.patientInfo?.dateOfBirth}">—</span>
-            <span th:if="${report.patientInfo?.age != null}"
-                  th:text="' (' + ${report.patientInfo?.age} + ' yrs)'"></span>
+           <span class="info-value">
+                    <span th:text="${#dates.format(report.patientInfo?.dateOfBirth, 'dd/MM/yyyy')}">-</span>
+                    <span th:if="${report.patientInfo?.age!= null and !#strings.isEmpty(report.patientInfo?.age)}"
+                          th:text="' (' + ${report.patientInfo?.age} + ')'"></span>
+                </span>
           </span>
                 </div>
             </div>
@@ -557,17 +562,10 @@
                     <span class="info-label">Encounter Date</span>
                     <span class="info-value" th:text="${report.encounterInfo?.encounterDate}">—</span>
                 </div>
-                <div class="info-box no-border">
-                    <span class="info-label">Encounter Type</span>
-                    <span class="info-value" th:text="${report.encounterInfo?.encounterType}">—</span>
-                </div>
+
             </div>
             <div class="grid-row grid-4">
-                <div class="info-box">
-                    <span class="info-label">Encounter ID</span>
-                    <span class="info-value"
-                          th:text="'#' + (${report.encounterInfo?.encounterId} ?: '')">—</span>
-                </div>
+
                 <div class="info-box">
                     <span class="info-label">Encounter Number</span>
                     <span class="info-value" th:text="${report.encounterInfo?.encounterNumber}">—</span>
@@ -603,22 +601,16 @@
                 <tr>
                     <th>Allergen Type</th>
                     <th>Severity</th>
-                    <th>Criticality</th>
-                    <th>Certainty</th>
-                    <th>Reactions</th>
-                    <th>Onset</th>
-                    <th>Note</th>
+                    <th>Allergen</th>
+
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="a : ${report.allergies}">
                     <td class="text-muted" th:text="${a.allergenType}">—</td>
                     <td><span class="badge-red" th:text="${a.severity}">—</span></td>
-                    <td th:text="${a.criticality}">—</td>
-                    <td th:text="${a.certainty}">—</td>
-                    <td th:text="${a.allergicReactions}">—</td>
-                    <td th:text="${a.onset}">—</td>
-                    <td class="text-muted" th:text="${a.note}">—</td>
+                    <td th:text="${a.allergen}">—</td>
+
                 </tr>
                 </tbody>
             </table>
@@ -681,10 +673,7 @@
                     <td>Diagnosis</td>
                     <td th:text="${report.observation?.primaryDiagnosis}">—</td>
                 </tr>
-                <tr>
-                    <td>Plan</td>
-                    <td th:text="${report.observation?.plan}">—</td>
-                </tr>
+
                 <tr>
                     <td>Patient Conditions</td>
                     <td th:text="${report.observation?.patientConditions}">—</td>
@@ -704,7 +693,7 @@
 
     <section class="report-section">
         <div class="section-header blue">
-            <h2 class="section-title">6. Vital Signs</h2>
+            <h2 class="section-title">6. Vital Signs And Pain Assessment</h2>
         </div>
 
         <div class="table-container">
@@ -741,24 +730,21 @@
                 </tr>
                 <tr>
                     <td>Pain Degree</td>
-                    <td th:text="${report.vitalSigns?.painDegree}">—</td>
+                    <td th:text="${report.painAssessment?.painDegree}">—</td>
                 </tr>
                 <tr>
                     <td>Pain Level</td>
-                    <td th:text="${report.vitalSigns?.painLevel}">—</td>
+                    <td th:text="${report.painAssessment?.painLevel}">—</td>
                 </tr>
                 <tr>
                     <td>Pain Pattern</td>
-                    <td th:text="${report.vitalSigns?.painPattern}">—</td>
+                    <td th:text="${report.painAssessment?.painPattern}">—</td>
                 </tr>
                 <tr>
                     <td>Pain Description</td>
-                    <td th:text="${report.vitalSigns?.painDescription}">—</td>
+                    <td th:text="${report.painAssessment?.painDescription}">—</td>
                 </tr>
-                <tr>
-                    <td>Notes</td>
-                    <td th:text="${report.vitalSigns?.notes}">—</td>
-                </tr>
+
                 </tbody>
             </table>
         </div>
@@ -792,100 +778,8 @@
             </div>
         </div>
     </section>
-    <section class="report-section">
-        <div class="section-header blue">
-            <h2 class="section-title">7. Ordered Diagnostics</h2>
-        </div>
 
-        <div th:if="${report.diagnosticsOrder != null and !#lists.isEmpty(report.diagnosticsOrder)}"
-             class="table-container">
-            <table class="item-table">
-                <thead>
-                <tr>
-                    <th>Test Name</th>
-                    <th>Test Type</th>
-                    <th>Order Number</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="d, iStat : ${report.diagnosticsOrder}">
-                    <td th:text="${d.testName}"></td>
-                    <td th:text="${d.testType}"></td>
-                    <td th:text="${d.orderNumber}"></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
 
-        <div class="empty-message"
-             th:if="${report.diagnosticsOrder == null or #lists.isEmpty(report.diagnosticsOrder)}">
-            No diagnostics ordered
-        </div>
-    </section>
-
-    <section class="report-section">
-        <div class="section-header blue">
-            <h2 class="section-title">8. Prescription Medications</h2>
-        </div>
-
-        <div th:if="${report.medications != null and !#lists.isEmpty(report.medications)}"
-             class="table-container">
-            <table class="item-table">
-                <thead>
-                <tr>
-                    <th>Medication Name</th>
-                    <th>Code</th>
-                    <th>Instructions Type</th>
-                    <th>Instructions</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="m : ${report.medications}">
-                    <td th:text="${m.name}"></td>
-                    <td th:text="${m.code}"></td>
-                    <td th:text="${m.instructionsType}"></td>
-                    <td th:text="${m.instructions}"></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="empty-message"
-             th:if="${report.medications == null or #lists.isEmpty(report.medications)}">
-            No medications prescribed
-        </div>
-    </section>
-    <section class="report-section">
-        <div class="section-header blue">
-            <h2 class="section-title">9. Procedures</h2>
-        </div>
-
-        <div th:if="${report.procedures != null and !#lists.isEmpty(report.procedures)}"
-             class="table-container">
-            <table class="item-table">
-                <thead>
-                <tr>
-                    <th>Procedure Name</th>
-                    <th>Code</th>
-                    <th>Category</th>
-                    <th>Notes</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="p : ${report.procedures}">
-                    <td th:text="${p.name}"></td>
-                    <td th:text="${p.code}"></td>
-                    <td th:text="${p.categoryType}"></td>
-                    <td th:text="${p.notes}"></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="empty-message"
-             th:if="${report.procedures == null or #lists.isEmpty(report.procedures)}">
-            No procedures recorded
-        </div>
-    </section>
 
     <div class="footer">
         <div class="footer-left">

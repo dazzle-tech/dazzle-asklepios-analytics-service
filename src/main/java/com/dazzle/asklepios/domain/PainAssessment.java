@@ -1,10 +1,7 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.PainLevel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -47,10 +44,9 @@ public class PainAssessment extends AbstractAuditingEntity<Long> implements Seri
     @Column(name = "pain_degree", length = 200)
     private String painDegree;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
+
     @Column(name = "pain_level")
-    private PainLevel painLevel;
+    private String painLevel;
 
     @Column(name = "pain_pattern", length = 255)
     private String painPattern;
