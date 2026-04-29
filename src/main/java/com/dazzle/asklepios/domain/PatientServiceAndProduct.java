@@ -37,15 +37,9 @@ public class PatientServiceAndProduct extends AbstractAuditingEntity<Long> imple
     @Column(name = "encounter_id", nullable = false)
     private Long encounterId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "category", nullable = false, length = 50)
-    private PatientServiceCategory category;
-
     @Column(name = "service_id")
     private Long serviceId;
 
-    @Column(name = "product_id")
-    private Long productId;
 
     @Column(name = "quantity", nullable = false)
     private Long quantity = 1L;

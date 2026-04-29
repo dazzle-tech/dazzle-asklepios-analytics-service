@@ -7,7 +7,6 @@ public record NurseSummaryEncounterInfoDTO(
         Long encounterId,
         String encounterNumber,
         LocalDate encounterDate,
-        String encounterType,
         String encounterReason,
         String priority,
         String status,
