@@ -35,11 +35,6 @@ public class PatientInsurance extends AbstractAuditingEntity<Long> {
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
 
-
-    @NotNull
-    @Column(name = "payor_id", nullable = false)
-    private Long payorId;
-
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payor_id", nullable = false)
