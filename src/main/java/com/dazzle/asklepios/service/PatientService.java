@@ -1,10 +1,16 @@
 package com.dazzle.asklepios.service;
 
 
+import com.dazzle.asklepios.domain.Facility;
 import com.dazzle.asklepios.domain.Patient;
+import com.dazzle.asklepios.domain.PatientAllergies;
+import com.dazzle.asklepios.repository.FacilityRepository;
+import com.dazzle.asklepios.repository.PatientAllergyRepository;
 import com.dazzle.asklepios.repository.PatientRepository;
+import com.dazzle.asklepios.security.SecurityUtils;
 import com.dazzle.asklepios.service.dto.patient.PatientWristbandDTO;
 import com.dazzle.asklepios.service.dto.patientLabel.PatientLabelDTO;
+import com.dazzle.asklepios.service.dto.prescription.PrescriptionAllergyDTO;
 import com.dazzle.asklepios.web.rest.errors.NotFoundAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +18,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -20,13 +31,16 @@ public class PatientService {
     private static final Logger LOG = LoggerFactory.getLogger(PatientService.class);
 
     private final PatientRepository patientRepository;
-
+    private final FacilityRepository facilityRepository;
+    private final PatientAllergyRepository patientAllergyRepository;
 
     public PatientService(
-            PatientRepository patientRepository
+            PatientRepository patientRepository, FacilityRepository facilityRepository, PatientAllergyRepository patientAllergyRepository
 
     ) {
         this.patientRepository = patientRepository;
+        this.facilityRepository = facilityRepository;
+        this.patientAllergyRepository = patientAllergyRepository;
     }
 
 
@@ -75,14 +89,26 @@ public class PatientService {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new NotFoundAlertException("Patient not found", "patient", "notfound"));
 
-        String fullName = (patient.getFirstName() + " " + patient.getLastName()).trim();
+        String fullName = (patient.getFirstName().trim() +" "+ patient.getSecondName().trim()+" "+patient.getThirdName().trim()+" " + patient.getLastName()).trim();
 
         // TODO: replace with real data
-        String allergy = "No Allergy";
-        String bloodGroup = "O+";
-        LocalDateTime admission = LocalDateTime.now();
-        String facility = "Asklepios Hospital";
+        List<PatientAllergies> allergies =
+                Optional.ofNullable(patientAllergyRepository.findAllByPatientId(patient.getId()))
+                        .orElse(Collections.emptyList());
 
+        String allergy = allergies == null || allergies.isEmpty()
+                ? "No Allergy"
+                : allergies.stream()
+                .map(a -> a.getAllergen() != null ? a.getAllergen().getName() : null)
+                .filter(Objects::nonNull)
+                .collect(Collectors.joining(", "));
+        String bloodGroup = " ";
+        LocalDateTime admission = LocalDateTime.now();
+        Facility facility = facilityRepository.getById(
+                SecurityUtils.getCurrentUserFacility()
+                        .orElseThrow(() -> new RuntimeException("No facility"))
+        );
+        String facilityName = facility.getName();
         return new PatientWristbandDTO(
                 fullName,
                 patient.getMedicalRecordNumber(),
@@ -95,7 +121,7 @@ public class PatientService {
                 allergy,
                 bloodGroup,
                 admission,
-                facility
+                facilityName
         );
     }
 

@@ -1,5 +1,6 @@
 package com.dazzle.asklepios.web.rest;
 
+import com.dazzle.asklepios.service.PatientLabelPdfRenderService;
 import com.dazzle.asklepios.service.PatientService;
 import com.dazzle.asklepios.service.PatientWristbandPdfRenderService;
 import com.dazzle.asklepios.service.dto.patient.PatientWristbandDTO;
@@ -21,9 +22,11 @@ public class PatientController {
 
     private final PatientService patientService;
    private final PatientWristbandPdfRenderService patientWristbandPdfRenderService;
-    public PatientController(PatientService patientService, PatientWristbandPdfRenderService patientWristbandPdfRenderService) {
+   private final PatientLabelPdfRenderService  patientLabelPdfRenderService;
+    public PatientController(PatientService patientService, PatientWristbandPdfRenderService patientWristbandPdfRenderService, PatientLabelPdfRenderService patientLabelPdfRenderService) {
         this.patientService = patientService;
         this.patientWristbandPdfRenderService = patientWristbandPdfRenderService;
+        this.patientLabelPdfRenderService = patientLabelPdfRenderService;
     }
 
 
@@ -52,5 +55,14 @@ public class PatientController {
                 .header("Content-Type", "application/pdf")
                 .body(pdf);
     }
+    @GetMapping("{id}/label/pdf")
+    public ResponseEntity<byte[]> generatePatientLabelPdf(@PathVariable Long id) {
 
+        byte[] pdf = patientLabelPdfRenderService.generatePatientLabelPdf(id);
+
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "inline; filename=patient-label-" + id + ".pdf")
+                .header("Content-Type", "application/pdf")
+                .body(pdf);
+    }
 }
