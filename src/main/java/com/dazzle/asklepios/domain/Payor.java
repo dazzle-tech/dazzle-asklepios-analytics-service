@@ -12,7 +12,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.io.Serializable;
 
 @Entity
@@ -22,6 +21,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Table(name = "payor")
+
 public class Payor extends AbstractAuditingEntity<Long> implements Serializable {
 
     @Id

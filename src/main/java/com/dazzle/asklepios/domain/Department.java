@@ -41,9 +41,6 @@ public class Department extends AbstractAuditingEntity<Long> implements Serializ
     @JoinColumn(name = "facility_id", nullable = false, foreignKey = @ForeignKey(name = "fk_department_facility"))
     private Facility facility;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "practitioner_id", insertable = false, updatable = false)
-    private Practitioner practitioner;
 
     @NotNull
     @Column(nullable = false, length = 100)

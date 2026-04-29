@@ -10,7 +10,6 @@ import com.dazzle.asklepios.repository.PatientRepository;
 import com.dazzle.asklepios.security.SecurityUtils;
 import com.dazzle.asklepios.service.dto.patient.PatientWristbandDTO;
 import com.dazzle.asklepios.service.dto.patientLabel.PatientLabelDTO;
-import com.dazzle.asklepios.service.dto.prescription.PrescriptionAllergyDTO;
 import com.dazzle.asklepios.web.rest.errors.NotFoundAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +22,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 @Service
 @Transactional
@@ -50,12 +50,14 @@ public class PatientService {
 
         LOG.debug("[PatientLabelService] GET_PATIENT_LABEL start patientId={}", patientId);
 
+
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new NotFoundAlertException(
                         "Patient not found with id " + patientId,
                         "patient",
                         "notfound"
                 ));
+
 
         String fullName = (
                 (patient.getFirstName() != null ? patient.getFirstName() : "") + " " +
@@ -83,13 +85,14 @@ public class PatientService {
                 patient.getCreatedDate() != null ? java.util.Date.from(patient.getCreatedDate()) : null
         );
     }
+
     @Transactional(readOnly = true)
     public PatientWristbandDTO getPatientWristband(Long patientId) {
 
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new NotFoundAlertException("Patient not found", "patient", "notfound"));
 
-        String fullName = (patient.getFirstName().trim() +" "+ patient.getSecondName().trim()+" "+patient.getThirdName().trim()+" " + patient.getLastName()).trim();
+        String fullName = (patient.getFirstName().trim() + " " + patient.getSecondName().trim() + " " + patient.getThirdName().trim() + " " + patient.getLastName()).trim();
 
         // TODO: replace with real data
         List<PatientAllergies> allergies =

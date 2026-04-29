@@ -21,14 +21,14 @@ public class PatientController {
             LoggerFactory.getLogger(PatientController.class);
 
     private final PatientService patientService;
-   private final PatientWristbandPdfRenderService patientWristbandPdfRenderService;
-   private final PatientLabelPdfRenderService  patientLabelPdfRenderService;
+    private final PatientWristbandPdfRenderService patientWristbandPdfRenderService;
+    private final PatientLabelPdfRenderService patientLabelPdfRenderService;
+
     public PatientController(PatientService patientService, PatientWristbandPdfRenderService patientWristbandPdfRenderService, PatientLabelPdfRenderService patientLabelPdfRenderService) {
         this.patientService = patientService;
         this.patientWristbandPdfRenderService = patientWristbandPdfRenderService;
         this.patientLabelPdfRenderService = patientLabelPdfRenderService;
     }
-
 
     @GetMapping("/label/{id}")
     public ResponseEntity<PatientLabelDTO> getPatientLabel(@PathVariable Long id) {
@@ -39,12 +39,14 @@ public class PatientController {
 
         return ResponseEntity.ok(patientLabelDTO);
     }
+
     @GetMapping("/{patientId}/wristband")
     public ResponseEntity<PatientWristbandDTO> getPatientWristband(
             @PathVariable Long patientId
     ) {
         return ResponseEntity.ok(patientService.getPatientWristband(patientId));
     }
+
     @GetMapping("/{patientId}/wristband/pdf")
     public ResponseEntity<byte[]> generateWristbandPdf(@PathVariable Long patientId) {
 
@@ -55,6 +57,7 @@ public class PatientController {
                 .header("Content-Type", "application/pdf")
                 .body(pdf);
     }
+
     @GetMapping("{id}/label/pdf")
     public ResponseEntity<byte[]> generatePatientLabelPdf(@PathVariable Long id) {
 
