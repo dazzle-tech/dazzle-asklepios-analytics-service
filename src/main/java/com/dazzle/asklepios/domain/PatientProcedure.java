@@ -108,4 +108,6 @@ public class PatientProcedure extends AbstractAuditingEntity<Long> implements Se
 
     @Column(name = "cancellation_reason")
     private String cancellationReason;
+
+    
 }

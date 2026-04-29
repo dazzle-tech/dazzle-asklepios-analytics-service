@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Visit Report</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            color: #1e293b;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid #1e293b;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-weight: bold;
+            background: #f1f5f9;
+            padding: 5px;
+            border-left: 4px solid #001f3f;
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 6px;
+        }
+
+        th {
+            background: #f8fafc;
+            text-align: left;
+        }
+
+        .footer {
+            margin-top: 30px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <div>
+        <img th:src="'data:image/png;base64,' + ${logo}" style="height:50px;">
+    </div>
+    <div>
+        <strong th:text="${report.encounterInfo?.facilityName}">Facility</strong><br>
+        <span th:text="${report.encounterInfo?.departmentName}">Department</span>
+    </div>
+    <div>
+        <strong>Encounter:</strong>
+        <span th:text="${report.encounterInfo?.encounterNumber}">—</span>
+    </div>
+</div>
+
+<div class="title">VISIT REPORT</div>
+
+<div style="text-align:center; margin-bottom:15px;">
+    Generated At:
+    <strong th:text="${#temporals.format(report.generatedAt, 'yyyy-MM-dd HH:mm')}">—</strong>
+</div>
+
+<!-- Patient Info -->
+<div class="section">
+    <div class="section-title">Patient Information</div>
+    <table>
+        <tr>
+            <th>Name</th>
+            <td th:text="${report.patientInfo?.fullName}">—</td>
+            <th>MRN</th>
+            <td th:text="${report.patientInfo?.medicalRecordNumber}">—</td>
+        </tr>
+        <tr>
+            <th>Gender</th>
+            <td th:text="${report.patientInfo?.gender}">—</td>
+            <th>DOB</th>
+            <td th:text="${#dates.format(report.patientInfo?.dateOfBirth, 'dd/MM/yyyy')}">—</td>
+        </tr>
+    </table>
+</div>
+
+<!-- Encounter -->
+<div class="section">
+    <div class="section-title">Encounter Info</div>
+    <table>
+        <tr>
+            <th>Date</th>
+            <td th:text="${report.encounterInfo?.encounterDate}">—</td>
+            <th>Priority</th>
+            <td th:text="${report.encounterInfo?.priority}">—</td>
+        </tr>
+        <tr>
+            <th>Chief Complaint</th>
+            <td colspan="3" th:text="${report.encounterInfo?.chiefComplaint}">—</td>
+        </tr>
+    </table>
+</div>
+
+<!-- Diagnostics -->
+<div class="section">
+    <div class="section-title">Diagnostics</div>
+
+    <table th:if="${report.diagnostics != null and !#lists.isEmpty(report.diagnostics)}">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Service</th>
+            <th>Qty</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="d : ${report.diagnostics}">
+            <td th:text="${d.id}">—</td>
+            <td th:text="${d.serviceId}">—</td>
+            <td th:text="${d.quantity}">—</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div th:if="${report.diagnostics == null or #lists.isEmpty(report.diagnostics)}">
+        No diagnostics found
+    </div>
+</div>
+
+<!-- Medications -->
+<div class="section">
+    <div class="section-title">Medications</div>
+
+    <table th:if="${report.medications != null and !#lists.isEmpty(report.medications)}">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Medication</th>
+            <th>Qty</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${report.medications}">
+            <td th:text="${m.id}">—</td>
+            <td th:text="${m.serviceId}">—</td>
+            <td th:text="${m.quantity}">—</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div th:if="${report.medications == null or #lists.isEmpty(report.medications)}">
+        No medications found
+    </div>
+</div>
+
+<!-- Procedures -->
+<div class="section">
+    <div class="section-title">Procedures</div>
+
+    <table th:if="${report.procedures != null and !#lists.isEmpty(report.procedures)}">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Procedure</th>
+            <th>Qty</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="p : ${report.procedures}">
+            <td th:text="${p.id}">—</td>
+            <td th:text="${p.serviceId}">—</td>
+            <td th:text="${p.quantity}">—</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div th:if="${report.procedures == null or #lists.isEmpty(report.procedures)}">
+        No procedures found
+    </div>
+</div>
+
+<div class="footer">
+    <div>
+        ___________________<br>
+        Doctor Signature
+    </div>
+    <div>
+        <strong th:text="${report.encounterInfo?.facilityName}">Facility</strong><br>
+        <span th:text="${report.encounterInfo?.departmentName}">Department</span>
+    </div>
+</div>
+
+</body>
+</html>
