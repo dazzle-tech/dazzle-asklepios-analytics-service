@@ -63,6 +63,7 @@ public class NurseSummaryReportService {
 
     private static final Logger LOG = LoggerFactory.getLogger(NurseSummaryReportService.class);
 
+    private final LovLookupService lovLookupService;
     private final PatientEncounterRepository patientEncounterRepository;
     private final PatientObservationsComplaintsRepository patientObservationsComplaintsRepository;
     private final VitalSignsRepository vitalSignsRepository;
@@ -282,9 +283,11 @@ public class NurseSummaryReportService {
         return new NurseSummaryVitalSignsDTO(
                 entity.getBloodPressureSystolic(),
                 entity.getBloodPressureDiastolic(),
-                apLovValueRepository.findById(entity.getMeasurementSite())
-                        .map(ApLovValue::getLovDisplayVale)
-                        .orElse(null),
+                entity.getMeasurementSite() != null
+                        ? apLovValueRepository.findById(entity.getMeasurementSite())
+                                .map(ApLovValue::getLovDisplayVale)
+                                .orElse(null)
+                        : null,
                 entity.getHeartRate(),
                 entity.getTemperature(),
                 entity.getOxygenSaturation(),
@@ -331,9 +334,12 @@ public class NurseSummaryReportService {
     }
 
     private NurseSummaryWarningDTO mapWarning(PatientWarnings entity) {
+        String warningTypeDisplay = lovLookupService.findDisplayValue(entity.getWarningType());
         return new NurseSummaryWarningDTO(
                 entity.getId(),
-                entity.getWarningType(),
+                apLovValueRepository.findById(entity.getWarningType())
+                        .map(ApLovValue::getLovDisplayVale)
+                        .orElse(null),
                 entity.getWarning(),
                 entity.getSeverity() != null ? entity.getSeverity().name() : null,
                 entity.getOnsetDate(),
@@ -383,9 +389,11 @@ public class NurseSummaryReportService {
         return new PainAssessmentDTO(
                 entity.getPainDegree(),
                 entity.getPainLevel(),
-                apLovValueRepository.findById(entity.getPainPattern())
-                        .map(ApLovValue::getLovDisplayVale)
-                        .orElse(null),
+                entity.getPainPattern() != null
+                        ? apLovValueRepository.findById(entity.getPainPattern())
+                                .map(ApLovValue::getLovDisplayVale)
+                                .orElse(null)
+                        : null,
                 entity.getPainDescription()
         );
     }

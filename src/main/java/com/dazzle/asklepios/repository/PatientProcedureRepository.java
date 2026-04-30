@@ -10,7 +10,5 @@ import java.util.List;
 public interface PatientProcedureRepository
         extends JpaRepository<PatientProcedure, Long> {
 
-    List<PatientProcedure> findByEncounter_IdOrderByCreatedDateAsc(Long encounterId);
-
     List <PatientProcedure> findByEncounterIdAndStatusNotOrderByCreatedDateAsc(Long encounterId ,String status);
 }

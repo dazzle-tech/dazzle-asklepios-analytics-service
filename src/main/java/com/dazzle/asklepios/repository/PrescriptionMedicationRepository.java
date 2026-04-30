@@ -8,7 +8,6 @@ import java.util.List;
 
 public interface PrescriptionMedicationRepository extends JpaRepository<PatientPrescriptionMedication, Long> {
     List<PatientPrescriptionMedication> findAllByPrescriptionHeaderIdOrderByIdAsc(Long prescriptionHeaderId);
-    @EntityGraph(attributePaths = {"medications"})
-    List<PatientPrescriptionMedication> findByPrescriptionHeader_IdOrderByIdAsc(
-            Long prescriptionHeaderId);
-    List<PatientPrescriptionMedication> findAllByPrescriptionHeaderIdInOrderByIdAsc(List<Long> prescriptionHeaderIds);}
+
+    List<PatientPrescriptionMedication> findAllByPrescriptionHeaderIdInOrderByIdAsc(List<Long> prescriptionHeaderIds);
+}

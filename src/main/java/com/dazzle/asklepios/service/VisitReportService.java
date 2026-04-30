@@ -50,6 +50,7 @@ public class VisitReportService {
     private static final Logger LOG = LoggerFactory.getLogger(VisitReportService.class);
 
     private final NurseSummaryReportService nurseSummaryReportService;
+    private final LovLookupService lovLookupService;
     private final PatientProcedureRepository patientProcedureRepository;
     private final ProcedureRepository procedureRepository;
     private final ApLovValueRepository apLovValueRepository;
@@ -102,21 +103,18 @@ public class VisitReportService {
 
 
     private ProceduresDTO mapProcedure(PatientProcedure entity) {
-        return new ProceduresDTO(
-                procedureRepository.findById(entity.getProcedureId())
-                        .map(Procedure::getName)
-                        .orElse(null),
-                procedureRepository.findById(entity.getProcedureId())
-                        .map(Procedure::getCode)
-                        .orElse(null),
-                procedureRepository.findById(entity.getProcedureId())
-                        .map(procedure ->
-                                apLovValueRepository.findById(procedure.getCategoryType())
-                                        .map(ApLovValue::getLovDisplayVale)
-                                        .orElse(null)
-                        )
-                        .orElse(null),
-                entity.getNotes());
+        return procedureRepository.findById(entity.getProcedureId())
+                .map(procedure -> {
+                    String categoryDisplay = lovLookupService.findDisplayValue(procedure.getCategoryType());
+                    // categoryDisplay already has the resolved value — just use it directly
+                    return new ProceduresDTO(
+                            procedure.getName(),
+                            procedure.getCode(),
+                            categoryDisplay,          // ← use lovLookupService result
+                            entity.getNotes()
+                    );
+                })
+                .orElse(new ProceduresDTO(null, null, null, entity.getNotes()));
     }
 
     private String resolveInstruction(PatientPrescriptionMedication medication) {
@@ -214,9 +212,7 @@ public class VisitReportService {
                         medication.getId(),
                         medication.getDoesUnit());
 
-                String unitDisplay = apLovValueRepository.findById(String.valueOf(medication.getDoesUnit()))
-                        .map(ApLovValue::getLovDisplayVale)
-                        .orElse(null);
+                String unitDisplay = lovLookupService.findDisplayValue(String.valueOf(medication.getDoesUnit()));
 
                 LOG.debug("[buildCustomInstruction] medicationId={} doseUnitDisplay={}",
                         medication.getId(),
@@ -240,9 +236,7 @@ public class VisitReportService {
                     medication.getId(),
                     medication.getFrequency());
 
-            String frequencyDisplay = apLovValueRepository.findById(String.valueOf(medication.getFrequency()))
-                    .map(ApLovValue::getLovDisplayVale)
-                    .orElse(null);
+            String frequencyDisplay = lovLookupService.findDisplayValue(String.valueOf(medication.getFrequency()));
 
             LOG.debug("[buildCustomInstruction] medicationId={} frequencyDisplay={}",
                     medication.getId(),
@@ -305,6 +299,7 @@ public class VisitReportService {
 
         return result;
     }
+
     private String resolveLovDisplayValues(String commaSeparatedKeys) {
         if (commaSeparatedKeys == null || commaSeparatedKeys.isBlank()) {
             return null;
@@ -320,19 +315,14 @@ public class VisitReportService {
             return null;
         }
 
-        Map<String, String> lovMap = apLovValueRepository.findByKeyIn(keys).stream()
-                .collect(Collectors.toMap(
-                        ApLovValue::getKey,
-                        ApLovValue::getLovDisplayVale
-                ));
-
-        return Arrays.stream(commaSeparatedKeys.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isBlank())
+        Map<String, String> lovMap = lovLookupService.findDisplayValues(keys);
+        List<String> resolved = keys.stream()
                 .map(lovMap::get)
                 .filter(Objects::nonNull)
-                .collect(Collectors.joining(", "));
+                .toList();
+        return resolved.isEmpty() ? null : String.join(", ", resolved);
     }
+
     private List<PrescriptionMedicationDTO> getMedicationsByEncounterId(Long encounterId) {
 
         List<PatientPrescription> prescriptions =
@@ -391,7 +381,6 @@ public class VisitReportService {
             return List.of();
         }
 
-        // 🔥 map orderId → order
         Map<Long, DiagnosticOrder> orderMap = orders.stream()
                 .collect(Collectors.toMap(DiagnosticOrder::getId, o -> o));
 

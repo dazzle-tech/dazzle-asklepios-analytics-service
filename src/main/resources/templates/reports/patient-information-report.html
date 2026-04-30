@@ -5,136 +5,344 @@
     <title>Patient Report</title>
 
     <style>
-        @page { margin:0; size:A4; }
+        @page {
+            margin: 0;
+            size: A4;
+        }
 
         * {
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-            -webkit-print-color-adjust:exact;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
         }
 
         body {
-            font-family: Arial;
-            background:#f1f5f9;
-            font-size:7pt;
-            color:#1e293b;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+            line-height: 1.35;
+            font-size: 7pt;
         }
 
         .container {
-            width:100%;
-            max-width:900px;
-            margin:auto;
-            background:white;
-            padding:40px;
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
         }
 
+        /* ── HEADER ── */
         .header {
-            display:flex;
-            justify-content:space-between;
-            border-bottom:2px solid #1e293b;
-            margin-bottom:20px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            border-bottom: 2px solid #1e293b;
+            padding-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         .org-name {
-            font-size:16pt;
-            font-weight:900;
-            text-align:center;
+            font-size: 18pt;
+            font-weight: 900;
+            color: #001f3f;
+            line-height: 1.05;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            text-align: center;
+            margin: 0;
+        }
+
+        .dept-name {
+            font-size: 6pt;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-top: 2px;
+            text-align: center;
+        }
+
+        .doc-id {
+            font-size: 6.5pt;
+            font-weight: 700;
+            color: #1e293b;
+            text-align: right;
+        }
+
+        /* ── MAIN TITLE ── */
+        .main-title-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .main-title {
+            font-size: 10pt;
+            font-weight: 900;
+            letter-spacing: 5px;
+            color: #001f3f;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .title-underline {
+            width: 100px;
+            height: 2px;
+            background: #e2e8f0;
+            margin: 0 auto 10px;
+            position: relative;
+        }
+
+        .underline-accent {
+            position: absolute;
+            width: 32px;
+            height: 100%;
+            background: #001f3f;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .date-time-info {
+            display: table;
+            margin: 0 auto;
+            font-size: 7pt;
+            font-weight: 700;
+            color: #1e293b;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+
+        .date-time-info span {
+            display: table-cell;
+            padding: 0 12px;
+        }
+
+        .date-time-info strong {
+            font-weight: 900;
+            margin-left: 4px;
+        }
+
+        /* ── SECTIONS ── */
+        .report-section {
+            margin-bottom: 20px;
         }
 
         .section-header {
-            background:#f1f5f9;
-            border-left:5px solid #001f3f;
-            padding:6px 12px;
-            margin-bottom:10px;
+            background: #f1f5f9;
+            border-left: 5px solid #001f3f;
+            padding: 6px 14px;
+            margin-bottom: 10px;
         }
 
         .section-title {
-            font-size:7pt;
-            font-weight:900;
-            text-transform:uppercase;
+            font-size: 7pt;
+            font-weight: 900;
+            color: #001f3f;
+            letter-spacing: 0.8px;
+            margin: 5px;
+            text-transform: uppercase;
         }
 
+        .section-header.blue {
+            border-left-color: #2980b9;
+        }
+
+        .section-header.green {
+            border-left-color: #27ae60;
+        }
+
+        .section-header.red {
+            border-left-color: #c0392b;
+        }
+
+        /* ── PATIENT GRID ── */
         .patient-grid {
-            display:table;
-            width:100%;
-            border:1px solid #dbe3ee;
+            display: table;
+            width: 100%;
+            border: 1px solid #dbe3ee;
+            background: #ffffff;
+        }
+
+        .patient-grid + .patient-grid {
+            margin-top: 4px;
         }
 
         .grid-row {
-            display:table;
-            width:100%;
-            border-top:1px solid #e5edf5;
+            display: table;
+            width: 100%;
+            border-top: 0.8px solid #e5edf5;
         }
 
-        .grid-4 .info-box { width:25%; }
-        .grid-3 .info-box { width:33.33%; }
-        .grid-2 .info-box { width:50%; }
+        .grid-row:first-child {
+            border-top: none;
+        }
+
+        .grid-2 .info-box {
+            width: 50%;
+        }
+
+        .grid-3 .info-box {
+            width: 33.33%;
+        }
+
+        .grid-4 .info-box {
+            width: 25%;
+        }
 
         .info-box {
-            display:table-cell;
-            padding:6px;
-            border-right:1px solid #e5edf5;
+            display: table-cell;
+            padding: 6px 8px;
+            border-right: 0.8px solid #e5edf5;
+            vertical-align: middle;
+            min-height: 38px;
         }
 
-        .info-box:last-child { border-right:none; }
+        .info-box.no-border {
+            border-right: none;
+        }
 
         .info-label {
-            font-size:5.5pt;
-            font-weight:700;
-            color:#94a3b8;
+            display: block;
+            font-size: 5.5pt;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 2px;
         }
 
         .info-value {
-            font-size:7pt;
-            font-weight:900;
+            display: block;
+            font-size: 7pt;
+            font-weight: 800;
+            color: #1e293b;
+            text-transform: uppercase;
+            line-height: 1.1;
+        }
+
+        /* ── FOOTER ── */
+        .footer {
+            display: table;
+            width: 100%;
+            margin-top: 28px;
+            padding-top: 28px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .footer-left {
+            display: table-cell;
+            width: 50%;
+            vertical-align: bottom;
+        }
+
+        .signature-line {
+            width: 220px;
+            height: 2px;
+            background: #e2e8f0;
+            margin-bottom: 8px;
+        }
+
+        .signature-label {
+            font-size: 6pt;
+            font-weight: 900;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-right {
+            display: table-cell;
+            width: 50%;
+            text-align: right;
+            vertical-align: top;
+        }
+
+        .auth-block {
+            display: inline-block;
+            text-align: left;
+        }
+
+        .auth-label {
+            display: block;
+            font-size: 6pt;
+            font-weight: 900;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 4px;
+        }
+
+        .auth-name {
+            font-size: 7pt;
+            font-weight: 900;
+            color: #1e293b;
+            line-height: 1.2;
+        }
+
+        .auth-sub {
+            font-size: 6.5pt;
+            font-weight: 700;
+            color: #64748b;
+            line-height: 1.2;
         }
     </style>
 </head>
 
 <body>
-
 <div class="container">
 
     <!-- HEADER -->
     <div class="header">
         <div>
-            <img th:src="'data:image/png;base64,' + ${logo}" style="height:60px;">
+            <img th:src="'data:image/png;base64,' + ${logo}" style="height:60px;"/>
         </div>
-
-<!--        <div style="flex:1;text-align:center;">-->
-<!--            <h1 class="org-name" th:text="${report.facilityName}">FACILITY</h1>-->
-<!--        </div>-->
+        <div style="text-align:right;">
+            <p class="doc-id">
+                PATIENT ID:
+                <span th:text="${report.patientId}">—</span>
+            </p>
+        </div>
     </div>
 
-    <!-- =========================
-         1. PATIENT INFO
-    ========================== -->
-    <section>
-        <div class="section-header">
-            <h2 class="section-title">Patient Information</h2>
+    <!-- MAIN TITLE -->
+    <div class="main-title-section">
+        <h1 class="main-title">PATIENT REPORT</h1>
+        <div class="title-underline">
+            <div class="underline-accent"></div>
+        </div>
+        <div class="date-time-info">
+            <span>
+                Registration Date:
+                <strong th:text="${#temporals.format(report.registrationDate, 'yyyy-MM-dd HH:mm')}">—</strong>
+            </span>
+        </div>
+    </div>
+
+    <!-- 1. PATIENT INFO -->
+    <section class="report-section">
+        <div class="section-header blue">
+            <h2 class="section-title">1. Patient Information</h2>
         </div>
 
         <div class="patient-grid">
             <div class="grid-row grid-4">
                 <div class="info-box">
                     <span class="info-label">Patient ID</span>
-                    <span class="info-value" th:text="${report.patientId}">1001</span>
+                    <span class="info-value" th:text="${report.patientId}">—</span>
                 </div>
-
                 <div class="info-box">
                     <span class="info-label">Full Name</span>
-                    <span class="info-value" th:text="${report.fullName}">حنان</span>
+                    <span class="info-value" th:text="${report.fullName}">—</span>
                 </div>
-
                 <div class="info-box">
                     <span class="info-label">MRN</span>
-                    <span class="info-value" th:text="${report.mrn}">P103</span>
+                    <span class="info-value" th:text="${report.mrn}">—</span>
                 </div>
-
-                <div class="info-box">
+                <div class="info-box no-border">
                     <span class="info-label">Gender</span>
-                    <span class="info-value" th:text="${report.gender}">FEMALE</span>
+                    <span class="info-value" th:text="${report.gender}">—</span>
                 </div>
             </div>
 
@@ -142,155 +350,146 @@
                 <div class="info-box">
                     <span class="info-label">Date of Birth</span>
                     <span class="info-value"
-                          th:text="${#temporals.format(report.dateOfBirth,'dd/MM/yyyy')}">
-                    </span>
+                          th:text="${#temporals.format(report.dateOfBirth,'dd/MM/yyyy')}">—</span>
                 </div>
-
                 <div class="info-box">
                     <span class="info-label">Age</span>
-                    <span class="info-value" th:text="${report.age}">10</span>
+                    <span class="info-value" th:text="${report.age}">—</span>
                 </div>
-
                 <div class="info-box">
                     <span class="info-label">Registration Date</span>
                     <span class="info-value"
-                          th:text="${#temporals.format(report.registrationDate,'yyyy-MM-dd HH:mm')}">
-                    </span>
+                          th:text="${#temporals.format(report.registrationDate,'yyyy-MM-dd HH:mm')}">—</span>
                 </div>
-
-                <div class="info-box">
+                <div class="info-box no-border">
                     <span class="info-label">Photo</span>
-                    <span class="info-value" th:text="${report.photoUrl ?: '-'}">-</span>
+                    <span class="info-value" th:text="${report.photoUrl ?: '-'}">—</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- =========================
-         2. CONTACT
-    ========================== -->
-    <section>
-        <div class="section-header">
-            <h2 class="section-title">Contact Information</h2>
+    <!-- 2. CONTACT -->
+    <section class="report-section">
+        <div class="section-header blue">
+            <h2 class="section-title">2. Contact Information</h2>
         </div>
 
         <div class="patient-grid">
             <div class="grid-row grid-3">
                 <div class="info-box">
                     <span class="info-label">Mobile</span>
-                    <span class="info-value" th:text="${report.mobileNumber}">21345</span>
+                    <span class="info-value" th:text="${report.mobileNumber}">—</span>
                 </div>
-
                 <div class="info-box">
                     <span class="info-label">Secondary Phone</span>
-                    <span class="info-value" th:text="${report.secondaryPhone ?: '-'}"></span>
+                    <span class="info-value" th:text="${report.secondaryPhone ?: '-'}">—</span>
                 </div>
-
-                <div class="info-box">
+                <div class="info-box no-border">
                     <span class="info-label">Email</span>
-                    <span class="info-value" th:text="${report.email}"></span>
+                    <span class="info-value" th:text="${report.email}">—</span>
                 </div>
             </div>
 
             <div class="grid-row grid-3">
                 <div class="info-box">
                     <span class="info-label">City</span>
-                    <span class="info-value" th:text="${report.city ?: '-'}"></span>
+                    <span class="info-value" th:text="${report.city ?: '-'}">—</span>
                 </div>
-
                 <div class="info-box">
                     <span class="info-label">State</span>
-                    <span class="info-value" th:text="${report.state ?: '-'}"></span>
+                    <span class="info-value" th:text="${report.state ?: '-'}">—</span>
                 </div>
-
-                <div class="info-box">
+                <div class="info-box no-border">
                     <span class="info-label">Country</span>
-                    <span class="info-value" th:text="${report.country ?: '-'}"></span>
+                    <span class="info-value" th:text="${report.country ?: '-'}">—</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- =========================
-         3. DOCUMENT
-    ========================== -->
-    <section>
-        <div class="section-header">
-            <h2 class="section-title">Document Info</h2>
+    <!-- 3. DOCUMENT -->
+    <section class="report-section">
+        <div class="section-header blue">
+            <h2 class="section-title">3. Document Info</h2>
         </div>
 
         <div class="patient-grid">
             <div class="grid-row grid-2">
                 <div class="info-box">
                     <span class="info-label">Type</span>
-                    <span class="info-value" th:text="${report.documentType ?: '-'}"></span>
+                    <span class="info-value" th:text="${report.documentType ?: '-'}">—</span>
                 </div>
-
-                <div class="info-box">
+                <div class="info-box no-border">
                     <span class="info-label">Number</span>
-                    <span class="info-value" th:text="${report.documentNumber ?: '-'}"></span>
+                    <span class="info-value" th:text="${report.documentNumber ?: '-'}">—</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- =========================
-         4. EMERGENCY
-    ========================== -->
-    <section>
-        <div class="section-header">
-            <h2 class="section-title">Emergency Contact</h2>
+    <!-- 4. EMERGENCY -->
+    <section class="report-section">
+        <div class="section-header blue">
+            <h2 class="section-title">4. Emergency Contact</h2>
         </div>
 
         <div class="patient-grid">
             <div class="grid-row grid-3">
                 <div class="info-box">
                     <span class="info-label">Name</span>
-                    <span class="info-value" th:text="${report.emergencyName ?: '-'}"></span>
+                    <span class="info-value" th:text="${report.emergencyName ?: '-'}">—</span>
                 </div>
-
                 <div class="info-box">
                     <span class="info-label">Relation</span>
-                    <span class="info-value" th:text="${report.emergencyRelationship ?: '-'}"></span>
+                    <span class="info-value" th:text="${report.emergencyRelationship ?: '-'}">—</span>
                 </div>
-
-                <div class="info-box">
+                <div class="info-box no-border">
                     <span class="info-label">Phone</span>
-                    <span class="info-value" th:text="${report.emergencyPhone ?: '-'}"></span>
+                    <span class="info-value" th:text="${report.emergencyPhone ?: '-'}">—</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- =========================
-         5. INSURANCE
-    ========================== -->
-    <section>
-        <div class="section-header">
-            <h2 class="section-title">Insurance</h2>
+    <!-- 5. INSURANCE -->
+    <section class="report-section">
+        <div class="section-header blue">
+            <h2 class="section-title">5. Insurance</h2>
         </div>
 
         <div class="patient-grid">
             <div class="grid-row grid-3">
                 <div class="info-box">
                     <span class="info-label">Provider</span>
-                    <span class="info-value" th:text="${report.insuranceProvider ?: '-'}"></span>
+                    <span class="info-value" th:text="${report.insuranceProvider ?: '-'}">—</span>
                 </div>
-
                 <div class="info-box">
                     <span class="info-label">Policy</span>
-                    <span class="info-value" th:text="${report.policyNumber ?: '-'}"></span>
+                    <span class="info-value" th:text="${report.policyNumber ?: '-'}">—</span>
                 </div>
-
-                <div class="info-box">
+                <div class="info-box no-border">
                     <span class="info-label">Preferred Doctor</span>
-                    <span class="info-value" th:text="${report.preferredHealthProfessional ?: '-'}"></span>
+                    <span class="info-value" th:text="${report.preferredHealthProfessional ?: '-'}">—</span>
                 </div>
             </div>
         </div>
     </section>
 
-</div>
+    <!-- FOOTER -->
+    <div class="footer">
+        <div class="footer-left">
+            <div class="signature-line"></div>
+            <p class="signature-label">Authorized Signature</p>
+        </div>
+        <div class="footer-right">
+            <div class="auth-block">
+                <p class="auth-label">Digitally Authenticated By</p>
+                <div class="auth-name">—</div>
+            </div>
+        </div>
+    </div>
 
+</div>
 </body>
 </html>
