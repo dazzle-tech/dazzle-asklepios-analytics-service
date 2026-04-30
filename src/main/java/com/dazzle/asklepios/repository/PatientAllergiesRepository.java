@@ -12,9 +12,6 @@ import java.util.List;
 
 public interface PatientAllergiesRepository extends JpaRepository<PatientAllergies, Long>, JpaSpecificationExecutor<PatientAllergies> {
 
-    Page<PatientAllergies> findByPatientId(Long patientId, Pageable pageable);
-    Page<PatientAllergies> findByPatientIdAndStatusNot(Long patientId, PatientAllergyStatus status, Pageable pageable);
-
     List<PatientAllergies> findByEncounterIdAndStatusNotOrderByCreatedDateAsc(
             Long encounterId,
             PatientAllergyStatus status

@@ -12,9 +12,6 @@ import java.util.List;
 
 public interface PatientWarningsRepository extends JpaRepository<PatientWarnings, Long>, JpaSpecificationExecutor<PatientWarnings> {
 
-    Page<PatientWarnings> findByPatientId(Long patientId, Pageable pageable);
-    Page<PatientWarnings> findByPatientIdAndStatusNot(Long patientId, PatientWarningStatus status, Pageable pageable);
-
     List<PatientWarnings> findByEncounterIdAndStatusNotOrderByCreatedDateAsc(
             Long encounterId,
             PatientWarningStatus status

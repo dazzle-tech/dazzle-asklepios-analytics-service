@@ -11,15 +11,5 @@ import java.util.Optional;
 
 public interface PatientDiagnosisRepository extends JpaRepository<PatientDiagnosis, Long> {
 
-    Optional<PatientDiagnosis> findTopByEncounterIdOrderByCreatedDateDesc(Long encounterId);
-
-    Page<PatientDiagnosis> findByPatient_IdOrderByCreatedDateDesc(
-            Long patientId,
-            Pageable pageable
-    );
-    boolean existsByEncounterId(Long encounterId);
-
-    List<PatientDiagnosis> findByEncounterId(Long encounterId);
-
     Optional<PatientDiagnosis> findByEncounterIdAndType(Long encounterId, DiagnosisType type);
 }

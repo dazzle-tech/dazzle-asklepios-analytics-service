@@ -1,26 +1,36 @@
 package com.dazzle.asklepios.service;
 
 import com.dazzle.asklepios.domain.AdditionalMeasurements;
+import com.dazzle.asklepios.domain.ApLovValue;
 import com.dazzle.asklepios.domain.BodyMeasurements;
 import com.dazzle.asklepios.domain.Department;
 import com.dazzle.asklepios.domain.EncounterVaccination;
+import com.dazzle.asklepios.domain.PainAssessment;
 import com.dazzle.asklepios.domain.Patient;
 import com.dazzle.asklepios.domain.PatientAllergies;
-import com.dazzle.asklepios.domain.PatientDiagnosis;
 import com.dazzle.asklepios.domain.PatientEncounter;
 import com.dazzle.asklepios.domain.PatientObservationsComplaints;
 import com.dazzle.asklepios.domain.PatientServiceAndProduct;
 import com.dazzle.asklepios.domain.PatientWarnings;
 import com.dazzle.asklepios.domain.VitalSigns;
+import com.dazzle.asklepios.domain.enumeration.DiagnosisType;
 import com.dazzle.asklepios.domain.enumeration.EncounterVaccinationStatus;
 import com.dazzle.asklepios.domain.enumeration.PatientAllergyStatus;
 import com.dazzle.asklepios.domain.enumeration.PatientWarningStatus;
+import com.dazzle.asklepios.repository.AdditionalMeasurementsRepository;
+import com.dazzle.asklepios.repository.ApLovValueRepository;
+import com.dazzle.asklepios.repository.BodyMeasurementsRepository;
 import com.dazzle.asklepios.repository.DepartmentsRepository;
 import com.dazzle.asklepios.repository.EncounterVaccinationRepository;
+import com.dazzle.asklepios.repository.PainAssessmentRepository;
 import com.dazzle.asklepios.repository.PatientAllergiesRepository;
+import com.dazzle.asklepios.repository.PatientDiagnosisRepository;
 import com.dazzle.asklepios.repository.PatientEncounterRepository;
+import com.dazzle.asklepios.repository.PatientObservationsComplaintsRepository;
 import com.dazzle.asklepios.repository.PatientServiceAndProductRepository;
 import com.dazzle.asklepios.repository.PatientWarningsRepository;
+import com.dazzle.asklepios.repository.VitalSignsRepository;
+import com.dazzle.asklepios.service.dto.painAssessment.PainAssessmentDTO;
 import com.dazzle.asklepios.service.dto.reports.NurseSummaryAdditionalMeasurementsDTO;
 import com.dazzle.asklepios.service.dto.reports.NurseSummaryAllergyDTO;
 import com.dazzle.asklepios.service.dto.reports.NurseSummaryBodyMeasurementsDTO;
@@ -43,6 +53,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -52,46 +63,47 @@ public class NurseSummaryReportService {
 
     private static final Logger LOG = LoggerFactory.getLogger(NurseSummaryReportService.class);
 
-    private final PatientEncounterService patientEncounterService;
-    private final PatientObservationsComplaintsService patientObservationsComplaintsService;
-    private final VitalSignsService vitalSignsService;
-    private final BodyMeasurementsService bodyMeasurementsService;
-    private final AdditionalMeasurementsService additionalMeasurementsService;
+    private final LovLookupService lovLookupService;
+    private final PatientEncounterRepository patientEncounterRepository;
+    private final PatientObservationsComplaintsRepository patientObservationsComplaintsRepository;
+    private final VitalSignsRepository vitalSignsRepository;
+    private final BodyMeasurementsRepository bodyMeasurementsRepository;
+    private final AdditionalMeasurementsRepository additionalMeasurementsRepository;
     private final DepartmentsRepository departmentsRepository;
     private final PatientAllergiesRepository patientAllergiesRepository;
     private final PatientWarningsRepository patientWarningsRepository;
     private final EncounterVaccinationRepository encounterVaccinationRepository;
     private final PatientServiceAndProductRepository patientServiceAndProductRepository;
     private final PatientEncounterRepository encounterRepository;
-    private final PatientDiagnosisService patientDiagnosisService;
+    private final PatientDiagnosisRepository patientDiagnosisRepository;
+    private final PainAssessmentRepository painAssessmentRepository;
+    private final ApLovValueRepository apLovValueRepository;
+
     public NurseSummaryReportDTO getNurseSummaryReport(Long encounterId) {
         LOG.debug("[NURSE_SUMMARY] start encounterId={}", encounterId);
 
-        PatientEncounter encounter = patientEncounterService.getById(encounterId);
-        Patient patient = encounter.getPatient();
+        PatientEncounter encounter = patientEncounterRepository
+                .findById(encounterId)
+                .orElse(null);
 
-        NurseSummaryPatientInfoDTO patientInfo = mapPatient(patient);
-        NurseSummaryEncounterInfoDTO encounterInfo = mapEncounter(encounter);
+        Patient patient = encounter != null ? encounter.getPatient() : null;
 
-        // في getNurseSummaryReport، بعد mapObservation
-        NurseSummaryObservationDTO observation = patientObservationsComplaintsService
-                .findLatestByEncounterId(encounterId)
+        NurseSummaryPatientInfoDTO patientInfo =
+                patient != null ? mapPatient(patient) : null;
+
+        NurseSummaryEncounterInfoDTO encounterInfo =
+                encounter != null ? mapEncounter(encounter) : null;
+
+        NurseSummaryObservationDTO observation = patientObservationsComplaintsRepository
+                .findFirstByEncounterIdAndIsActiveTrueOrderByCreatedDateDesc(encounterId)
                 .map(this::mapObservation)
                 .orElse(null);
 
-// أضف هاد الكود بعدها
-        String primaryDiagnosis = null;
-        try {
-            PatientDiagnosis diag = patientDiagnosisService
-                    .getPrimaryDiagnosisByEncounterId(encounterId);
-            primaryDiagnosis = diag.getDiagnosisId() != null
-                    ? String.valueOf(diag.getDiagnosisId())
-                    : null;
-        } catch (Exception ignored) {
-            // لا يوجد primary diagnosis — نتركها null
-        }
+        String primaryDiagnosis = patientDiagnosisRepository
+                .findByEncounterIdAndType(encounterId, DiagnosisType.PRIMARY)
+                .map(diag -> diag.getDiagnosis().getIcdShortDescription())
+                .orElse("Not Found");
 
-// ثم إذا observation مش null، نعيد بناءها مع primaryDiagnosis
         if (observation != null) {
             observation = new NurseSummaryObservationDTO(
                     observation.reasonOfVisit(),
@@ -99,49 +111,62 @@ public class NurseSummaryReportService {
                     observation.patientConditions(),
                     observation.cognitiveCheck(),
                     primaryDiagnosis,
-                    null  // plan
+                    null
             );
-        } else if (primaryDiagnosis != null) {
+        } else {
             observation = new NurseSummaryObservationDTO(
-                    null, null, null, null,
+                    null,
+                    null,
+                    null,
+                    null,
                     primaryDiagnosis,
                     null
             );
         }
 
-        NurseSummaryVitalSignsDTO vitalSigns = vitalSignsService
-                .findLatestByEncounterId(encounterId)
+        NurseSummaryVitalSignsDTO vitalSigns = vitalSignsRepository
+                .findFirstByEncounterIdAndIsActiveTrueOrderByCreatedDateDesc(encounterId)
                 .map(this::mapVitalSigns)
                 .orElse(null);
 
-        NurseSummaryBodyMeasurementsDTO bodyMeasurements = bodyMeasurementsService
-                .findLatestByEncounterId(encounterId)
+        NurseSummaryBodyMeasurementsDTO bodyMeasurements = bodyMeasurementsRepository
+                .findFirstByEncounterIdAndIsActiveTrueOrderByCreatedDateDesc(encounterId)
                 .map(this::mapBodyMeasurements)
                 .orElse(null);
 
-        NurseSummaryAdditionalMeasurementsDTO additionalMeasurements = additionalMeasurementsService
-                .findLatestByEncounterId(encounterId)
+        NurseSummaryAdditionalMeasurementsDTO additionalMeasurements = additionalMeasurementsRepository
+                .findFirstByEncounterIdAndIsActiveTrueOrderByCreatedDateDesc(encounterId)
                 .map(this::mapAdditionalMeasurements)
                 .orElse(null);
 
-        List<NurseSummaryAllergyDTO> allergies =
-                ((List<PatientAllergies>) patientAllergiesRepository
-                        .findByEncounterIdAndStatusNotOrderByCreatedDateAsc(
-                                encounterId,
-                                PatientAllergyStatus.CANCELLED
-                        ))
-                        .stream()
-                        .map(this::mapAllergy)
-                        .toList();
+        PainAssessmentDTO painAssessmentDTO =
+                painAssessmentRepository
+                        .findFirstByEncounterIdAndIsActiveTrueOrderByCreatedDateDesc(encounterId)
+                        .map(this::mapPainAssessment)
+                        .orElse(null);
+        List<NurseSummaryAllergyDTO> allergies = patientAllergiesRepository
+                .findByEncounterIdAndStatusNotOrderByCreatedDateAsc(
+                        encounterId,
+                        PatientAllergyStatus.CANCELLED
+                )
+                .stream()
+                .map(this::mapAllergy)
+                .toList();
 
         List<NurseSummaryWarningDTO> warnings = patientWarningsRepository
-                .findByEncounterIdAndStatusNotOrderByCreatedDateAsc(encounterId, PatientWarningStatus.CANCELLED)
+                .findByEncounterIdAndStatusNotOrderByCreatedDateAsc(
+                        encounterId,
+                        PatientWarningStatus.CANCELLED
+                )
                 .stream()
                 .map(this::mapWarning)
                 .toList();
 
         List<NurseSummaryVaccinationDTO> vaccinations = encounterVaccinationRepository
-                .findByEncounterIdAndStatusNotOrderByCreatedDateAsc(encounterId, EncounterVaccinationStatus.CANCELLED)
+                .findByEncounterIdAndStatusNotOrderByCreatedDateAsc(
+                        encounterId,
+                        EncounterVaccinationStatus.CANCELLED
+                )
                 .stream()
                 .map(this::mapVaccination)
                 .toList();
@@ -163,8 +188,26 @@ public class NurseSummaryReportService {
                 warnings,
                 vaccinations,
                 servicesAndProducts,
-                Instant.now()
+                Instant.now(),
+                painAssessmentDTO
         );
+    }
+
+    private String calculateAge(Date dateOfBirth) {
+        if (dateOfBirth == null) {
+            return null;
+        }
+
+        LocalDate birthDate = dateOfBirth.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+        LocalDate today = LocalDate.now();
+        Period period = Period.between(birthDate, today);
+
+        return period.getYears() + " Years " +
+                period.getMonths() + " Months " +
+                period.getDays() + " Days";
     }
 
     private NurseSummaryPatientInfoDTO mapPatient(Patient patient) {
@@ -175,27 +218,19 @@ public class NurseSummaryReportService {
                 patient.getLastName()
         );
 
-        Integer age = null;
-        if (patient.getDateOfBirth() != null) {
-            age = Period.between(
-                    patient.getDateOfBirth().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
-                    LocalDate.now()
-            ).getYears();
-        }
 
         return new NurseSummaryPatientInfoDTO(
                 patient.getId(),
                 fullName,
                 patient.getMedicalRecordNumber(),
-                patient.getDateOfBirth() != null ? patient.getDateOfBirth().toInstant() : null,
-                age,
+                patient.getDateOfBirth(),
+                calculateAge(patient.getDateOfBirth()),
                 patient.getSexAtBirth() != null ? patient.getSexAtBirth().name() : null
         );
     }
 
     private NurseSummaryEncounterInfoDTO mapEncounter(PatientEncounter encounter) {
 
-        // ✅ نفس Radiology: نجيب encounter fresh من DB
         PatientEncounter freshEncounter = encounterRepository.findById(encounter.getId())
                 .orElseThrow(() -> new NotFoundAlertException(
                         "Encounter not found with id " + encounter.getId(),
@@ -216,15 +251,10 @@ public class NurseSummaryReportService {
 
         String departmentName = department.getName();
 
-        System.out.println("Department: " + department);
-        System.out.println("Facility: " + department.getFacility());
-        System.out.println("Facility Name: " + department.getFacility().getName());
-        System.out.println("Department Name: " + department.getName());
         return new NurseSummaryEncounterInfoDTO(
                 freshEncounter.getId(),
                 freshEncounter.getEncounterNumber(),
                 freshEncounter.getEncounterDate(),
-                freshEncounter.getEncounterType() != null ? freshEncounter.getEncounterType().name() : null,
                 freshEncounter.getEncounterReason() != null ? freshEncounter.getEncounterReason().name() : null,
                 freshEncounter.getPriorityLevel() != null ? freshEncounter.getPriorityLevel().name() : null,
                 freshEncounter.getStatus() != null ? freshEncounter.getStatus().name() : null,
@@ -233,7 +263,6 @@ public class NurseSummaryReportService {
                 departmentName,
                 freshEncounter.getCreatedDate()
         );
-
 
 
     }
@@ -254,13 +283,16 @@ public class NurseSummaryReportService {
         return new NurseSummaryVitalSignsDTO(
                 entity.getBloodPressureSystolic(),
                 entity.getBloodPressureDiastolic(),
-                entity.getMeasurementSite(),
+                entity.getMeasurementSite() != null
+                        ? apLovValueRepository.findById(entity.getMeasurementSite())
+                                .map(ApLovValue::getLovDisplayVale)
+                                .orElse(null)
+                        : null,
                 entity.getHeartRate(),
                 entity.getTemperature(),
                 entity.getOxygenSaturation(),
                 entity.getRespiratoryRate(),
                 entity.getNotes(),
-                // entity.getPainDegree()   // تأكد إنه موجود في VitalSigns entity
                 null
         );
     }
@@ -295,26 +327,19 @@ public class NurseSummaryReportService {
         return new NurseSummaryAllergyDTO(
                 entity.getId(),
                 entity.getAllergenType() != null ? entity.getAllergenType().name() : null,
-                entity.getAllergenId(),
-                entity.getSeverity() != null ? entity.getSeverity().name() : null,
-                entity.getCriticality(),
-                entity.getCertainty(),
-                entity.getTreatmentStrategy(),
-                entity.getOnset(),
-                entity.getOnsetDate(),
-                entity.getTypeOfPropensity(),
-                entity.isByPatient(),
-                entity.getSourceOfInformation(),
-                entity.getAllergicReactions(),
-                entity.getNote(),
-                entity.getStatus() != null ? entity.getStatus().name() : null
+                entity.getAllergen().getName(),
+                entity.getSeverity()
+
         );
     }
 
     private NurseSummaryWarningDTO mapWarning(PatientWarnings entity) {
+        String warningTypeDisplay = lovLookupService.findDisplayValue(entity.getWarningType());
         return new NurseSummaryWarningDTO(
                 entity.getId(),
-                entity.getWarningType(),
+                apLovValueRepository.findById(entity.getWarningType())
+                        .map(ApLovValue::getLovDisplayVale)
+                        .orElse(null),
                 entity.getWarning(),
                 entity.getSeverity() != null ? entity.getSeverity().name() : null,
                 entity.getOnsetDate(),
@@ -346,9 +371,7 @@ public class NurseSummaryReportService {
     private NurseSummaryServiceProductDTO mapServiceAndProduct(PatientServiceAndProduct entity) {
         return new NurseSummaryServiceProductDTO(
                 entity.getId(),
-                entity.getCategory() != null ? entity.getCategory().name() : null,
                 entity.getServiceId(),
-                entity.getProductId(),
                 entity.getQuantity(),
 //                entity.getName(),
 //                entity.getCode(),
@@ -359,6 +382,19 @@ public class NurseSummaryReportService {
                 null,
                 null,
                 entity.getCreatedDate() != null ? entity.getCreatedDate().toString() : null
+        );
+    }
+
+    private PainAssessmentDTO mapPainAssessment(PainAssessment entity) {
+        return new PainAssessmentDTO(
+                entity.getPainDegree(),
+                entity.getPainLevel(),
+                entity.getPainPattern() != null
+                        ? apLovValueRepository.findById(entity.getPainPattern())
+                                .map(ApLovValue::getLovDisplayVale)
+                                .orElse(null)
+                        : null,
+                entity.getPainDescription()
         );
     }
 

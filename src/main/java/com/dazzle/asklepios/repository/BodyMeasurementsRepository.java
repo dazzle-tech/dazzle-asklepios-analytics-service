@@ -13,31 +13,6 @@ import java.util.Optional;
 @Repository
 public interface BodyMeasurementsRepository extends JpaRepository<BodyMeasurements, Long> {
 
-    Optional<BodyMeasurements> findFirstByPatient_IdAndIsActiveTrueOrderByCreatedDateDesc(Long patientId);
-
     Optional<BodyMeasurements> findFirstByEncounterIdAndIsActiveTrueOrderByCreatedDateDesc(Long encounterId);
 
-    Page<BodyMeasurements> findByPatientIdAndIsActiveTrueAndCreatedDateBetween(
-            Long patientId,
-            Instant from,
-            Instant to,
-            Pageable pageable
-    );
-
-    List<BodyMeasurements> findByPatientIdAndIsActiveTrueAndCreatedDateBetweenOrderByCreatedDateAsc(
-            Long patientId,
-            Instant from,
-            Instant to
-    );
-
-    Optional<BodyMeasurements> findFirstByEncounterIdAndIsActiveTrueAndCreatedDateBetweenOrderByCreatedDateDesc(
-            Long encounterId,
-            Instant dayStart,
-            Instant dayEnd
-    );
-
-    Page<BodyMeasurements> findByPatientIdAndIsActiveTrue(
-            Long patientId,
-            Pageable pageable
-    );
 }

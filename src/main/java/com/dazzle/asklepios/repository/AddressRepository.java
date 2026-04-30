@@ -8,11 +8,6 @@ import java.util.Optional;
 
 public interface AddressRepository extends JpaRepository<Address, Long> {
 
-    List<Address> findByPatientIdOrderByIsCurrentDescIdDesc(Long patientId);
-
     Optional<Address> findFirstByPatientIdAndIsCurrentTrueOrderByIdDesc(Long patientId);
 
-    List<Address> findByPatientIdAndIsCurrentTrue(Long patientId);
-
-    Optional<Address> findFirstByPatientIdAndIsCurrentTrue(Long patientId);
 }
