@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Patient Report</title>
+
+    <style>
+        @page { margin:0; size:A4; }
+
+        * {
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            -webkit-print-color-adjust:exact;
+        }
+
+        body {
+            font-family: Arial;
+            background:#f1f5f9;
+            font-size:7pt;
+            color:#1e293b;
+        }
+
+        .container {
+            width:100%;
+            max-width:900px;
+            margin:auto;
+            background:white;
+            padding:40px;
+        }
+
+        .header {
+            display:flex;
+            justify-content:space-between;
+            border-bottom:2px solid #1e293b;
+            margin-bottom:20px;
+        }
+
+        .org-name {
+            font-size:16pt;
+            font-weight:900;
+            text-align:center;
+        }
+
+        .section-header {
+            background:#f1f5f9;
+            border-left:5px solid #001f3f;
+            padding:6px 12px;
+            margin-bottom:10px;
+        }
+
+        .section-title {
+            font-size:7pt;
+            font-weight:900;
+            text-transform:uppercase;
+        }
+
+        .patient-grid {
+            display:table;
+            width:100%;
+            border:1px solid #dbe3ee;
+        }
+
+        .grid-row {
+            display:table;
+            width:100%;
+            border-top:1px solid #e5edf5;
+        }
+
+        .grid-4 .info-box { width:25%; }
+        .grid-3 .info-box { width:33.33%; }
+        .grid-2 .info-box { width:50%; }
+
+        .info-box {
+            display:table-cell;
+            padding:6px;
+            border-right:1px solid #e5edf5;
+        }
+
+        .info-box:last-child { border-right:none; }
+
+        .info-label {
+            font-size:5.5pt;
+            font-weight:700;
+            color:#94a3b8;
+        }
+
+        .info-value {
+            font-size:7pt;
+            font-weight:900;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="header">
+        <div>
+            <img th:src="'data:image/png;base64,' + ${logo}" style="height:60px;">
+        </div>
+
+<!--        <div style="flex:1;text-align:center;">-->
+<!--            <h1 class="org-name" th:text="${report.facilityName}">FACILITY</h1>-->
+<!--        </div>-->
+    </div>
+
+    <!-- =========================
+         1. PATIENT INFO
+    ========================== -->
+    <section>
+        <div class="section-header">
+            <h2 class="section-title">Patient Information</h2>
+        </div>
+
+        <div class="patient-grid">
+            <div class="grid-row grid-4">
+                <div class="info-box">
+                    <span class="info-label">Patient ID</span>
+                    <span class="info-value" th:text="${report.patientId}">1001</span>
+                </div>
+
+                <div class="info-box">
+                    <span class="info-label">Full Name</span>
+                    <span class="info-value" th:text="${report.fullName}">حنان</span>
+                </div>
+
+                <div class="info-box">
+                    <span class="info-label">MRN</span>
+                    <span class="info-value" th:text="${report.mrn}">P103</span>
+                </div>
+
+                <div class="info-box">
+                    <span class="info-label">Gender</span>
+                    <span class="info-value" th:text="${report.gender}">FEMALE</span>
+                </div>
+            </div>
+
+            <div class="grid-row grid-4">
+                <div class="info-box">
+                    <span class="info-label">Date of Birth</span>
+                    <span class="info-value"
+                          th:text="${#temporals.format(report.dateOfBirth,'dd/MM/yyyy')}">
+                    </span>
+                </div>
+
+                <div class="info-box">
+                    <span class="info-label">Age</span>
+                    <span class="info-value" th:text="${report.age}">10</span>
+                </div>
+
+                <div class="info-box">
+                    <span class="info-label">Registration Date</span>
+                    <span class="info-value"
+                          th:text="${#temporals.format(report.registrationDate,'yyyy-MM-dd HH:mm')}">
+                    </span>
+                </div>
+
+                <div class="info-box">
+                    <span class="info-label">Photo</span>
+                    <span class="info-value" th:text="${report.photoUrl ?: '-'}">-</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================
+         2. CONTACT
+    ========================== -->
+    <section>
+        <div class="section-header">
+            <h2 class="section-title">Contact Information</h2>
+        </div>
+
+        <div class="patient-grid">
+            <div class="grid-row grid-3">
+                <div class="info-box">
+                    <span class="info-label">Mobile</span>
+                    <span class="info-value" th:text="${report.mobileNumber}">21345</span>
+                </div>
+
+                <div class="info-box">
+                    <span class="info-label">Secondary Phone</span>
+                    <span class="info-value" th:text="${report.secondaryPhone ?: '-'}"></span>
+                </div>
+
+                <div class="info-box">
+                    <span class="info-label">Email</span>
+                    <span class="info-value" th:text="${report.email}"></span>
+                </div>
+            </div>
+
+            <div class="grid-row grid-3">
+                <div class="info-box">
+                    <span class="info-label">City</span>
+                    <span class="info-value" th:text="${report.city ?: '-'}"></span>
+                </div>
+
+                <div class="info-box">
+                    <span class="info-label">State</span>
+                    <span class="info-value" th:text="${report.state ?: '-'}"></span>
+                </div>
+
+                <div class="info-box">
+                    <span class="info-label">Country</span>
+                    <span class="info-value" th:text="${report.country ?: '-'}"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================
+         3. DOCUMENT
+    ========================== -->
+    <section>
+        <div class="section-header">
+            <h2 class="section-title">Document Info</h2>
+        </div>
+
+        <div class="patient-grid">
+            <div class="grid-row grid-2">
+                <div class="info-box">
+                    <span class="info-label">Type</span>
+                    <span class="info-value" th:text="${report.documentType ?: '-'}"></span>
+                </div>
+
+                <div class="info-box">
+                    <span class="info-label">Number</span>
+                    <span class="info-value" th:text="${report.documentNumber ?: '-'}"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================
+         4. EMERGENCY
+    ========================== -->
+    <section>
+        <div class="section-header">
+            <h2 class="section-title">Emergency Contact</h2>
+        </div>
+
+        <div class="patient-grid">
+            <div class="grid-row grid-3">
+                <div class="info-box">
+                    <span class="info-label">Name</span>
+                    <span class="info-value" th:text="${report.emergencyName ?: '-'}"></span>
+                </div>
+
+                <div class="info-box">
+                    <span class="info-label">Relation</span>
+                    <span class="info-value" th:text="${report.emergencyRelationship ?: '-'}"></span>
+                </div>
+
+                <div class="info-box">
+                    <span class="info-label">Phone</span>
+                    <span class="info-value" th:text="${report.emergencyPhone ?: '-'}"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================
+         5. INSURANCE
+    ========================== -->
+    <section>
+        <div class="section-header">
+            <h2 class="section-title">Insurance</h2>
+        </div>
+
+        <div class="patient-grid">
+            <div class="grid-row grid-3">
+                <div class="info-box">
+                    <span class="info-label">Provider</span>
+                    <span class="info-value" th:text="${report.insuranceProvider ?: '-'}"></span>
+                </div>
+
+                <div class="info-box">
+                    <span class="info-label">Policy</span>
+                    <span class="info-value" th:text="${report.policyNumber ?: '-'}"></span>
+                </div>
+
+                <div class="info-box">
+                    <span class="info-label">Preferred Doctor</span>
+                    <span class="info-value" th:text="${report.preferredHealthProfessional ?: '-'}"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+</body>
+</html>

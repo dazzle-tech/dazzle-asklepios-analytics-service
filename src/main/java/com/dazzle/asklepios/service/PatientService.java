@@ -9,6 +9,7 @@ import com.dazzle.asklepios.domain.PatientDocument;
 import com.dazzle.asklepios.domain.PatientInsurance;
 import com.dazzle.asklepios.domain.PatientPreferredHealthProfessional;
 import com.dazzle.asklepios.domain.Practitioner;
+import com.dazzle.asklepios.repository.AddressRepository;
 import com.dazzle.asklepios.repository.FacilityRepository;
 import com.dazzle.asklepios.repository.PatientAllergyRepository;
 import com.dazzle.asklepios.repository.PatientDocumentRepository;
@@ -50,10 +51,11 @@ public class PatientService {
     private final PractitionersRepository practitionersRepository;
     private final PatientPreferredHealthProfessionalRepository patientPreferredHealthProfessionalRepository;
     private final PatientDocumentRepository patientDocumentRepository;
-    private final AddressService addressService;
+    private final AddressRepository addressRepository;
     private final PatientInsuranceRepository patientInsuranceRepository;
+
     public PatientService(
-            PatientRepository patientRepository, FacilityRepository facilityRepository, PatientAllergyRepository patientAllergyRepository, PractitionersRepository practitionersRepository, PatientPreferredHealthProfessionalRepository patientPreferredHealthProfessionalRepository, PatientDocumentRepository patientDocumentRepository, AddressService addressService, PatientInsuranceRepository patientInsuranceRepository
+            PatientRepository patientRepository, FacilityRepository facilityRepository, PatientAllergyRepository patientAllergyRepository, PractitionersRepository practitionersRepository, PatientPreferredHealthProfessionalRepository patientPreferredHealthProfessionalRepository, PatientDocumentRepository patientDocumentRepository,  AddressRepository addressRepository, PatientInsuranceRepository patientInsuranceRepository
 
     ) {
         this.patientRepository = patientRepository;
@@ -62,7 +64,7 @@ public class PatientService {
         this.practitionersRepository = practitionersRepository;
         this.patientPreferredHealthProfessionalRepository = patientPreferredHealthProfessionalRepository;
         this.patientDocumentRepository = patientDocumentRepository;
-        this.addressService = addressService;
+        this.addressRepository = addressRepository;
         this.patientInsuranceRepository = patientInsuranceRepository;
     }
 
@@ -199,14 +201,10 @@ public class PatientService {
 
         /* ===================== 3. Address ===================== */
 
-        Address address = null;
 
-        try {
-            address = addressService.findCurrentByPatient(patientId);
-        } catch (Exception e) {
-            address = null;
-        }
-
+        Address address = addressRepository
+                .findFirstByPatientIdAndIsCurrentTrueOrderByIdDesc(patientId)
+                .orElse(null);
         String city = null;
         String state = null;
         String country = null;
@@ -305,6 +303,7 @@ public class PatientService {
                 preferredDoctor
         );
     }
+
     private String safe(String value) {
         return value == null ? "" : value;
     }

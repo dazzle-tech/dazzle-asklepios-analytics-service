@@ -46,7 +46,7 @@ public class Procedure extends AbstractAuditingEntity<Long> implements Serializa
 
     @NotNull
     @Column(nullable = false)
-    private Currency currency;
+    private String currency;
 
     @NotNull
     @Column(nullable = false)

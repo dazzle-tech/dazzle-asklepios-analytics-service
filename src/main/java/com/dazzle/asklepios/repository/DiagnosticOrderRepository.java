@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface DiagnosticOrderRepository extends JpaRepository<DiagnosticOrder, Long> {
 
-    List<DiagnosticOrder> findByEncounterId(Long encounterId);
+    List<DiagnosticOrder>  findByEncounterIdOrderByCreatedDateAsc(Long encounterId);
 }
