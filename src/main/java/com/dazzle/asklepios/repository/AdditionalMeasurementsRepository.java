@@ -12,10 +12,4 @@ public interface AdditionalMeasurementsRepository extends JpaRepository<Addition
 
     Optional<AdditionalMeasurements> findFirstByEncounterIdAndIsActiveTrueOrderByCreatedDateDesc(Long encounterId);
 
-    Optional<AdditionalMeasurements> findFirstByEncounterIdAndIsActiveTrueAndCreatedDateBetweenOrderByCreatedDateDesc(
-            Long encounterId,
-            Instant dayStart,
-            Instant dayEnd
-    );
-
 }

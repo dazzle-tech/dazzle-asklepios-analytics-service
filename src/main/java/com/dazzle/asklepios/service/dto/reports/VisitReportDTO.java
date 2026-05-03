@@ -1,5 +1,7 @@
 package com.dazzle.asklepios.service.dto.reports;
 
+import com.dazzle.asklepios.service.dto.prescription.PrescriptionMedicationDTO;
+
 import java.time.Instant;
 import java.util.List;
 
@@ -16,9 +18,9 @@ public record VisitReportDTO(
         List<NurseSummaryAllergyDTO> allergies,
         List<NurseSummaryWarningDTO> warnings,
 
-        List<NurseSummaryServiceProductDTO> diagnostics,
-        List<NurseSummaryServiceProductDTO> medications,
-        List<NurseSummaryServiceProductDTO> procedures,
+        List<OrderedDiagnosticsDTO> diagnostics,
+        List<PrescriptionMedicationDTO> medications,
+        List<ProceduresDTO> procedures,
         String physicianFullName,
 
         Instant generatedAt
