@@ -175,6 +175,21 @@ public class DiagnosticOrderTestResultReportService {
                 patientName,
                 test.getName()
         );
+        String normalRangeValue =
+                testProfile.getResultType() == TestResultType.LOV
+                        ? apLovValueRepository.findById(String.valueOf(result.getNormalRangeValue()))
+                        .map(ApLovValue::getLovDisplayVale)
+                        .orElse(result.getNormalRangeValue())
+                        : result.getNormalRangeValue();
+
+        String resultValue =
+                testProfile.getResultType() == TestResultType.LOV
+                        ? apLovValueRepository.findById(String.valueOf(result.getResultValueText()))
+                        .map(ApLovValue::getLovDisplayVale)
+                        .orElse(result.getResultValueText())
+                        : (result.getResultValueNumber() != null
+                        ? result.getResultValueNumber().toString()
+                        : null);
 
         return new LaboratoryResultReportDTO(
                 facilityName,
@@ -190,12 +205,12 @@ public class DiagnosticOrderTestResultReportService {
                 encounter.getEncounterNumber(),
                 order.getOrderNumber(),
                 result.getCreatedDate(),
-                result.getNormalRangeValue(),
+                normalRangeValue,
                 fromDepartmentName,
                 testProfile.getName(),
 
-                testProfile.getResultType()== TestResultType.LOV? result.getResultValueText() : result.getResultValueNumber().toString(),
-                apLovValueRepository.findById(String.valueOf( testProfile.getResultUnit()))
+                resultValue,
+                apLovValueRepository.findById(String.valueOf(testProfile.getResultUnit()))
                         .map(ApLovValue::getLovDisplayVale)
                         .orElse(null),
                 result.getMarker(),
