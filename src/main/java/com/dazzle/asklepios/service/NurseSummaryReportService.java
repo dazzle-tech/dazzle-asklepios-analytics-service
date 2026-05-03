@@ -327,7 +327,7 @@ public class NurseSummaryReportService {
         return new NurseSummaryAllergyDTO(
                 entity.getId(),
                 entity.getAllergenType() != null ? entity.getAllergenType().name() : null,
-                entity.getAllergen().getName(),
+                entity.getAllergen() != null ? entity.getAllergen().getName() : null,
                 entity.getSeverity()
 
         );
