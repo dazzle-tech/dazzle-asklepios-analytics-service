@@ -55,7 +55,7 @@ public class PatientService {
     private final PatientInsuranceRepository patientInsuranceRepository;
 
     public PatientService(
-            PatientRepository patientRepository, FacilityRepository facilityRepository, PatientAllergyRepository patientAllergyRepository, PractitionersRepository practitionersRepository, PatientPreferredHealthProfessionalRepository patientPreferredHealthProfessionalRepository, PatientDocumentRepository patientDocumentRepository,  AddressRepository addressRepository, PatientInsuranceRepository patientInsuranceRepository
+            PatientRepository patientRepository, FacilityRepository facilityRepository, PatientAllergyRepository patientAllergyRepository, PractitionersRepository practitionersRepository, PatientPreferredHealthProfessionalRepository patientPreferredHealthProfessionalRepository, PatientDocumentRepository patientDocumentRepository, AddressRepository addressRepository, PatientInsuranceRepository patientInsuranceRepository
 
     ) {
         this.patientRepository = patientRepository;
@@ -117,9 +117,15 @@ public class PatientService {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new NotFoundAlertException("Patient not found", "patient", "notfound"));
 
-        String fullName = (patient.getFirstName().trim() + " " + patient.getSecondName().trim() + " " + patient.getThirdName().trim() + " " + patient.getLastName()).trim();
+        String fullName = Stream.of(
+                        patient.getFirstName(),
+                        patient.getSecondName(),
+                        patient.getThirdName(),
+                        patient.getLastName()
+                )
+                .filter(v -> v != null && !v.isBlank())
+                .collect(Collectors.joining(" "));
 
-        // TODO: replace with real data
         List<PatientAllergies> allergies =
                 Optional.ofNullable(patientAllergyRepository.findAllByPatientId(patient.getId()))
                         .orElse(Collections.emptyList());
