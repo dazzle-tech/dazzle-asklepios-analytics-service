@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Sample Label</title>
+
   <style>
     @page {
       size: 120mm 55mm;
@@ -15,7 +16,8 @@
       print-color-adjust: exact;
     }
 
-    html, body {
+    html,
+    body {
       margin: 0;
       padding: 0;
       font-family: Arial, sans-serif;
@@ -107,9 +109,9 @@
     }
 
     .row {
-      font-size: 10pt;
-      line-height: 1.45;
-      margin-bottom: 0.8mm;
+      font-size: 8.5pt;
+      line-height: 1.2;
+      margin-bottom: 0.6mm;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -142,31 +144,44 @@
     }
   </style>
 </head>
+
 <body>
 <div class="label">
 
+  <!-- HEADER -->
   <div class="header">
+
     <div class="header-left">
       <div class="title">Sample Label</div>
     </div>
 
     <div class="header-right">
       <div class="right-block">
+
         <div class="right-text">
           <div class="date" th:text="${today} ?: ''"></div>
-          <div class="facility" th:text="${label.facilityName} ?: ''"></div>
+
+          <div class="facility"
+               th:text="${label.facilityName} ?: ''">
+          </div>
         </div>
 
         <div class="right-qr">
-          <img class="qr"
-               th:if="${qrImage != null and !#strings.isEmpty(qrImage)}"
-               th:src="'data:image/png;base64,' + ${qrImage}" />
+          <img
+                  class="qr"
+                  th:if="${qrImage != null and !#strings.isEmpty(qrImage)}"
+                  th:src="'data:image/png;base64,' + ${qrImage}"
+          />
         </div>
+
       </div>
     </div>
+
   </div>
 
+  <!-- CONTENT -->
   <div class="content">
+
     <div class="row">
       <span class="label-text">Patient: </span>
       <span th:text="${label.patientName} ?: ''"></span>
@@ -183,21 +198,47 @@
     </div>
 
     <div class="row">
+      <span class="label-text">Expiry: </span>
+
+      <span
+              th:text="${expiryDate != null ? #temporals.format(expiryDate, 'dd/MM/yyyy HH:mm') : ''}">
+      </span>
+    </div>
+
+    <div class="row">
+      <span class="label-text">Source: </span>
+      <span th:text="${label.sourceOfSample} ?: ''"></span>
+    </div>
+
+    <div class="row">
       <span class="label-text">Test: </span>
       <span th:text="${label.testName} ?: ''"></span>
     </div>
 
     <div class="row">
       <span class="label-text">Amount: </span>
-      <span th:text="${sampleQuantityFormatted != null ? sampleQuantityFormatted + ' ' + (label.sampleUnit != null ? label.sampleUnit : '') : ''}"></span>
+
+      <span
+              th:text="${sampleQuantityFormatted != null ? sampleQuantityFormatted + ' ' + (label.sampleUnit != null ? label.sampleUnit : '') : ''}">
+      </span>
     </div>
+
   </div>
 
+  <!-- BARCODE -->
   <div class="barcode-box">
-    <img class="barcode"
-         th:if="${barcodeImage != null and !#strings.isEmpty(barcodeImage)}"
-         th:src="'data:image/png;base64,' + ${barcodeImage}" />
-    <div class="barcode-text" th:text="${label.mrn} ?: ''"></div>
+
+    <img
+            class="barcode"
+            th:if="${barcodeImage != null and !#strings.isEmpty(barcodeImage)}"
+            th:src="'data:image/png;base64,' + ${barcodeImage}"
+    />
+
+    <div
+            class="barcode-text"
+            th:text="${label.mrn} ?: ''">
+    </div>
+
   </div>
 
 </div>

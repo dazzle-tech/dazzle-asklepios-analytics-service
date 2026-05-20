@@ -4,10 +4,13 @@ import com.dazzle.asklepios.service.dto.DiagnosticOrderTestSampleLabelDTO;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
-import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
-import com.itextpdf.html2pdf.ConverterProperties;
-import com.itextpdf.html2pdf.HtmlConverter;
+import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserContext;
+import com.microsoft.playwright.BrowserType;
+import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Playwright;
+import com.microsoft.playwright.options.WaitUntilState;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
@@ -53,16 +56,42 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
         context.setVariable("today", today);
         context.setVariable("sampleDateTimeFormatted", sampleDateTime);
         context.setVariable("sampleQuantityFormatted", formatQuantity(dto.sampleQuantity()));
+        context.setVariable("expiryDate", dto.expiryDate());
         context.setVariable("qrImage", generateQrBase64(qrValue, 220, 220));
         context.setVariable("barcodeImage", generateCode128BarcodeBase64(dto.mrn(), 520, 110));
 
         String html = templateEngine.process("reports/sample-label", context);
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ConverterProperties props = new ConverterProperties();
-        HtmlConverter.convertToPdf(html, outputStream, props);
+        return renderPdfWithChromium(html);
+    }
 
-        return outputStream.toByteArray();
+    private byte[] renderPdfWithChromium(String html) {
+        try (Playwright playwright = Playwright.create()) {
+            Browser browser = playwright.chromium().launch(
+                    new BrowserType.LaunchOptions().setHeadless(true)
+            );
+
+            BrowserContext browserContext = browser.newContext();
+            Page page = browserContext.newPage();
+
+            page.setContent(
+                    html,
+                    new Page.SetContentOptions().setWaitUntil(WaitUntilState.NETWORKIDLE)
+            );
+
+            byte[] pdfBytes = page.pdf(
+                    new Page.PdfOptions()
+                            .setPrintBackground(true)
+                            .setPreferCSSPageSize(true)
+            );
+
+            browserContext.close();
+            browser.close();
+
+            return pdfBytes;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate sample label PDF with Chromium: " + e.getMessage(), e);
+        }
     }
 
     private String buildQrValue(DiagnosticOrderTestSampleLabelDTO dto, String sampleDateTime) {
@@ -70,7 +99,11 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
                 + ";NAME:" + nullSafe(dto.patientName())
                 + ";TEST:" + nullSafe(dto.testName())
                 + ";SAMPLE_DT:" + nullSafe(sampleDateTime)
-                + ";QTY:" + formatQuantity(dto.sampleQuantity()) + nullSafe(dto.sampleUnit());
+                + ";SOURCE:" + nullSafe(dto.sourceOfSample())
+                + ";EXPIRY:" + (dto.expiryDate() != null
+                ? DATE_TIME_FORMAT.format(dto.expiryDate().atZone(ZoneId.systemDefault()))
+                : "—")
+                + ";QTY:" + formatQuantity(dto.sampleQuantity()) + " " + nullSafe(dto.sampleUnit());
     }
 
     private String formatQuantity(BigDecimal value) {
@@ -87,6 +120,7 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
     private String generateQrBase64(String content, int width, int height) {
         try {
             Map<EncodeHintType, Object> hints = new EnumMap<>(EncodeHintType.class);
+
             BitMatrix bitMatrix = new MultiFormatWriter().encode(
                     content,
                     BarcodeFormat.QR_CODE,
@@ -105,7 +139,7 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
     private String generateCode128BarcodeBase64(String content, int width, int height) {
         try {
             BitMatrix bitMatrix = new MultiFormatWriter().encode(
-                    content,
+                    nullSafe(content),
                     BarcodeFormat.CODE_128,
                     width,
                     height
@@ -124,8 +158,10 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
 
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = image.createGraphics();
+
         graphics.setColor(Color.WHITE);
         graphics.fillRect(0, 0, width, height);
+
         graphics.setColor(Color.BLACK);
 
         for (int x = 0; x < width; x++) {
@@ -137,6 +173,7 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
         }
 
         graphics.dispose();
+
         return image;
     }
 

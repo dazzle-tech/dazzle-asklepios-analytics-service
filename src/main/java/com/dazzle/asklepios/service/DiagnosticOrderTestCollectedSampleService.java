@@ -1,11 +1,13 @@
 package com.dazzle.asklepios.service;
 
+import com.dazzle.asklepios.domain.ApLovValue;
 import com.dazzle.asklepios.domain.Department;
 import com.dazzle.asklepios.domain.DiagnosticOrder;
 import com.dazzle.asklepios.domain.DiagnosticOrderTest;
 import com.dazzle.asklepios.domain.DiagnosticOrderTestCollectedSample;
 import com.dazzle.asklepios.domain.DiagnosticTest;
 import com.dazzle.asklepios.domain.Patient;
+import com.dazzle.asklepios.repository.ApLovValueRepository;
 import com.dazzle.asklepios.repository.DepartmentsRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderTestCollectedSampleRepository;
@@ -31,8 +33,8 @@ public class DiagnosticOrderTestCollectedSampleService {
     private final PatientRepository patientRepository;
     private final DiagnosticTestRepository diagnosticTestRepository;
     private final DepartmentsRepository departmentRepository;
-
-    public DiagnosticOrderTestCollectedSampleService(DiagnosticOrderTestRepository orderTestRepository, DiagnosticOrderTestCollectedSampleRepository sampleRepository, DiagnosticOrderRepository orderRepository, PatientRepository patientRepository, DiagnosticTestRepository diagnosticTestRepository, DepartmentsRepository departmentRepository
+   private final ApLovValueRepository apLovValueRepository;
+    public DiagnosticOrderTestCollectedSampleService(DiagnosticOrderTestRepository orderTestRepository, DiagnosticOrderTestCollectedSampleRepository sampleRepository, DiagnosticOrderRepository orderRepository, PatientRepository patientRepository, DiagnosticTestRepository diagnosticTestRepository, DepartmentsRepository departmentRepository, ApLovValueRepository apLovValueRepository
     ) {
 
         this.orderTestRepository = orderTestRepository;
@@ -41,6 +43,7 @@ public class DiagnosticOrderTestCollectedSampleService {
         this.patientRepository = patientRepository;
         this.diagnosticTestRepository = diagnosticTestRepository;
         this.departmentRepository = departmentRepository;
+        this.apLovValueRepository = apLovValueRepository;
     }
 
 
@@ -118,7 +121,11 @@ public class DiagnosticOrderTestCollectedSampleService {
                 test.getName(),
                 lastSample.getCollectedAt(),
                 lastSample.getQuantity(),
-                lastSample.getUnit()
+                lastSample.getUnit(),
+                lastSample.getExpiryDate(),
+                apLovValueRepository.findById( lastSample.getSourceOfSample())
+                        .map(ApLovValue::getLovDisplayVale)
+                        .orElse(null)
         );
     }
 }

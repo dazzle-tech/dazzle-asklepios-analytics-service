@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -47,4 +48,11 @@ public class DiagnosticOrderTestCollectedSample extends AbstractAuditingEntity i
 
     @Column(name = "collected_at", nullable = false)
     private Instant collectedAt;
+
+
+    @Column(name = "expiry_date")
+    private Instant expiryDate;
+
+    @Column(name = "source_of_sample", length = 100, nullable = false)
+    private String sourceOfSample;
 }
