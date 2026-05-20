@@ -17,7 +17,8 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
@@ -25,6 +26,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -41,8 +43,20 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     public byte[] generateSampleLabelPdf(Long orderTestId) {
-        DiagnosticOrderTestSampleLabelDTO dto = sampleService.getSampleLabel(orderTestId);
+        DiagnosticOrderTestSampleLabelDTO dto =
+                sampleService.getSampleLabel(orderTestId);
 
+        return generateSampleLabelPdfFromDto(dto);
+    }
+
+    public byte[] generateSampleLabelPdfBySampleId(Long sampleId) {
+        DiagnosticOrderTestSampleLabelDTO dto =
+                sampleService.getSampleLabelBySampleId(sampleId);
+
+        return generateSampleLabelPdfFromDto(dto);
+    }
+
+    private byte[] generateSampleLabelPdfFromDto(DiagnosticOrderTestSampleLabelDTO dto) {
         String sampleDateTime = dto.sampleDateTime() != null
                 ? DATE_TIME_FORMAT.format(dto.sampleDateTime().atZone(ZoneId.systemDefault()))
                 : "—";
@@ -90,7 +104,10 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
 
             return pdfBytes;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to generate sample label PDF with Chromium: " + e.getMessage(), e);
+            throw new RuntimeException(
+                    "Failed to generate sample label PDF with Chromium: " + e.getMessage(),
+                    e
+            );
         }
     }
 
@@ -110,6 +127,7 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
         if (value == null) {
             return "—";
         }
+
         return value.stripTrailingZeros().toPlainString();
     }
 
@@ -130,6 +148,7 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
             );
 
             BufferedImage image = toBufferedImage(bitMatrix);
+
             return toBase64Png(image);
         } catch (Exception e) {
             return "";
@@ -146,6 +165,7 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
             );
 
             BufferedImage image = toBufferedImage(bitMatrix);
+
             return toBase64Png(image);
         } catch (Exception e) {
             return "";
@@ -156,7 +176,9 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
         int width = matrix.getWidth();
         int height = matrix.getHeight();
 
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        BufferedImage image =
+                new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
         Graphics2D graphics = image.createGraphics();
 
         graphics.setColor(Color.WHITE);
@@ -180,10 +202,84 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
     private String toBase64Png(BufferedImage image) {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
             ImageIO.write(image, "png", baos);
+
             return Base64.getEncoder().encodeToString(baos.toByteArray());
         } catch (Exception e) {
             return "";
         }
+    }
+
+    public byte[] generateAllSampleLabelsPdf(Long orderTestId) {
+        List<DiagnosticOrderTestSampleLabelDTO> labels =
+                sampleService.getSampleLabelsByOrderTestId(orderTestId);
+
+        StringBuilder htmlBuilder = new StringBuilder();
+
+        htmlBuilder.append("""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                @page {
+                    size: 120mm 55mm;
+                    margin: 0;
+                }
+
+                html, body {
+                    margin: 0;
+                    padding: 0;
+                }
+
+                .label-page {
+                    width: 120mm;
+                    height: 55mm;
+                    page-break-after: always;
+                    break-after: page;
+                }
+
+                .label-page:last-child {
+                    page-break-after: auto;
+                    break-after: auto;
+                }
+            </style>
+        </head>
+        <body>
+    """);
+
+        for (DiagnosticOrderTestSampleLabelDTO dto : labels) {
+            htmlBuilder.append("<div class=\"label-page\">");
+            htmlBuilder.append(generateSampleLabelHtml(dto));
+            htmlBuilder.append("</div>");
+        }
+
+        htmlBuilder.append("""
+        </body>
+        </html>
+    """);
+
+        return renderPdfWithChromium(htmlBuilder.toString());
+    }
+    private String generateSampleLabelHtml(DiagnosticOrderTestSampleLabelDTO dto) {
+        String sampleDateTime = dto.sampleDateTime() != null
+                ? DATE_TIME_FORMAT.format(dto.sampleDateTime().atZone(ZoneId.systemDefault()))
+                : "—";
+
+        String today = DATE_FORMAT.format(java.time.LocalDate.now());
+
+        String qrValue = buildQrValue(dto, sampleDateTime);
+
+        Context context = new Context();
+        context.setVariable("label", dto);
+        context.setVariable("today", today);
+        context.setVariable("sampleDateTimeFormatted", sampleDateTime);
+        context.setVariable("sampleQuantityFormatted", formatQuantity(dto.sampleQuantity()));
+        context.setVariable("expiryDate", dto.expiryDate());
+        context.setVariable("qrImage", generateQrBase64(qrValue, 220, 220));
+        context.setVariable("barcodeImage", generateCode128BarcodeBase64(dto.mrn(), 520, 110));
+
+        return templateEngine.process("reports/sample-label", context);
     }
 }

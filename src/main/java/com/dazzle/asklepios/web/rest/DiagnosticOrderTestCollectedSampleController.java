@@ -55,4 +55,14 @@ public class DiagnosticOrderTestCollectedSampleController {
                 .header("Content-Type", "application/pdf")
                 .body(pdf);
     }
+    @GetMapping("/diagnostic-order-tests/{orderTestId}/sample-labels/pdf")
+    public ResponseEntity<byte[]> generateAllSampleLabelsPdf(@PathVariable Long orderTestId) {
+        byte[] pdf = diagnosticOrderTestSampleLabelPdfRenderService
+                .generateAllSampleLabelsPdf(orderTestId);
+
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "inline; filename=sample-labels-" + orderTestId + ".pdf")
+                .header("Content-Type", "application/pdf")
+                .body(pdf);
+    }
 }
