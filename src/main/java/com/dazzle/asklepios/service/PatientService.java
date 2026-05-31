@@ -32,7 +32,6 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.ZoneId;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -69,22 +68,6 @@ public class PatientService {
         this.patientInsuranceRepository = patientInsuranceRepository;
     }
 
-    private String calculateAge(Date dateOfBirth) {
-        if (dateOfBirth == null) {
-            return null;
-        }
-
-        LocalDate birthDate = dateOfBirth.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
-
-        LocalDate today = LocalDate.now();
-        Period period = Period.between(birthDate, today);
-
-        return period.getYears() + " Years " +
-                period.getMonths() + " Months " +
-                period.getDays() + " Days";
-    }
 
     // TODO move this logic to analytic service
     @Transactional(readOnly = true)
@@ -197,7 +180,15 @@ public class PatientService {
                 safe(patient.getLastName())
         ).trim();
 
-        String age = calculateAge(patient.getDateOfBirth());
+        Integer age = null;
+        if (patient.getDateOfBirth() != null) {
+            age = Period.between(
+                    patient.getDateOfBirth().toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate(),
+                    LocalDate.now()
+            ).getYears();
+        }
 
         String gender = patient.getSexAtBirth() != null
                 ? patient.getSexAtBirth().name()
