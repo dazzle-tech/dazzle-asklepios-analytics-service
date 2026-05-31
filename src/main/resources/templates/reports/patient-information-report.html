@@ -298,12 +298,7 @@
         <div>
             <img th:src="'data:image/png;base64,' + ${logo}" style="height:60px;"/>
         </div>
-        <div style="text-align:right;">
-            <p class="doc-id">
-                PATIENT ID:
-                <span th:text="${report.patientId}">—</span>
-            </p>
-        </div>
+
     </div>
 
     <!-- MAIN TITLE -->
@@ -327,11 +322,8 @@
         </div>
 
         <div class="patient-grid">
-            <div class="grid-row grid-4">
-                <div class="info-box">
-                    <span class="info-label">Patient ID</span>
-                    <span class="info-value" th:text="${report.patientId}">—</span>
-                </div>
+            <div class="grid-row grid-3">
+
                 <div class="info-box">
                     <span class="info-label">Full Name</span>
                     <span class="info-value" th:text="${report.fullName}">—</span>
@@ -346,28 +338,30 @@
                 </div>
             </div>
 
-            <div class="grid-row grid-4">
+            <div class="grid-row grid-3">
+
                 <div class="info-box">
-                    <span class="info-label">Date of Birth</span>
-                    <span class="info-value"
-                          th:text="${#temporals.format(report.dateOfBirth,'dd/MM/yyyy')}">—</span>
+                    <span class="info-label">D.O.B / Age</span>
+                    <span class="info-value">
+                        <span th:text="${report.dateOfBirth != null ? #dates.format(report.dateOfBirth, 'dd/MM/yyyy') : '—'}">01/01/1990</span>
+                        <span th:if="${report.age != null}"
+                              th:text="' (' + ${report.age} + ')'"></span>
+                    </span>
                 </div>
-                <div class="info-box">
-                    <span class="info-label">Age</span>
-                    <span class="info-value" th:text="${report.age}">—</span>
-                </div>
+
                 <div class="info-box">
                     <span class="info-label">Registration Date</span>
                     <span class="info-value"
                           th:text="${#temporals.format(report.registrationDate,'yyyy-MM-dd HH:mm')}">—</span>
                 </div>
-                <div class="info-box no-border">
-                    <span class="info-label">Photo</span>
-                    <span class="info-value" th:text="${report.photoUrl ?: '-'}">—</span>
-                </div>
+
+
+
             </div>
-        </div>
+        </div> <!-- patient-grid -->
+
     </section>
+
 
     <!-- 2. CONTACT -->
     <section class="report-section">

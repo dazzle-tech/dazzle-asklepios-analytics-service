@@ -7,7 +7,7 @@ public record PatientInformationReportDTO(
         String fullName,
         String mrn,
         Instant dateOfBirth,
-        Integer age,
+        String age,
         String gender,
         String photoUrl,
 

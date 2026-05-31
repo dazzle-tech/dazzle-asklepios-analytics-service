@@ -65,9 +65,8 @@ public class Practitioner extends AbstractAuditingEntity<Long> implements Serial
     private String phoneNumber;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "specialty", nullable = false)
-    private Specialty specialty;
+    private String specialty;
 
     @Column(name = "sub_specialty")
     private String subSpecialty;
@@ -100,11 +99,10 @@ public class Practitioner extends AbstractAuditingEntity<Long> implements Serial
     private LocalDate dateOfBirth;
 
     @Column(name = "job_role")
-    private JobRole jobRole;
+    private String jobRole;
 
     @Column
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
+    private String gender;
 
     @Column(name = "is_active")
     private Boolean isActive = true;
