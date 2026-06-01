@@ -412,7 +412,7 @@
             <div class="underline-accent"></div>
         </div>
         <div class="date-time-info">
-            <span>Generated At: <strong th:text="${#temporals.format(report.generatedAt, 'yyyy-MM-dd HH:mm')}">—</strong></span>
+            <span>Generated At: <strong th:text="${generatedAtDisplay}">—</strong></span>
         </div>
     </div>
 
@@ -550,7 +550,7 @@
                 <div class="auth-name" th:text="${report.encounterInfo?.facilityName}">Facility</div>
                 <div class="auth-sub" th:text="${report.encounterInfo?.departmentName}">Department</div>
                 <div class="auth-sub" style="margin-top:4px;"
-                     th:text="${'Date: ' + #temporals.format(report.generatedAt, 'dd/MM/yyyy')}">Date: —</div>
+                     th:text="${generatedAtDisplay}">Date: —</div>
             </div>
         </div>
     </div>

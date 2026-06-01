@@ -480,7 +480,7 @@
             <div class="underline-accent"></div>
         </div>
         <div class="date-time-info">
-            <span>Generated At: <strong th:text="${#temporals.format(report.generatedAt, 'yyyy-MM-dd HH:mm')}">—</strong></span>
+            <strong th:text="${generatedAtDisplay}">—</strong>
         </div>
     </div>
 

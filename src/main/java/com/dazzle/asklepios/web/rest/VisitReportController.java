@@ -42,13 +42,12 @@ public class VisitReportController {
 
     @GetMapping("/visit-report/{encounterId}/pdf")
     public ResponseEntity<byte[]> getVisitReportPdf(
-            @PathVariable Long encounterId
+            @PathVariable Long encounterId,
+            @RequestParam(required = false) String timezone
     ) {
-        LOG.debug("[REST][VISIT_REPORT_PDF] encounterId={}", encounterId);
+        LOG.debug("[REST][VISIT_REPORT_PDF] encounterId={}, timezone={}", encounterId, timezone);
 
-        byte[] pdf = visitReportPdfRenderService.generateVisitReportPdf(encounterId);
-
-        LOG.debug("[REST][VISIT_REPORT_PDF] completed. encounterId={}, size={}", encounterId, pdf.length);
+        byte[] pdf = visitReportPdfRenderService.generateVisitReportPdf(encounterId, timezone);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
@@ -58,9 +57,6 @@ public class VisitReportController {
                         .build()
         );
 
-        return ResponseEntity
-                .ok()
-                .headers(headers)
-                .body(pdf);
+        return ResponseEntity.ok().headers(headers).body(pdf);
     }
 }

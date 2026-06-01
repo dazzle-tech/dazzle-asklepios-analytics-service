@@ -51,15 +51,34 @@ public class SickLeaveReportController {
     @PostMapping("/sick-leave-report/{encounterId}/pdf")
     public ResponseEntity<byte[]> postSickLeaveReportPdf(
             @PathVariable Long encounterId,
+            @RequestParam(required = false) String timezone,
             @RequestBody SickLeaveReportRequestDTO request
     ) {
-        LOG.debug("[REST][SICK_LEAVE_PDF][POST] encounterId={} fromDate={} toDate={} notes={}", encounterId, request.fromDate(), request.toDate(), request.notes());
+        LOG.debug(
+                "[REST][SICK_LEAVE_PDF][POST] encounterId={} timezone={} fromDate={} toDate={} notes={}",
+                encounterId,
+                timezone,
+                request.fromDate(),
+                request.toDate(),
+                request.notes()
+        );
 
-        SickLeaveReportDTO dto = sickLeaveReportService.getSickLeaveReport(encounterId, request.fromDate(), request.toDate(), request.notes());
+        SickLeaveReportDTO dto = sickLeaveReportService.getSickLeaveReport(
+                encounterId,
+                request.fromDate(),
+                request.toDate(),
+                request.notes()
+        );
 
-        byte[] pdf = sickLeaveReportPdfRenderService.generateSickLeaveReportPdf(dto);
+        byte[] pdf = sickLeaveReportPdfRenderService.generateSickLeaveReportPdf(dto, timezone);
 
-        LOG.debug("[REST][SICK_LEAVE_PDF][POST] completed. encounterId={} notes={} size={}", encounterId, request.notes(), pdf.length);
+        LOG.debug(
+                "[REST][SICK_LEAVE_PDF][POST] completed. encounterId={} timezone={} notes={} size={}",
+                encounterId,
+                timezone,
+                request.notes(),
+                pdf.length
+        );
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
