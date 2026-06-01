@@ -68,7 +68,7 @@ public class SickLeaveReportService {
             if (practitioner != null) {
                 physicianFullName = practitioner.getFirstName() + " " + practitioner.getLastName();
                 physicianSpecialty = practitioner.getSpecialty() != null
-                        ? practitioner.getSpecialty().name()
+                        ? practitioner.getSpecialty()
                         : null;
             }
         }
