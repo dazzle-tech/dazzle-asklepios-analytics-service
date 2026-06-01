@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import com.dazzle.asklepios.security.SecurityUtils;
+import com.dazzle.asklepios.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -28,10 +30,12 @@ public class SickLeaveReportService {
     private final PatientDiagnosisRepository patientDiagnosisRepository;
     private final PatientEncounterRepository patientEncounterRepository;
     private final PractitionersRepository practitionersRepository;
+    private final UserRepository userRepository;
 
     public SickLeaveReportDTO getSickLeaveReport(Long encounterId,
                                                   LocalDate sickLeaveFromDate,
-                                                  LocalDate sickLeaveToDate) {
+                                                  LocalDate sickLeaveToDate,
+                                                  String notes) {
         LOG.debug("[SICK_LEAVE] start encounterId={}", encounterId);
 
         NurseSummaryReportDTO nurseSummary =
@@ -56,7 +60,7 @@ public class SickLeaveReportService {
         String physicianSpecialty = null;
 
         Long practitionerId = patientEncounterRepository.findById(encounterId)
-                .map(enc -> enc.getPractitionerId())
+                .map(com.dazzle.asklepios.domain.PatientEncounter::getPractitionerId)
                 .orElse(null);
 
         if (practitionerId != null) {
@@ -69,11 +73,37 @@ public class SickLeaveReportService {
             }
         }
 
+        // Append current authenticated user's full name (if available) to attending physician info
+        java.util.Optional<String> currentUser = SecurityUtils.getCurrentUserLogin();
+        if (currentUser.isPresent()) {
+            String username = currentUser.get();
+            String displayName = username;
+            try {
+                displayName = userRepository.findByLogin(username)
+                        .map(u -> {
+                            String fn = u.getFirstName() != null ? u.getFirstName().trim() : "";
+                            String ln = u.getLastName() != null ? u.getLastName().trim() : "";
+                            String full = (fn + " " + ln).trim();
+                            return full.isEmpty() ? username : full;
+                        })
+                        .orElse(username);
+            } catch (Exception e) {
+                // fallback to username if repository lookup fails
+                displayName = username;
+            }
+
+            if (physicianFullName == null) {
+                physicianFullName = displayName;
+            } else {
+                physicianFullName = physicianFullName + " — " + displayName;
+            }
+        }
+
         return new SickLeaveReportDTO(
                 nurseSummary.patientInfo(),
                 nurseSummary.encounterInfo(),
                 diagnosis,
-                null,
+                notes,
                 sickLeaveFromDate,
                 sickLeaveToDate,
                 numberOfDays,
@@ -81,5 +111,12 @@ public class SickLeaveReportService {
                 physicianSpecialty,
                 Instant.now()
         );
+    }
+
+    // Backward-compatible overload: delegate to new method without notes
+    public SickLeaveReportDTO getSickLeaveReport(Long encounterId,
+                                                  LocalDate sickLeaveFromDate,
+                                                  LocalDate sickLeaveToDate) {
+        return getSickLeaveReport(encounterId, sickLeaveFromDate, sickLeaveToDate, null);
     }
 }

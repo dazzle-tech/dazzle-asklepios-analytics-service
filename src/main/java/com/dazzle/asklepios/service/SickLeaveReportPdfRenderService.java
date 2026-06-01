@@ -22,9 +22,25 @@ public class SickLeaveReportPdfRenderService {
 
     public byte[] generateSickLeaveReportPdf(Long encounterId,
                                               LocalDate fromDate,
-                                              LocalDate toDate) {
+                                              LocalDate toDate,
+                                              String notes) {
 
         SickLeaveReportDTO dto = sickLeaveReportService.getSickLeaveReport(encounterId, fromDate, toDate);
+
+        if (dto != null && notes != null) {
+            dto = new SickLeaveReportDTO(
+                    dto.patientInfo(),
+                    dto.encounterInfo(),
+                    dto.diagnosis(),
+                    notes,
+                    dto.sickLeaveFromDate(),
+                    dto.sickLeaveToDate(),
+                    dto.numberOfDays(),
+                    dto.physicianFullName(),
+                    dto.physicianSpecialty(),
+                    dto.generatedAt()
+            );
+        }
 
         Context context = new Context();
         context.setVariable("report", dto);
@@ -33,6 +49,28 @@ public class SickLeaveReportPdfRenderService {
         String html = templateEngine.process("reports/sick-leave-report", context);
 
         return renderPdfWithChromium(html);
+    }
+
+    // New helper: render directly from a prepared DTO (useful when controller injects notes)
+    public byte[] generateSickLeaveReportPdf(SickLeaveReportDTO dto) {
+        if (dto == null) {
+            return new byte[0];
+        }
+
+        Context context = new Context();
+        context.setVariable("report", dto);
+        context.setVariable("logo", getLogoBase64());
+
+        String html = templateEngine.process("reports/sick-leave-report", context);
+
+        return renderPdfWithChromium(html);
+    }
+
+    // Backward-compatible overload: keep existing 3-arg signature and delegate to new method
+    public byte[] generateSickLeaveReportPdf(Long encounterId,
+                                              LocalDate fromDate,
+                                              LocalDate toDate) {
+        return generateSickLeaveReportPdf(encounterId, fromDate, toDate, null);
     }
 
     private byte[] renderPdfWithChromium(String html) {

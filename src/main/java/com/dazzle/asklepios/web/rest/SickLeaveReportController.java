@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import com.dazzle.asklepios.service.dto.sick_leave_report.SickLeaveReportRequestDTO;
 
 @RestController
 @RequestMapping("/api/analytics")
@@ -25,19 +26,20 @@ public class SickLeaveReportController {
     private final SickLeaveReportService sickLeaveReportService;
     private final SickLeaveReportPdfRenderService sickLeaveReportPdfRenderService;
 
-    @GetMapping("/sick-leave-report/{encounterId}")
-    public ResponseEntity<SickLeaveReportDTO> getSickLeaveReport(
+
+
+    @PostMapping("/sick-leave-report/{encounterId}")
+    public ResponseEntity<SickLeaveReportDTO> postSickLeaveReport(
             @PathVariable Long encounterId,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
+            @RequestBody SickLeaveReportRequestDTO request
     ) {
-        LOG.debug("[SickLeaveReport] request encounterId={} fromDate={} toDate={}", encounterId, fromDate, toDate);
+        LOG.debug("[SickLeaveReport][POST] request encounterId={} fromDate={} toDate={} notes={}", encounterId, request.fromDate(), request.toDate(), request.notes());
 
         if (encounterId == null) {
             return ResponseEntity.badRequest().build();
         }
 
-        SickLeaveReportDTO report = sickLeaveReportService.getSickLeaveReport(encounterId, fromDate, toDate);
+        SickLeaveReportDTO report = sickLeaveReportService.getSickLeaveReport(encounterId, request.fromDate(), request.toDate(), request.notes());
 
         if (report == null) {
             return ResponseEntity.noContent().build();
@@ -46,23 +48,24 @@ public class SickLeaveReportController {
         return ResponseEntity.ok(report);
     }
 
-    @GetMapping("/sick-leave-report/{encounterId}/pdf")
-    public ResponseEntity<byte[]> getSickLeaveReportPdf(
+    @PostMapping("/sick-leave-report/{encounterId}/pdf")
+    public ResponseEntity<byte[]> postSickLeaveReportPdf(
             @PathVariable Long encounterId,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
+            @RequestBody SickLeaveReportRequestDTO request
     ) {
-        LOG.debug("[REST][SICK_LEAVE_PDF] encounterId={} fromDate={} toDate={}", encounterId, fromDate, toDate);
+        LOG.debug("[REST][SICK_LEAVE_PDF][POST] encounterId={} fromDate={} toDate={} notes={}", encounterId, request.fromDate(), request.toDate(), request.notes());
 
-        byte[] pdf = sickLeaveReportPdfRenderService.generateSickLeaveReportPdf(encounterId, fromDate, toDate);
+        SickLeaveReportDTO dto = sickLeaveReportService.getSickLeaveReport(encounterId, request.fromDate(), request.toDate(), request.notes());
 
-        LOG.debug("[REST][SICK_LEAVE_PDF] completed. encounterId={}, size={}", encounterId, pdf.length);
+        byte[] pdf = sickLeaveReportPdfRenderService.generateSickLeaveReportPdf(dto);
+
+        LOG.debug("[REST][SICK_LEAVE_PDF][POST] completed. encounterId={} notes={} size={}", encounterId, request.notes(), pdf.length);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
         headers.setContentDisposition(
                 ContentDisposition.inline()
-                        .filename("sick-leave-report-" + encounterId + ".pdf")
+                        .filename("sick-leave-report-E0" + encounterId + ".pdf")
                         .build()
         );
 
