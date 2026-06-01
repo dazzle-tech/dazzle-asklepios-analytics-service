@@ -3,7 +3,6 @@ package com.dazzle.asklepios.service.dto.reports;
 import java.time.Instant;
 
 public record NurseSummaryWarningDTO(
-        Long id,
         String warningType,
         String warning,
         String severity,

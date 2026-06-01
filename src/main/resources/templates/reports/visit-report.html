@@ -416,6 +416,13 @@
             vertical-align: top;
         }
 
+        /* Prevent page breaks inside important small sections (keep measurements/notes together) */
+        .no-page-break {
+            break-inside: avoid;
+            page-break-inside: avoid;
+            -webkit-column-break-inside: avoid;
+        }
+
         .auth-block {
             display: inline-block;
             text-align: left;
@@ -540,7 +547,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="a : ${report.allergies}">
-                    <td class="text-muted" th:text="${a.allergenType}">—</td>
+                    <td class="text-muted" th:text="${a.type}">—</td>
                     <td th:text="${a.allergen}">—</td>
                     <td><span class="badge-red" th:text="${a.severity}">—</span></td>
                 </tr>
@@ -598,18 +605,16 @@
                 </tr>
                 <tr>
                     <td>Plan</td>
-                    <td th:text="${report.observation?.plan}">—</td>
+                    <td th:text="${report?.plan}">—</td>
                 </tr>
-                <tr>
-                    <td>Finding Summary</td>
-                    <td th:text="${report.observation?.patientConditions}">—</td>
-                </tr>
+
                 </tbody>
             </table>
         </div>
     </section>
 
     <!-- 5. OBSERVATIONS SUMMARY -->
+    <div class="no-page-break">
     <section class="report-section">
         <div class="section-header blue">
             <h2 class="section-title">5. Observations Summary</h2>
@@ -648,12 +653,16 @@
                     <td>Pain Degree</td>
                     <td th:text="${report.vitalSigns?.painDegree}">—</td>
                 </tr>
+                <tr>
+                    <td>Conditions</td>
+                    <td th:text="${report.observation?.patientConditions != null ? #strings.toLowerCase(#strings.replace(report.observation.patientConditions, '_', ' ')) : '—'}">—</td>
+                </tr>
                 </tbody>
             </table>
         </div>
-
+            <div class="no-page-break">
         <!-- Body Measurements -->
-        <div class="patient-grid">
+            <div class="patient-grid">
             <div class="grid-row grid-3">
                 <div class="info-box">
                     <span class="info-label">Weight</span>
@@ -673,6 +682,7 @@
                         <span th:text="${report.bodyMeasurements?.headCircumference}">—</span> cm
                     </span>
                 </div>
+            </div>
             </div>
         </div>
     </section>

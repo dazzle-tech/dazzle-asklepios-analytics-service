@@ -1,11 +1,11 @@
 package com.dazzle.asklepios.service.dto.reports;
 
-import com.dazzle.asklepios.domain.enumeration.Severity;
+import com.dazzle.asklepios.domain.enumeration.AllergenTypes;
 
 public record NurseSummaryAllergyDTO(
-        Long id,
-        String allergenType,
+
+        AllergenTypes type,
         String allergen,
-        Severity severity
+        String severity
 ) {
 }

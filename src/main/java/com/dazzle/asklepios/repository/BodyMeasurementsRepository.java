@@ -14,5 +14,6 @@ import java.util.Optional;
 public interface BodyMeasurementsRepository extends JpaRepository<BodyMeasurements, Long> {
 
     Optional<BodyMeasurements> findFirstByEncounterIdAndIsActiveTrueOrderByCreatedDateDesc(Long encounterId);
+    Optional<BodyMeasurements> findFirstByPatientIdAndIsActiveTrueOrderByCreatedDateDesc(Long patientId);
 
 }

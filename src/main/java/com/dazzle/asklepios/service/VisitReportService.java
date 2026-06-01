@@ -3,25 +3,32 @@ package com.dazzle.asklepios.service;
 import com.dazzle.asklepios.domain.ApLovValue;
 import com.dazzle.asklepios.domain.DiagnosticOrder;
 import com.dazzle.asklepios.domain.DiagnosticTest;
+import com.dazzle.asklepios.domain.EncounterPlan;
+import com.dazzle.asklepios.domain.Patient;
+import com.dazzle.asklepios.domain.PatientAllergies;
+import com.dazzle.asklepios.domain.PatientEncounter;
 import com.dazzle.asklepios.domain.PatientPrescription;
 import com.dazzle.asklepios.domain.PatientPrescriptionMedication;
 import com.dazzle.asklepios.domain.PatientProcedure;
 import com.dazzle.asklepios.domain.PatientWarnings;
 import com.dazzle.asklepios.domain.PrescriptionInstruction;
-import com.dazzle.asklepios.domain.Procedure;
-import com.dazzle.asklepios.domain.enumeration.PatientWarningStatus;
 import com.dazzle.asklepios.repository.ApLovValueRepository;
+import com.dazzle.asklepios.repository.BodyMeasurementsRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderTestRepository;
 import com.dazzle.asklepios.repository.DiagnosticTestRepository;
+import com.dazzle.asklepios.repository.PatientAllergyRepository;
+import com.dazzle.asklepios.repository.PatientEncounterRepository;
 import com.dazzle.asklepios.repository.PatientPrescriptionRepository;
 import com.dazzle.asklepios.repository.PatientProcedureRepository;
+import com.dazzle.asklepios.repository.PatientWarningRepository;
 import com.dazzle.asklepios.repository.PrescriptionInstructionRepository;
 import com.dazzle.asklepios.repository.PrescriptionMedicationRepository;
 import com.dazzle.asklepios.repository.ProcedureRepository;
 import com.dazzle.asklepios.service.dto.prescription.PrescriptionMedicationDTO;
+import com.dazzle.asklepios.service.dto.reports.NurseSummaryAllergyDTO;
+import com.dazzle.asklepios.service.dto.reports.NurseSummaryBodyMeasurementsDTO;
 import com.dazzle.asklepios.service.dto.reports.NurseSummaryReportDTO;
-import com.dazzle.asklepios.service.dto.reports.NurseSummaryServiceProductDTO;
 import com.dazzle.asklepios.service.dto.reports.NurseSummaryWarningDTO;
 import com.dazzle.asklepios.service.dto.reports.OrderedDiagnosticsDTO;
 import com.dazzle.asklepios.service.dto.reports.ProceduresDTO;
@@ -36,7 +43,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -60,8 +66,19 @@ public class VisitReportService {
     private final DiagnosticOrderRepository diagnosticOrderRepository;
     private final DiagnosticOrderTestRepository diagnosticOrderTestRepository;
     private final DiagnosticTestRepository diagnosticTestRepository;
-    public VisitReportDTO getVisitReport(Long encounterId) {
+    private final PatientAllergyRepository patientAllergyRepository;
+    private final PatientWarningRepository patientWarningRepository;
+    private final BodyMeasurementsRepository bodyMeasurementsRepository;
+    private final PatientEncounterRepository patientEncounterRepository;
+    private final com.dazzle.asklepios.repository.EncounterPlanRepository encounterPlanRepository;
 
+    public VisitReportDTO getVisitReport(Long encounterId) {
+        PatientEncounter encounter = patientEncounterRepository.findById(encounterId).orElse(null);
+        if (encounter == null) {
+            LOG.debug("[getVisitReport] No encounter found for id={}", encounterId);
+            return null;
+        }
+        Patient patient = encounter.getPatient();
         NurseSummaryReportDTO nurseSummary =
                 nurseSummaryReportService.getNurseSummaryReport(encounterId);
 
@@ -82,20 +99,68 @@ public class VisitReportService {
                 .stream()
                 .map(this::mapProcedure)
                 .toList();
+        List<PatientAllergies> allergies =
+                Optional.ofNullable(patientAllergyRepository.findAllByPatientId(patient.getId()))
+                        .orElse(Collections.emptyList());
 
+        List<PatientWarnings> warnings =
+                Optional.ofNullable(patientWarningRepository.findAllByPatientId(patient.getId()))
+                        .orElse(Collections.emptyList());
+        List<NurseSummaryAllergyDTO> allergyDTOS = allergies.stream()
+                .map(a -> new NurseSummaryAllergyDTO(
+                        a.getAllergenType() != null ? a.getAllergenType() : null,
+                        a.getAllergen() != null ? a.getAllergen().getName() : null,
+                        a.getSeverity().name()
+                ))
+                .toList();
+
+        List<NurseSummaryWarningDTO> warningDTOS = warnings.stream()
+                .map(w -> new NurseSummaryWarningDTO(
+                        resolveLovDisplayValue(w.getWarningType()),
+                        w.getWarning(),
+                        w.getSeverity() != null ? w.getSeverity().name() : null,
+                        w.getOnsetDate(),
+                        w.isByPatient(),
+                        w.getSourceOfInformation(),
+                        w.getNote(),
+                        w.getActionTaken(),
+                        w.getStatus() != null ? w.getStatus().name() : null
+                ))
+                .toList();
+
+        // Fetch latest body measurements for the patient (across all visits), not only this encounter
+        NurseSummaryBodyMeasurementsDTO bodyMeasurementsDto = null;
+        if (patient != null) {
+            Optional<com.dazzle.asklepios.domain.BodyMeasurements> latestBody =
+                    bodyMeasurementsRepository.findFirstByPatientIdAndIsActiveTrueOrderByCreatedDateDesc(patient.getId());
+
+            if (latestBody.isPresent()) {
+                com.dazzle.asklepios.domain.BodyMeasurements bm = latestBody.get();
+                bodyMeasurementsDto = new NurseSummaryBodyMeasurementsDTO(
+                        bm.getWeight(),
+                        bm.getHeight(),
+                        bm.getHeadCircumference()
+                );
+            }
+        }
+        // fetch latest encounter plan instructions
+        String plan = encounterPlanRepository.findTopByEncounterIdOrderByCreatedDateDesc(encounterId)
+                .map(EncounterPlan::getTreatmentPlan)
+                .orElse(null);
 
         return new VisitReportDTO(
                 nurseSummary.patientInfo(),
                 nurseSummary.encounterInfo(),
                 nurseSummary.observation(),
                 nurseSummary.vitalSigns(),
-                nurseSummary.bodyMeasurements(),
+                bodyMeasurementsDto != null ? bodyMeasurementsDto : nurseSummary.bodyMeasurements(),
                 nurseSummary.additionalMeasurements(),
-                nurseSummary.allergies(),
-                nurseSummary.warnings(),
+                allergyDTOS,
+                warningDTOS,
                 diagnostics,
                 medicationDTOS,
                 procedures,
+                plan,
                 null,
                 Instant.now()
         );
@@ -406,4 +471,16 @@ public class VisitReportService {
                     );
                 })
                 .toList();
-    }}
+    }
+
+    private String resolveLovDisplayValue(Object key) {
+        if (key == null) {
+            return null;
+        }
+
+        return apLovValueRepository.findById(String.valueOf(key))
+                .map(ApLovValue::getLovDisplayVale)
+                .orElse(null);
+    }
+
+}

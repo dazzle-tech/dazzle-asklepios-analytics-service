@@ -42,6 +42,6 @@ public class EncounterPlan extends AbstractAuditingEntity<Long> implements Seria
     private Long encounterId;
 
     @NotBlank
-    @Column(name = "plan_instructions", columnDefinition = "text")
-    private String planInstructions;
+    @Column(name = "treatment_plan", columnDefinition = "text")
+    private String treatmentPlan;
 }

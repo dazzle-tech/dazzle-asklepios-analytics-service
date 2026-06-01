@@ -325,10 +325,9 @@ public class NurseSummaryReportService {
 
     private NurseSummaryAllergyDTO mapAllergy(PatientAllergies entity) {
         return new NurseSummaryAllergyDTO(
-                entity.getId(),
-                entity.getAllergenType() != null ? entity.getAllergenType().name() : null,
+                entity.getAllergenType(),
                 entity.getAllergen() != null ? entity.getAllergen().getName() : null,
-                entity.getSeverity()
+                entity.getSeverity() != null ? entity.getSeverity().name() : null
 
         );
     }
@@ -336,7 +335,6 @@ public class NurseSummaryReportService {
     private NurseSummaryWarningDTO mapWarning(PatientWarnings entity) {
         String warningTypeDisplay = lovLookupService.findDisplayValue(entity.getWarningType());
         return new NurseSummaryWarningDTO(
-                entity.getId(),
                 apLovValueRepository.findById(entity.getWarningType())
                         .map(ApLovValue::getLovDisplayVale)
                         .orElse(null),
