@@ -10,6 +10,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -117,6 +118,21 @@ public class ReportPdfCommonService {
             return Base64.getEncoder().encodeToString(bytes);
         } catch (Exception e) {
             return "";
+        }
+    }
+    public String loadCss(String classpathFile) {
+        try {
+            ClassPathResource resource = new ClassPathResource(classpathFile);
+
+            return new String(
+                    resource.getInputStream().readAllBytes(),
+                    StandardCharsets.UTF_8
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "Failed to load CSS file: " + classpathFile,
+                    e
+            );
         }
     }
 }
