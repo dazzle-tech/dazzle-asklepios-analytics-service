@@ -78,31 +78,6 @@ public class DiagnosticOrderTestCollectedSampleService {
         return buildSampleLabelDto(orderTest, lastSample);
     }
 
-    public DiagnosticOrderTestSampleLabelDTO getSampleLabelBySampleId(Long sampleId) {
-
-        LOG.debug("[SampleLabelService] GET_SAMPLE_LABEL_BY_SAMPLE_ID - start. sampleId={}", sampleId);
-
-        DiagnosticOrderTestCollectedSample sample = getSampleById(sampleId);
-
-        DiagnosticOrderTest orderTest = orderTestRepository.findById(sample.getOrderTestId())
-                .orElseThrow(() -> new BadRequestAlertException(
-                        "notfound",
-                        "diagnostic_order_tests",
-                        "DiagnosticOrderTest not found with id " + sample.getOrderTestId()
-                ));
-
-        return buildSampleLabelDto(orderTest, sample);
-    }
-
-    private DiagnosticOrderTestCollectedSample getSampleById(Long sampleId) {
-
-        return sampleRepository.findById(sampleId)
-                .orElseThrow(() -> new BadRequestAlertException(
-                        "no_sample",
-                        "diagnostic_order_test_collected_samples",
-                        "Sample not found with id " + sampleId
-                ));
-    }
 
     private DiagnosticOrderTestSampleLabelDTO buildSampleLabelDto(
             DiagnosticOrderTest orderTest,
@@ -191,14 +166,6 @@ public class DiagnosticOrderTestCollectedSampleService {
 
         List<DiagnosticOrderTestCollectedSample> samples =
                 sampleRepository.findAllByOrderTestIdOrderByCreatedDateDescIdDesc(orderTestId);
-
-        if (samples.isEmpty()) {
-            throw new BadRequestAlertException(
-                    "no_sample",
-                    "diagnostic_order_test_collected_samples",
-                    "No collected samples found for orderTestId " + orderTestId
-            );
-        }
 
         return samples.stream()
                 .map(sample -> buildSampleLabelDto(orderTest, sample))
