@@ -37,20 +37,26 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
     private static final DateTimeFormatter DATE_TIME_FORMAT =
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-    public byte[] generateSampleLabelPdf(Long orderTestId) {
+    public byte[] generateSampleLabelPdf(Long orderTestId, Integer copies) {
         DiagnosticOrderTestSampleLabelDTO dto =
                 sampleService.getSampleLabel(orderTestId);
 
-        return generateSampleLabelPdfFromDto(dto);
+        int safeCopies = copies == null || copies < 1 ? 1 : copies;
+
+        StringBuilder htmlBuilder = buildHtmlStart();
+
+        for (int i = 0; i < safeCopies; i++) {
+            htmlBuilder.append("<div class=\"label-page\">");
+            htmlBuilder.append(generateSampleLabelHtml(dto));
+            htmlBuilder.append("</div>");
+        }
+
+        htmlBuilder.append(buildHtmlEnd());
+
+        return reportPdfCommonService.renderPdfWithChromium(htmlBuilder.toString());
     }
 
-    private byte[] generateSampleLabelPdfFromDto(DiagnosticOrderTestSampleLabelDTO dto) {
-        String html = generateSampleLabelHtml(dto);
-
-        return reportPdfCommonService.renderPdfWithChromium(html);
-    }
-
-    public byte[] generateAllSampleLabelsPdf(Long orderTestId) {
+    public byte[] generateAllSampleLabelsPdf(Long orderTestId, Integer copies) {
         List<DiagnosticOrderTestSampleLabelDTO> labels =
                 sampleService.getSampleLabelsByOrderTestId(orderTestId);
 
@@ -58,6 +64,24 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
             return reportPdfCommonService.renderEmptyPdf("No collected samples found");
         }
 
+        int safeCopies = copies == null || copies < 1 ? 1 : copies;
+
+        StringBuilder htmlBuilder = buildHtmlStart();
+
+        for (DiagnosticOrderTestSampleLabelDTO dto : labels) {
+            for (int i = 0; i < safeCopies; i++) {
+                htmlBuilder.append("<div class=\"label-page\">");
+                htmlBuilder.append(generateSampleLabelHtml(dto));
+                htmlBuilder.append("</div>");
+            }
+        }
+
+        htmlBuilder.append(buildHtmlEnd());
+
+        return reportPdfCommonService.renderPdfWithChromium(htmlBuilder.toString());
+    }
+
+    private StringBuilder buildHtmlStart() {
         StringBuilder htmlBuilder = new StringBuilder();
 
         htmlBuilder.append("""
@@ -92,18 +116,14 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
             <body>
         """);
 
-        for (DiagnosticOrderTestSampleLabelDTO dto : labels) {
-            htmlBuilder.append("<div class=\"label-page\">");
-            htmlBuilder.append(generateSampleLabelHtml(dto));
-            htmlBuilder.append("</div>");
-        }
+        return htmlBuilder;
+    }
 
-        htmlBuilder.append("""
+    private String buildHtmlEnd() {
+        return """
             </body>
             </html>
-        """);
-
-        return reportPdfCommonService.renderPdfWithChromium(htmlBuilder.toString());
+        """;
     }
 
     private String generateSampleLabelHtml(DiagnosticOrderTestSampleLabelDTO dto) {
