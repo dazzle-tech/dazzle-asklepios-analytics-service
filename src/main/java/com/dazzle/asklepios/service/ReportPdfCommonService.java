@@ -70,6 +70,45 @@ public class ReportPdfCommonService {
             throw new RuntimeException("Failed to generate PDF with Chromium", e);
         }
     }
+
+    public byte[] renderEmptyPdf(String message) {
+        String html = """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    @page {
+                        size: 120mm 55mm;
+                        margin: 0;
+                    }
+
+                    html, body {
+                        margin: 0;
+                        padding: 0;
+                        width: 120mm;
+                        height: 55mm;
+                    }
+
+                    body {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-family: Arial, sans-serif;
+                        font-size: 14px;
+                        color: #333;
+                    }
+                </style>
+            </head>
+            <body>
+                <div>%s</div>
+            </body>
+            </html>
+            """.formatted(message == null || message.isBlank() ? "No data found" : message);
+
+        return renderPdfWithChromium(html);
+    }
+
     public String getLogoBase64() {
         try {
             ClassPathResource resource = new ClassPathResource("static/logo.png");
