@@ -21,6 +21,7 @@ public class VisitReportController {
 
     private final VisitReportService visitReportService;
     private final VisitReportPdfRenderService visitReportPdfRenderService;
+
     @GetMapping("/visit-report/{encounterId}")
     public ResponseEntity<VisitReportDTO> getVisitReport(@PathVariable Long encounterId) {
 
@@ -39,15 +40,24 @@ public class VisitReportController {
         return ResponseEntity.ok(report);
     }
 
-
     @GetMapping("/visit-report/{encounterId}/pdf")
     public ResponseEntity<byte[]> getVisitReportPdf(
             @PathVariable Long encounterId,
-            @RequestParam(required = false) String timezone
+            @RequestParam(required = false) String timezone,
+            @RequestParam(defaultValue = "en") String lang
     ) {
-        LOG.debug("[REST][VISIT_REPORT_PDF] encounterId={}, timezone={}", encounterId, timezone);
+        LOG.debug(
+                "[REST][VISIT_REPORT_PDF] encounterId={}, timezone={}, lang={}",
+                encounterId,
+                timezone,
+                lang
+        );
 
-        byte[] pdf = visitReportPdfRenderService.generateVisitReportPdf(encounterId, timezone);
+        byte[] pdf = visitReportPdfRenderService.generateVisitReportPdf(
+                encounterId,
+                timezone,
+                lang
+        );
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
