@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -41,18 +42,21 @@ public class PrescriptionReportController {
 
 
     @GetMapping("/prescriptions/{prescriptionId}/pdf")
-    public ResponseEntity<byte[]> getPrescriptionPdf(@PathVariable Long prescriptionId) {
+    public ResponseEntity<byte[]> getPrescriptionPdf(@PathVariable Long prescriptionId
+            , @RequestParam(defaultValue = "en") String lang
+
+    ) {
         LOG.debug("[PrescriptionReportController] GET_PRESCRIPTION_PDF - start. prescriptionId={}", prescriptionId);
 
-        byte[] pdf = prescriptionPdfRenderService.generatePrescriptionPdf(prescriptionId);
+        byte[] pdf = prescriptionPdfRenderService.generatePrescriptionPdf(prescriptionId,lang);
 
-        LOG.debug("[PrescriptionReportController] GET_PRESCRIPTION_PDF - completed. prescriptionId={}, size={}", prescriptionId, pdf.length);
+        LOG.debug("[PrescriptionReportController] GET_PRESCRIPTION_PDF - completed. prescriptionId={}, size={} ,lang={}", prescriptionId, pdf.length, lang);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
         headers.setContentDisposition(
                 ContentDisposition.inline()
-                        .filename("prescription-" + prescriptionId + ".pdf")
+                        .filename("prescription-P" + prescriptionId + "0.pdf")
                         .build()
         );
 

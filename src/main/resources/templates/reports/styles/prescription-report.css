@@ -463,3 +463,116 @@ tr:nth-child(even) { background: #fcfcfd; }
 body.rtl .logo-box {
     justify-content: flex-end;
 }
+body.ltr {
+    direction: ltr;
+    text-align: left;
+    font-family: Arial, sans-serif;
+}
+
+body.rtl {
+    direction: rtl;
+    text-align: right;
+    font-family: Tahoma, Arial, sans-serif;
+}
+
+/* Header */
+body.rtl .header {
+    direction: rtl;
+}
+
+body.rtl .doc-id {
+    text-align: left;
+}
+
+/* Section header border flip */
+body.rtl .section-header {
+    border-left: none;
+    border-right: 5px solid #001f3f;
+}
+
+/* Tables */
+body.rtl th {
+    text-align: right;
+}
+
+body.rtl td {
+    text-align: right;
+}
+
+body.rtl .text-center {
+    text-align: center;
+}
+
+/* Patient grid borders flip */
+body.rtl .info-box {
+    border-right: none;
+    border-left: 0.8px solid #e5edf5;
+}
+
+body.rtl .info-box.no-border {
+    border-left: none;
+}
+
+/* Date time spacing */
+body.rtl .date-time-info strong {
+    margin-left: 0;
+    margin-right: 4px;
+}
+
+/* Diagnosis */
+body.rtl .diagnosis-right {
+    text-align: left;
+    padding-left: 0;
+    padding-right: 14px;
+}
+
+body.rtl .diag-label {
+    text-align: right;
+}
+
+body.rtl .diag-date {
+    text-align: left;
+}
+
+body.rtl .footer-right {
+    text-align: right;
+}
+
+body.rtl .auth-block,
+body.rtl .verification-badge {
+    text-align: right;
+}
+
+body.rtl .auth-email {
+    text-align: right;
+}
+
+/* Logo */
+body.ltr .logo-box {
+    justify-content: flex-start;
+}
+
+body.rtl .logo-box {
+    justify-content: flex-end;
+}
+
+body.rtl .org-name,
+body.rtl .dept-name,
+body.rtl .main-title,
+body.rtl .section-title,
+body.rtl .info-label,
+body.rtl .info-value,
+body.rtl th,
+body.rtl .badge-urgent,
+body.rtl .badge-severe,
+body.rtl .med-name,
+body.rtl .signature-label,
+body.rtl .auth-label {
+    text-transform: none;
+    letter-spacing: 0;
+}
+.auth-email,
+.doc-id,
+.info-value {
+    unicode-bidi: plaintext;
+}

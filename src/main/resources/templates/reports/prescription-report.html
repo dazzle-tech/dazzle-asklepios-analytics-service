@@ -1,137 +1,138 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:attr="lang=${lang}, dir=${dir}">
 <head>
   <meta charset="UTF-8">
-  <title>Prescription Report</title>
+  <title th:text="${labels.prescriptionReport}">Prescription Report</title>
   <style th:utext="${reportCss}"></style>
 </head>
-<body>
+
+<body th:class="${dir}">
 <div class="container">
 
   <div class="header" style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:10px;">
 
-    <!-- LEFT: LOGO -->
     <div class="logo-box">
       <img class="report-logo"
            th:src="'data:image/png;base64,' + ${logo}" />
     </div>
 
-    <!-- CENTER -->
     <div style="text-align:center; flex:1;">
       <h1 class="org-name" th:text="${report.facilityName}" style="margin:0;"></h1>
       <div class="dept-name" th:text="${report.fromDepartment}"></div>
     </div>
 
-    <!-- RIGHT -->
     <div style="text-align:right;">
       <p class="doc-id">
-        DOC ID:
-        <span th:text="${report.prescriptionNumber}">123</span>
+        <span th:text="${labels.docId}">DOC ID</span>:
+        <span th:text="${report.prescriptionNumber}">_</span>
       </p>
     </div>
 
   </div>
 
-
-
   <div class="main-title-section">
-    <h1 class="main-title">PRESCRIPTION REPORT</h1>
+    <h1 class="main-title" th:text="${labels.prescriptionReport}">PRESCRIPTION REPORT</h1>
     <div class="title-underline"><div class="underline-accent"></div></div>
+
     <div class="date-time-info">
-            <span>
-                Issue Date:
-                <strong th:text="${#temporals.format(report.prescriptionDateTime, 'dd MMM yyyy')}">01 JAN 2026</strong>
-            </span>
       <span>
-                Time:
-                <strong th:text="${#temporals.format(report.prescriptionDateTime, 'HH:mm:ss')}">12:00:00</strong>
-            </span>
+        <span th:text="${labels.issueDate}">Issue Date</span>:
+        <strong th:text="${#temporals.format(report.prescriptionDateTime, 'dd MMM yyyy')}">01 JAN 2026</strong>
+      </span>
+
+      <span>
+        <span th:text="${labels.time}">Time</span>:
+        <strong th:text="${#temporals.format(report.prescriptionDateTime, 'HH:mm:ss')}">12:00:00</strong>
+      </span>
     </div>
   </div>
 
   <section class="report-section">
     <div class="section-header">
-      <h2 class="section-title">Patient Identification</h2>
+      <h2 class="section-title" th:text="${labels.patientIdentification}">Patient Identification</h2>
     </div>
 
     <div class="patient-grid grid-4">
       <div class="info-box">
-        <span class="info-label">Full Name</span>
+        <span class="info-label" th:text="${labels.fullName}">Full Name</span>
         <span class="info-value" th:text="${report.patientName}">PATIENT NAME</span>
       </div>
 
       <div class="info-box">
-        <span class="info-label">Gender</span>
+        <span class="info-label" th:text="${labels.gender}">Gender</span>
         <span class="info-value" th:text="${report.gender}">MALE</span>
       </div>
 
       <div class="info-box">
-        <span class="info-label">MRN Number</span>
+        <span class="info-label" th:text="${labels.mrnNumber}">MRN Number</span>
         <span class="info-value" th:text="'#' + ${report.mrn}">#123</span>
       </div>
 
       <div class="info-box no-border">
-        <span class="info-label">D.O.B / Age</span>
+        <span class="info-label" th:text="${labels.dobAge}">D.O.B / Age</span>
         <span class="info-value">
-                    <span th:text="${#dates.format(report.dateOfBirth, 'dd/MM/yyyy')}">01/01/1990</span>
-                    <span th:if="${report.age != null and !#strings.isEmpty(report.age)}"
-                          th:text="' (' + ${report.age} + ')'"></span>
-                </span>
+          <span th:text="${#dates.format(report.dateOfBirth, 'dd/MM/yyyy')}">01/01/1990</span>
+          <span th:if="${report.age != null and !#strings.isEmpty(report.age)}"
+                th:text="' (' + ${report.age} + ')'"></span>
+        </span>
       </div>
     </div>
 
     <div class="patient-grid grid-4">
       <div class="info-box">
-        <span class="info-label">Encounter Department</span>
+        <span class="info-label" th:text="${labels.encounterDepartment}">Encounter Department</span>
         <span class="info-value" th:text="${report.encounterDepartment}">OPD</span>
       </div>
 
       <div class="info-box">
-        <span class="info-label">Urgency</span>
+        <span class="info-label" th:text="${labels.urgency}">Urgency</span>
         <span class="badge-urgent" th:text="${report.urgency}">URGENT</span>
       </div>
 
       <div class="info-box">
-        <span class="info-label">Encounter ID</span>
+        <span class="info-label" th:text="${labels.encounterId}">Encounter ID</span>
         <span class="info-value" th:text="'#' + ${report.encounterId}">#123</span>
       </div>
 
       <div class="info-box no-border">
-        <span class="info-label">Encounter Date</span>
+        <span class="info-label" th:text="${labels.encounterDate}">Encounter Date</span>
         <span class="info-value" th:text="${report.encounterDateTime}">2026-03-25</span>
       </div>
     </div>
 
     <div class="patient-grid grid-4">
       <div class="info-box">
-        <span class="info-label">Phone</span>
+        <span class="info-label" th:text="${labels.phone}">Phone</span>
         <span class="info-value" th:text="${report.phoneNumber}">059...</span>
       </div>
 
       <div class="info-box">
-        <span class="info-label">Email</span>
+        <span class="info-label" th:text="${labels.email}">Email</span>
         <span class="info-value" th:text="${report.email}">email@x.com</span>
       </div>
 
       <div class="info-box">
-        <span class="info-label">Insurance</span>
+        <span class="info-label" th:text="${labels.insurance}">Insurance</span>
         <span class="info-value" th:text="${report.insurance}">Insurance</span>
       </div>
 
       <div class="info-box no-border">
-        <span class="info-label">Primary Document</span>
+        <span class="info-label" th:text="${labels.primaryDocument}">Primary Document</span>
         <span class="info-value">
-                    <span th:text="${report.primaryDocumentType}">ID</span>
-                    <span th:if="${report.primaryDocumentNumber != null and !#strings.isEmpty(report.primaryDocumentNumber)}"
-                          th:text="' - ' + ${report.primaryDocumentNumber}"></span>
-                </span>
+          <span th:text="${report.primaryDocumentType}">ID</span>
+          <span th:if="${report.primaryDocumentNumber != null and !#strings.isEmpty(report.primaryDocumentNumber)}"
+                th:text="' - ' + ${report.primaryDocumentNumber}"></span>
+        </span>
       </div>
     </div>
   </section>
 
   <section class="report-section">
     <div class="section-header">
-      <h2 class="section-title">Clinical Observations & Diagnoses</h2>
+      <h2 class="section-title" th:text="${labels.clinicalObservationsDiagnoses}">
+        Clinical Observations & Diagnoses
+      </h2>
     </div>
 
     <div th:if="${report.diagnoses != null and !#lists.isEmpty(report.diagnoses)}" class="diagnosis-grid">
@@ -142,21 +143,23 @@
 
         <div class="diagnosis-right">
           <div class="diag-info-row">
-            <span class="diag-label">Entry Date:</span>
+            <span class="diag-label" th:text="${labels.entryDate} + ':'">Entry Date:</span>
             <span class="diag-date" th:text="${diag.date}">01/01/2026</span>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="empty-message" th:if="${report.diagnoses == null or #lists.isEmpty(report.diagnoses)}">
+    <div class="empty-message"
+         th:if="${report.diagnoses == null or #lists.isEmpty(report.diagnoses)}"
+         th:text="${labels.noDiagnoses}">
       No clinical diagnoses recorded for this encounter.
     </div>
   </section>
 
   <section class="report-section">
     <div class="section-header">
-      <h2 class="section-title">Allergies</h2>
+      <h2 class="section-title" th:text="${labels.allergies}">Allergies</h2>
     </div>
 
     <div th:if="${report.allergies != null and !#lists.isEmpty(report.allergies)}" style="margin-top:12px">
@@ -164,9 +167,9 @@
         <table>
           <thead>
           <tr>
-            <th>Allergy Type</th>
-            <th>Allergen</th>
-            <th class="text-center">Severity</th>
+            <th th:text="${labels.allergyType}">Allergy Type</th>
+            <th th:text="${labels.allergen}">Allergen</th>
+            <th class="text-center" th:text="${labels.severity}">Severity</th>
           </tr>
           </thead>
           <tbody>
@@ -182,23 +185,25 @@
       </div>
     </div>
 
-    <div class="empty-message" th:if="${report.allergies == null or #lists.isEmpty(report.allergies)}">
+    <div class="empty-message"
+         th:if="${report.allergies == null or #lists.isEmpty(report.allergies)}"
+         th:text="${labels.noAllergies}">
       No allergies recorded.
     </div>
   </section>
 
   <section class="report-section">
     <div class="section-header">
-      <h2 class="section-title">Warnings</h2>
+      <h2 class="section-title" th:text="${labels.warnings}">Warnings</h2>
     </div>
 
     <div th:if="${report.warnings != null and !#lists.isEmpty(report.warnings)}" class="table-container">
       <table>
         <thead>
         <tr>
-          <th>Warning Type</th>
-          <th>Warning</th>
-          <th class="text-center">Severity</th>
+          <th th:text="${labels.warningType}">Warning Type</th>
+          <th th:text="${labels.warning}">Warning</th>
+          <th class="text-center" th:text="${labels.severity}">Severity</th>
         </tr>
         </thead>
         <tbody>
@@ -213,67 +218,77 @@
       </table>
     </div>
 
-    <div class="empty-message" th:if="${report.warnings == null or #lists.isEmpty(report.warnings)}">
+    <div class="empty-message"
+         th:if="${report.warnings == null or #lists.isEmpty(report.warnings)}"
+         th:text="${labels.noWarnings}">
       No warnings recorded.
     </div>
   </section>
+
   <div class="no-page-break">
-  <section class="report-section">
-    <div class="section-header">
-      <h2 class="section-title">Medications</h2>
-    </div>
+    <section class="report-section">
+      <div class="section-header">
+        <h2 class="section-title" th:text="${labels.medications}">Medications</h2>
+      </div>
 
-    <div th:if="${report.medications != null and !#lists.isEmpty(report.medications)}" class="table-container">
-      <table class="medication-table">
-        <thead>
-        <tr>
-          <th>Medication Name</th>
-          <th>Instructions</th>
-          <th>Duration</th>
-          <th class="text-center">Refills</th>
-          <th>Administration Instructions</th>
-          <th>Indication</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="med : ${report.medications}">
-          <td class="med-name" th:text="${med.medicationName}">Medication</td>
-          <td class="med-instructions" th:text="${med.instructions}">Instructions</td>
-          <td th:text="${med.duration}">Duration</td>
-          <td class="text-center" th:text="${med.numberOfRefills}">0</td>
-          <td class="text-muted" th:text="${med.administrationInstructions}">Admin instruction</td>
-          <td class="text-muted" th:text="${med.indicationIcd}">Indication</td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
+      <div th:if="${report.medications != null and !#lists.isEmpty(report.medications)}" class="table-container">
+        <table class="medication-table">
+          <thead>
+          <tr>
+            <th th:text="${labels.medicationName}">Medication Name</th>
+            <th th:text="${labels.instructions}">Instructions</th>
+            <th th:text="${labels.duration}">Duration</th>
+            <th class="text-center" th:text="${labels.refills}">Refills</th>
+            <th th:text="${labels.administrationInstructions}">Administration Instructions</th>
+            <th th:text="${labels.indication}">Indication</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="med : ${report.medications}">
+            <td class="med-name" th:text="${med.medicationName}">Medication</td>
+            <td class="med-instructions" th:text="${med.instructions}">Instructions</td>
+            <td th:text="${med.duration}">Duration</td>
+            <td class="text-center" th:text="${med.numberOfRefills}">0</td>
+            <td class="text-muted" th:text="${med.administrationInstructions}">Admin instruction</td>
+            <td class="text-muted" th:text="${med.indicationIcd}">Indication</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
 
-    <div class="empty-message" th:if="${report.medications == null or #lists.isEmpty(report.medications)}">
-      No active prescription medications found.
-    </div>
-  </section>
+      <div class="empty-message"
+           th:if="${report.medications == null or #lists.isEmpty(report.medications)}"
+           th:text="${labels.noMedications}">
+        No active prescription medications found.
+      </div>
+    </section>
 
+    <div class="footer">
+      <div class="footer-left">
+        <div class="signature-line"></div>
+        <p class="signature-label" th:text="${labels.prescriberSignature}">
+          Prescriber Signature
+        </p>
+      </div>
 
-  <div class="footer">
-    <div class="footer-left">
-      <div class="signature-line"></div>
-      <p class="signature-label">Prescriber Signature</p>
-    </div>
+      <div class="footer-right">
+        <div class="auth-block">
+          <p class="auth-label" th:text="${labels.digitallyAuthenticatedBy}">
+            Digitally Authenticated By
+          </p>
 
-    <div class="footer-right">
-      <div class="auth-block">
-        <p class="auth-label">Digitally Authenticated By</p>
-        <div class="verification-badge">
-          <div class="auth-name" th:text="${report.prescriberName}">Prescriber Name</div>
-          <div class="auth-email"
-               th:if="${report.email != null and !#strings.isEmpty(report.email)}"
-               th:text="'<' + ${report.email} + '>'">
-            &lt;email@example.com&gt;
+          <div class="verification-badge">
+            <div class="auth-name" th:text="${report.prescriberName}">Prescriber Name</div>
+            <div class="auth-email"
+                 th:if="${report.email != null and !#strings.isEmpty(report.email)}"
+                 th:text="'<' + ${report.email} + '>'">
+              &lt;email@example.com&gt;
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+
   </div>
 </div>
 </body>
