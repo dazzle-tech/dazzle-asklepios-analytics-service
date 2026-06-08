@@ -52,6 +52,7 @@ public class SickLeaveReportController {
     public ResponseEntity<byte[]> postSickLeaveReportPdf(
             @PathVariable Long encounterId,
             @RequestParam(required = false) String timezone,
+            @RequestParam  (defaultValue = "en") String lang,
             @RequestBody SickLeaveReportRequestDTO request
     ) {
         LOG.debug(
@@ -70,7 +71,7 @@ public class SickLeaveReportController {
                 request.notes()
         );
 
-        byte[] pdf = sickLeaveReportPdfRenderService.generateSickLeaveReportPdf(dto, timezone);
+        byte[] pdf = sickLeaveReportPdfRenderService.generateSickLeaveReportPdf(dto, timezone ,lang);
 
         LOG.debug(
                 "[REST][SICK_LEAVE_PDF][POST] completed. encounterId={} timezone={} notes={} size={}",

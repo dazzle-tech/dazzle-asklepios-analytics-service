@@ -1,67 +1,75 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:attr="lang=${lang}, dir=${dir}">
 <head>
     <meta charset="UTF-8">
-    <title>Sick Leave Report</title>
-
-        <style th:utext="${reportCss}"></style>
-
+    <title th:text="${labels.sickLeaveReport}">Sick Leave Report</title>
+    <style th:utext="${reportCss}"></style>
 </head>
-<body>
+
+<body th:class="${dir}">
 <div class="container">
 
-    <!-- HEADER -->
     <div class="header">
         <div class="logo-box">
             <img class="report-logo"
                  th:src="'data:image/png;base64,' + ${logo}" />
         </div>
+
         <div style="text-align:center; flex:1;">
             <h1 class="org-name" th:text="${report.encounterInfo?.facilityName}">FACILITY NAME</h1>
             <div class="dept-name" th:text="${report.encounterInfo?.departmentName}">DEPARTMENT</div>
         </div>
+
         <div style="text-align:right;">
             <p class="doc-id">
-                ENCOUNTER:
+                <span th:text="${labels.encounter}">ENCOUNTER</span>:
                 <span th:text="${report.encounterInfo?.encounterNumber ?: report.encounterInfo?.encounterId}">#—</span>
             </p>
         </div>
     </div>
 
-    <!-- TITLE -->
     <div class="main-title-section">
-        <h1 class="main-title">SICK LEAVE REPORT</h1>
+        <h1 class="main-title" th:text="${labels.sickLeaveReport}">SICK LEAVE REPORT</h1>
+
         <div class="title-underline">
             <div class="underline-accent"></div>
         </div>
+
         <div class="date-time-info">
-            <span>Generated At: <strong th:text="${generatedAtDisplay}">—</strong></span>
+            <span>
+                <span th:text="${labels.generatedAt}">Generated At</span>:
+                <strong th:text="${generatedAtDisplay}">—</strong>
+            </span>
         </div>
     </div>
 
-    <!-- 1. PATIENT INFORMATION -->
     <section class="report-section">
         <div class="section-header blue">
-            <h2 class="section-title">1. Patient Information</h2>
+            <h2 class="section-title" th:text="${labels.patientInformation}">1. Patient Information</h2>
         </div>
+
         <div class="patient-grid">
             <div class="grid-row grid-4">
                 <div class="info-box">
-                    <span class="info-label">Patient Name</span>
+                    <span class="info-label" th:text="${labels.patientName}">Patient Name</span>
                     <span class="info-value" th:text="${report.patientInfo?.fullName}">—</span>
                 </div>
+
                 <div class="info-box">
-                    <span class="info-label">MRN</span>
+                    <span class="info-label" th:text="${labels.mrn}">MRN</span>
                     <span class="info-value" th:text="${report.patientInfo?.medicalRecordNumber}">—</span>
                 </div>
+
                 <div class="info-box">
-                    <span class="info-label">Gender</span>
+                    <span class="info-label" th:text="${labels.gender}">Gender</span>
                     <span class="info-value" th:text="${report.patientInfo?.gender}">—</span>
                 </div>
+
                 <div class="info-box no-border">
-                    <span class="info-label">DOB / Age</span>
+                    <span class="info-label" th:text="${labels.dobAge}">DOB / Age</span>
                     <span class="info-value">
-                        <span th:text="${#dates.format(report.patientInfo?.dateOfBirth, 'dd/MM/yyyy')}">—</span>
+                        <span th:text="${report.patientInfo?.dateOfBirth != null ? #dates.format(report.patientInfo?.dateOfBirth, 'dd/MM/yyyy') : '—'}">—</span>
                         <span th:if="${report.patientInfo?.age != null and !#strings.isEmpty(report.patientInfo?.age)}"
                               th:text="' (' + ${report.patientInfo?.age} + ')'"></span>
                     </span>
@@ -70,37 +78,42 @@
         </div>
     </section>
 
-    <!-- 2. VISIT INFORMATION -->
     <section class="report-section">
         <div class="section-header blue">
-            <h2 class="section-title">2. Visit Information</h2>
+            <h2 class="section-title" th:text="${labels.visitInformation}">2. Visit Information</h2>
         </div>
+
         <div class="table-container">
             <table class="kv-table">
                 <tbody>
                 <tr>
-                    <td>Facility</td>
+                    <td th:text="${labels.facility}">Facility</td>
                     <td th:text="${report.encounterInfo?.facilityName}">—</td>
                 </tr>
+
                 <tr>
-                    <td>Department</td>
+                    <td th:text="${labels.department}">Department</td>
                     <td th:text="${report.encounterInfo?.departmentName}">—</td>
                 </tr>
+
                 <tr>
-                    <td>Visit Date</td>
+                    <td th:text="${labels.visitDate}">Visit Date</td>
                     <td th:text="${report.encounterInfo?.encounterDate != null ?
                         #temporals.format(report.encounterInfo?.encounterDate, 'dd/MM/yyyy') : '—'}">—</td>
                 </tr>
+
                 <tr>
-                    <td>Attending Physician</td>
+                    <td th:text="${labels.attendingPhysician}">Attending Physician</td>
                     <td th:text="${report.physicianFullName ?: '—'}">—</td>
                 </tr>
+
                 <tr>
-                    <td>Chief Complaint</td>
+                    <td th:text="${labels.chiefComplaint}">Chief Complaint</td>
                     <td th:text="${report.encounterInfo?.chiefComplaint ?: '—'}">—</td>
                 </tr>
+
                 <tr>
-                    <td>Diagnosis</td>
+                    <td th:text="${labels.diagnosis}">Diagnosis</td>
                     <td th:text="${report.diagnosis ?: '—'}">—</td>
                 </tr>
                 </tbody>
@@ -108,34 +121,42 @@
         </div>
     </section>
 
-    <!-- 3. SICK LEAVE PERIOD -->
     <section class="report-section">
         <div class="section-header green">
-            <h2 class="section-title">3. Sick Leave Period</h2>
+            <h2 class="section-title" th:text="${labels.sickLeavePeriod}">3. Sick Leave Period</h2>
         </div>
+
         <div class="sick-leave-box">
-            <div class="sick-leave-box-header">Medical Leave Authorization</div>
+            <div class="sick-leave-box-header"
+                 th:text="${labels.medicalLeaveAuthorization}">
+                Medical Leave Authorization
+            </div>
+
             <div class="sick-leave-box-body">
                 <div class="sick-leave-cell">
-                    <span class="sick-leave-cell-label">From Date</span>
+                    <span class="sick-leave-cell-label" th:text="${labels.fromDate}">From Date</span>
                     <span class="sick-leave-cell-value"
                           th:text="${report.sickLeaveFromDate != null ?
                               #temporals.format(report.sickLeaveFromDate, 'dd / MM / yyyy') : '— / — / ————'}">
                         — / — / ————
                     </span>
                 </div>
+
                 <div class="sick-leave-cell">
-                    <span class="sick-leave-cell-label">To Date</span>
+                    <span class="sick-leave-cell-label" th:text="${labels.toDate}">To Date</span>
                     <span class="sick-leave-cell-value"
                           th:text="${report.sickLeaveToDate != null ?
                               #temporals.format(report.sickLeaveToDate, 'dd / MM / yyyy') : '— / — / ————'}">
                         — / — / ————
                     </span>
                 </div>
+
                 <div class="sick-leave-cell" style="border-right:none;">
-                    <span class="sick-leave-cell-label">Total Days</span>
+                    <span class="sick-leave-cell-label" th:text="${labels.totalDays}">Total Days</span>
                     <span class="sick-leave-days-badge"
-                          th:text="${report.numberOfDays != null ? report.numberOfDays + ' DAY' + (report.numberOfDays != 1 ? 'S' : '') : '—'}">
+                          th:text="${report.numberOfDays != null ?
+                              report.numberOfDays + ' ' + (report.numberOfDays == 1 ? labels.day : labels.days)
+                              : '—'}">
                         — DAYS
                     </span>
                 </div>
@@ -143,37 +164,57 @@
         </div>
     </section>
 
-    <!-- 4. NOTES / RECOMMENDATIONS -->
     <section class="report-section">
         <div class="section-header teal">
-            <h2 class="section-title">4. Notes &amp; Recommendations</h2>
+            <h2 class="section-title" th:text="${labels.notesRecommendations}">
+                4. Notes &amp; Recommendations
+            </h2>
         </div>
+
         <div class="notes-box">
             <span th:if="${report.notes != null and !#strings.isEmpty(report.notes)}"
                   th:text="${report.notes}">—</span>
+
             <span th:unless="${report.notes != null and !#strings.isEmpty(report.notes)}"
-                  class="text-muted" style="font-style:italic;">
-        
+                  class="text-muted"
+                  style="font-style:italic;"
+                  th:text="${labels.noNotes}">
+                No notes recorded.
             </span>
         </div>
     </section>
 
-    <!-- FOOTER -->
     <div class="footer">
         <div class="footer-left">
             <div class="signature-line"></div>
+
             <p class="auth-name" th:text="${report.physicianFullName ?: '—'}">—</p>
-            <p class="auth-sub" th:if="${report.physicianSpecialty != null}"
-               th:text="${report.physicianSpecialty}"></p>
-            <p class="signature-label">Physician Signature &amp; Stamp</p>
+
+            <p class="auth-sub"
+               th:if="${report.physicianSpecialty != null}"
+               th:text="${report.physicianSpecialty}">
+            </p>
+
+            <p class="signature-label" th:text="${labels.physicianSignatureStamp}">
+                Physician Signature &amp; Stamp
+            </p>
         </div>
+
         <div class="footer-right">
             <div class="auth-block">
-                <p class="auth-label">Issued By</p>
+                <p class="auth-label" th:text="${labels.issuedBy}">
+                    Issued By
+                </p>
+
                 <div class="auth-name" th:text="${report.encounterInfo?.facilityName}">Facility</div>
+
                 <div class="auth-sub" th:text="${report.encounterInfo?.departmentName}">Department</div>
-                <div class="auth-sub" style="margin-top:4px;"
-                     th:text="${generatedAtDisplay}">Date: —</div>
+
+                <div class="auth-sub"
+                     style="margin-top:4px;"
+                     th:text="${generatedAtDisplay}">
+                    Date: —
+                </div>
             </div>
         </div>
     </div>
