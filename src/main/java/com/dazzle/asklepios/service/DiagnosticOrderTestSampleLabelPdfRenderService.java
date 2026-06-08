@@ -143,7 +143,11 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
         context.setVariable("expiryDate", dto.expiryDate());
         context.setVariable("qrImage", generateQrBase64(qrValue, 220, 220));
         context.setVariable("barcodeImage", generateCode128BarcodeBase64(dto.mrn(), 520, 110));
+        String css = reportPdfCommonService.loadCss(
+                "templates/reports/styles/sample-label.css"
+        );
 
+        context.setVariable("reportCss", css);
         return templateEngine.process("reports/sample-label", context);
     }
 

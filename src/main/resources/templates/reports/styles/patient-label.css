@@ -1,0 +1,133 @@
+@page {
+    size: 100mm 45mm;
+    margin: 0;
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100mm;
+    height: 45mm;
+    font-family: Arial, "Tahoma", sans-serif;
+    color: #111827;
+}
+
+.label {
+    width: 100mm;
+    height: 45mm;
+    padding: 3.5mm 4mm;
+    position: relative;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+.header {
+    display: table;
+    width: 100%;
+    margin-bottom: 1.5mm;
+}
+
+.header-left,
+.header-right {
+    display: table-cell;
+    vertical-align: top;
+}
+
+.header-left {
+    width: 58%;
+}
+
+.header-right {
+    width: 42%;
+    text-align: right;
+}
+
+.title {
+    font-size: 13pt;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-top: 0.5mm;
+}
+
+.right-block {
+    display: inline-table;
+}
+
+.right-text,
+.right-qr {
+    display: table-cell;
+    vertical-align: top;
+}
+
+.right-text {
+    text-align: right;
+    padding-right: 2mm;
+}
+
+.label-date {
+    font-size: 7.5pt;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 1.2mm;
+    white-space: nowrap;
+}
+
+.facility {
+    font-size: 7pt;
+    line-height: 1.15;
+    max-width: 26mm;
+    word-break: break-word;
+}
+
+.qr {
+    width: 10mm;
+    height: 10mm;
+    object-fit: contain;
+    display: block;
+}
+
+.content {
+    width: 58mm;
+    margin-top: 0.5mm;
+}
+
+.row {
+    font-size: 8.5pt;
+    line-height: 1.35;
+    margin-bottom: 0.5mm;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.label-text {
+    font-weight: 700;
+}
+
+.barcode-box {
+    position: absolute;
+    right: 5mm;
+    bottom: 4mm;
+    width: 32mm;
+    text-align: center;
+}
+
+.barcode {
+    width: 32mm;
+    height: 8mm;
+    object-fit: fill;
+    display: block;
+}
+
+.barcode-text {
+    font-size: 6.5pt;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    margin-top: 0.5mm;
+}

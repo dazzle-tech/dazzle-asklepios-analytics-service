@@ -1,3 +1,4 @@
+
 @page {
     margin: 0;
     size: A4;
@@ -17,17 +18,6 @@ body {
     color: #1e293b;
     line-height: 1.35;
     font-size: 7pt;
-}
-
-body.ltr {
-    direction: ltr;
-    text-align: left;
-}
-
-body.rtl {
-    direction: rtl;
-    text-align: right;
-    font-family: Tahoma, Arial, sans-serif;
 }
 
 .container {
@@ -128,6 +118,8 @@ body.rtl {
 
 .report-section {
     margin-bottom: 20px;
+    page-break-inside: avoid;
+    break-inside: avoid;
 }
 
 .section-header {
@@ -175,6 +167,8 @@ body.rtl {
     width: 100%;
     border: 1px solid #dbe3ee;
     background: #ffffff;
+    page-break-inside: avoid;
+    break-inside: avoid;
 }
 
 .patient-grid + .patient-grid {
@@ -234,6 +228,19 @@ body.rtl {
     line-height: 1.1;
 }
 
+.badge-priority {
+    font-size: 5.8pt;
+    padding: 2px 5px;
+    line-height: 1;
+    display: inline-block;
+    border: 1px solid #2563eb;
+    background: #eff6ff;
+    color: #2563eb;
+    font-weight: 900;
+    border-radius: 3px;
+    text-transform: uppercase;
+}
+
 .kv-table {
     width: 100%;
     border: 1px solid #e2e8f0;
@@ -271,10 +278,36 @@ body.rtl {
     background: #fcfcfd;
 }
 
+.bool-yes {
+    display: inline-block;
+    border: 1px solid #27ae60;
+    background: #f0fdf4;
+    color: #27ae60;
+    font-size: 6.5pt;
+    font-weight: 900;
+    padding: 2px 7px;
+    border-radius: 2px;
+    text-transform: uppercase;
+}
+
+.bool-no {
+    display: inline-block;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    color: #94a3b8;
+    font-size: 6.5pt;
+    font-weight: 900;
+    padding: 2px 7px;
+    border-radius: 2px;
+    text-transform: uppercase;
+}
+
 .table-container {
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     overflow: hidden;
+    page-break-inside: avoid;
+    break-inside: avoid;
 }
 
 table {
@@ -317,12 +350,11 @@ tr:nth-child(even) {
     color: #64748b;
 }
 
-.badge-red,
-.badge-orange,
-.badge-blue,
-.bool-yes,
-.bool-no {
+.badge-red {
     display: inline-block;
+    border: 1px solid #c0392b;
+    background: #fef2f2;
+    color: #c0392b;
     font-size: 6.5pt;
     font-weight: 900;
     padding: 3px 8px;
@@ -330,29 +362,28 @@ tr:nth-child(even) {
     text-transform: uppercase;
 }
 
-.badge-red {
-    border: 1px solid #c0392b;
-    background: #fef2f2;
-    color: #c0392b;
-}
-
 .badge-orange {
+    display: inline-block;
     border: 1px solid #d35400;
     background: #fff7ed;
     color: #d35400;
+    font-size: 6.5pt;
+    font-weight: 900;
+    padding: 3px 8px;
+    border-radius: 2px;
+    text-transform: uppercase;
 }
 
-.badge-blue,
-.bool-yes {
+.badge-blue {
+    display: inline-block;
     border: 1px solid #2563eb;
     background: #eff6ff;
     color: #2563eb;
-}
-
-.bool-no {
-    border: 1px solid #cbd5e1;
-    background: #f8fafc;
-    color: #94a3b8;
+    font-size: 6.5pt;
+    font-weight: 900;
+    padding: 3px 8px;
+    border-radius: 2px;
+    text-transform: uppercase;
 }
 
 .item-table th {
@@ -418,12 +449,6 @@ tr:nth-child(even) {
     vertical-align: top;
 }
 
-.no-page-break {
-    break-inside: avoid;
-    page-break-inside: avoid;
-    -webkit-column-break-inside: avoid;
-}
-
 .auth-block {
     display: inline-block;
     text-align: left;
@@ -453,95 +478,6 @@ tr:nth-child(even) {
     line-height: 1.2;
 }
 
-/* RTL SUPPORT */
-
-body.rtl .header {
-    direction: rtl;
-}
-
-body.rtl .doc-id {
-    text-align: left;
-}
-
-body.rtl th {
-    text-align: right;
-}
-
-body.rtl .section-header {
-    border-left: none;
-    border-right: 5px solid #001f3f;
-}
-
-body.rtl .section-header.blue {
-    border-right-color: #2980b9;
-}
-
-body.rtl .section-header.green {
-    border-right-color: #27ae60;
-}
-
-body.rtl .section-header.red {
-    border-right-color: #c0392b;
-}
-
-body.rtl .section-header.orange {
-    border-right-color: #d35400;
-}
-
-body.rtl .section-header.purple {
-    border-right-color: #8e44ad;
-}
-
-body.rtl .section-header.teal {
-    border-right-color: #16a085;
-}
-
-body.rtl .info-box {
-    border-right: none;
-    border-left: 0.8px solid #e5edf5;
-}
-
-body.rtl .info-box.no-border {
-    border-left: none;
-}
-
-body.rtl .kv-table tr td:first-child {
-    border-right: none;
-    border-left: 1px solid #e2e8f0;
-}
-
-body.rtl .footer {
-    direction: rtl;
-}
-
-body.rtl .footer-right {
-    text-align: right;
-}
-
-body.rtl .auth-block {
-    text-align: right;
-}
-
-body.rtl .signature-line {
-    margin-right: 0;
-    margin-left: auto;
-}
-
-body.rtl .main-title,
-body.rtl .section-title,
-body.rtl .info-label,
-body.rtl .info-value,
-body.rtl .item-name,
-body.rtl .auth-label,
-body.rtl .signature-label,
-body.rtl .badge-red,
-body.rtl .badge-orange,
-body.rtl .badge-blue,
-body.rtl .bool-yes,
-body.rtl .bool-no {
-    text-transform: none;
-    letter-spacing: normal;
-}
 .logo-box {
     width: 90px;
     height: 60px;

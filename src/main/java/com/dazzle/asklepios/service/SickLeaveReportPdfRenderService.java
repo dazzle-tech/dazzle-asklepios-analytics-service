@@ -58,7 +58,11 @@ public class SickLeaveReportPdfRenderService {
         context.setVariable("report", dto);
         context.setVariable("generatedAtDisplay", reportPdfCommonService.generatedAtDisplay(timezone));
         context.setVariable("logo", reportPdfCommonService.getLogoBase64());
+        String css = reportPdfCommonService.loadCss(
+                "templates/reports/styles/sick-leave-report.css"
+        );
 
+        context.setVariable("reportCss", css);
         String html = templateEngine.process("reports/sick-leave-report", context);
 
         return reportPdfCommonService.renderPdfWithChromium(html);
