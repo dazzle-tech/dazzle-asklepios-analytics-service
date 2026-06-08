@@ -141,6 +141,7 @@ dependencies {
     implementation "io.micrometer:micrometer-registry-prometheus"
     implementation "jakarta.annotation:jakarta.annotation-api"
     implementation "org.apache.commons:commons-lang3"
+    implementation "software.amazon.awssdk:s3"
 
     annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
     implementation "org.mapstruct:mapstruct:${mapstructVersion}"

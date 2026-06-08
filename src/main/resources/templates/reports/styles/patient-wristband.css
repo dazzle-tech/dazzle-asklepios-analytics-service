@@ -1,0 +1,142 @@
+
+@page {
+    size: 120mm 55mm;
+    margin: 0;
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    color: #111827;
+}
+
+body {
+    width: 120mm;
+    height: 55mm;
+}
+
+.label {
+    width: 120mm;
+    height: 55mm;
+    padding: 4mm 5mm;
+    position: relative;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+.header {
+    display: table;
+    width: 100%;
+    margin-bottom: 2mm;
+}
+
+.header-left,
+.header-right {
+    display: table-cell;
+    vertical-align: top;
+}
+
+.header-left {
+    width: 58%;
+}
+
+.header-right {
+    width: 42%;
+    text-align: right;
+}
+
+.title {
+    font-size: 15pt;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-top: 1mm;
+}
+
+.right-block {
+    display: inline-table;
+}
+
+.right-text,
+.right-qr {
+    display: table-cell;
+    vertical-align: top;
+}
+
+.right-text {
+    text-align: right;
+    padding-right: 3mm;
+}
+
+.admission-date {
+    font-size: 8.5pt;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 2mm;
+    white-space: nowrap;
+}
+
+.facility {
+    font-size: 8pt;
+    line-height: 1.15;
+    max-width: 32mm;
+    word-break: break-word;
+}
+
+.qr {
+    width: 12mm;
+    height: 12mm;
+    object-fit: contain;
+    display: block;
+}
+
+.content {
+    width: 68mm;
+    margin-top: 1mm;
+}
+
+.row {
+    font-size: 9.5pt;
+    line-height: 1.4;
+    margin-bottom: 0.7mm;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.label-text {
+    font-weight: 700;
+}
+
+.alert {
+    color: #b91c1c;
+    font-weight: 700;
+}
+
+.barcode-box {
+    position: absolute;
+    right: 7mm;
+    bottom: 5mm;
+    width: 38mm;
+    text-align: center;
+}
+
+.barcode {
+    width: 38mm;
+    height: 10mm;
+    object-fit: fill;
+    display: block;
+}
+
+.barcode-text {
+    font-size: 7pt;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    margin-top: 0.8mm;
+}

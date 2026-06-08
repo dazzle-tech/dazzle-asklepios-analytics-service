@@ -4,12 +4,10 @@ import com.dazzle.asklepios.service.dto.reports.VisitReportDTO;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +34,7 @@ public class VisitReportPdfRenderService {
         context.setVariable("dir", isArabic ? "rtl" : "ltr");
         context.setVariable("isArabic", isArabic);
         context.setVariable("labels", buildVisitReportLabels(isArabic));
-
+        context.setVariable("logo", reportPdfCommonService.getLogoBase64());
         String css = reportPdfCommonService.loadCss(
                 "templates/reports/styles/visit-report.css"
         );
@@ -44,7 +42,6 @@ public class VisitReportPdfRenderService {
         context.setVariable("reportCss", css);
 
         String html = templateEngine.process("reports/visit-report", context);
-        LOG.debug("HTML contains CSS: {}", html.contains("@page"));
         return reportPdfCommonService.renderPdfWithChromium(html);
     }
 

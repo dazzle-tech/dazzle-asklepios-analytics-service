@@ -1,8 +1,7 @@
 package com.dazzle.asklepios.service;
 
+import com.dazzle.asklepios.service.dto.patient.PatientInformationReportDTO;
 import com.dazzle.asklepios.service.dto.patientLabel.PatientLabelDTO;
-import com.microsoft.playwright.*;
-import com.microsoft.playwright.options.WaitUntilState;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
@@ -15,10 +14,11 @@ import static com.dazzle.asklepios.web.rest.Helper.BarcodeImageUtil.generateQrBa
 
 @Service
 @RequiredArgsConstructor
-public class PatientLabelPdfRenderService {
+public class PatientPdfRenderService {
 
     private final SpringTemplateEngine templateEngine;
     private final PatientService patientService;
+    private final ReportPdfCommonService reportPdfCommonService;
 
     public byte[] generatePatientLabelPdf(Long patientId) {
         PatientLabelDTO dto = patientService.getPatientLabel(patientId);
@@ -34,39 +34,29 @@ public class PatientLabelPdfRenderService {
         context.setVariable("dateOfBirthFormatted", dateOfBirthFormatted);
         context.setVariable("qrImage", generateQrBase64(qrValue, 260, 260));
         context.setVariable("barcodeImage", generateCode128BarcodeBase64(dto.mrn(), 620, 130));
-
+        String css = reportPdfCommonService.loadCss(
+                "templates/reports/styles/patient-label.css"
+        );
+        context.setVariable("reportCss", css);
         String html = templateEngine.process("reports/patient-label", context);
 
-        return renderPdfWithChromium(html);
+        return reportPdfCommonService.renderPdfWithChromium(html);
     }
 
-    private byte[] renderPdfWithChromium(String html) {
-        try (Playwright playwright = Playwright.create()) {
-            Browser browser = playwright.chromium().launch(
-                    new BrowserType.LaunchOptions().setHeadless(true)
-            );
+    public byte[] generatePatientInformationPdf(Long patientId) {
 
-            BrowserContext browserContext = browser.newContext();
-            Page page = browserContext.newPage();
+        PatientInformationReportDTO dto =
+                patientService.getPatientInformationReport(patientId);
 
-            page.setContent(
-                    html,
-                    new Page.SetContentOptions().setWaitUntil(WaitUntilState.NETWORKIDLE)
-            );
+        Context context = new Context();
+        context.setVariable("report", dto);
+        context.setVariable("logo", reportPdfCommonService.getLogoBase64());
+        context.setVariable("reportCss", reportPdfCommonService.loadCss(
+                "templates/reports/styles/patient-information-report.css"
+        ));
+        String html = templateEngine.process("reports/patient-information-report", context);
 
-            byte[] pdfBytes = page.pdf(
-                    new Page.PdfOptions()
-                            .setPrintBackground(true)
-                            .setPreferCSSPageSize(true)
-            );
-
-            browserContext.close();
-            browser.close();
-
-            return pdfBytes;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to generate patient label PDF with Chromium: " + e.getMessage(), e);
-        }
+        return reportPdfCommonService.renderPdfWithChromium(html);
     }
 
     private String buildQrValue(PatientLabelDTO dto, String dateOfBirthFormatted) {

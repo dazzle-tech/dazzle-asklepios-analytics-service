@@ -1,8 +1,5 @@
-@page {
-    margin: 0;
-    size: A4;
-}
 
+@page { margin: 0; size: A4; }
 * {
     margin: 0;
     padding: 0;
@@ -19,17 +16,6 @@ body {
     font-size: 7pt;
 }
 
-body.ltr {
-    direction: ltr;
-    text-align: left;
-}
-
-body.rtl {
-    direction: rtl;
-    text-align: right;
-    font-family: Tahoma, Arial, sans-serif;
-}
-
 .container {
     width: 100%;
     max-width: 900px;
@@ -40,11 +26,17 @@ body.rtl {
 
 .header {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
+    width: 100%;
     border-bottom: 2px solid #1e293b;
     padding-bottom: 20px;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.header-titles {
+    flex: 1;
+    text-align: center;
 }
 
 .org-name {
@@ -54,8 +46,6 @@ body.rtl {
     line-height: 1.05;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-    text-align: center;
-    margin: 0;
 }
 
 .dept-name {
@@ -65,14 +55,29 @@ body.rtl {
     text-transform: uppercase;
     letter-spacing: 0.8px;
     margin-top: 2px;
-    text-align: center;
+}
+
+.barcode-section {
+    text-align: right;
+}
+
+.barcode {
+    display: inline-block;
+    height: 9px;
+    margin-bottom: 3px;
+}
+
+.bar {
+    display: inline-block;
+    height: 100%;
+    background: #cbd5e1;
+    margin: 0 0.4px;
 }
 
 .doc-id {
     font-size: 6.5pt;
     font-weight: 700;
     color: #1e293b;
-    text-align: right;
 }
 
 .main-title-section {
@@ -126,9 +131,7 @@ body.rtl {
     margin-left: 4px;
 }
 
-.report-section {
-    margin-bottom: 20px;
-}
+.report-section { margin-bottom: 20px; }
 
 .section-header {
     background: #f1f5f9;
@@ -146,30 +149,6 @@ body.rtl {
     text-transform: uppercase;
 }
 
-.section-header.blue {
-    border-left-color: #2980b9;
-}
-
-.section-header.green {
-    border-left-color: #27ae60;
-}
-
-.section-header.red {
-    border-left-color: #c0392b;
-}
-
-.section-header.orange {
-    border-left-color: #d35400;
-}
-
-.section-header.purple {
-    border-left-color: #8e44ad;
-}
-
-.section-header.teal {
-    border-left-color: #16a085;
-}
-
 .patient-grid {
     display: table;
     width: 100%;
@@ -177,43 +156,25 @@ body.rtl {
     background: #ffffff;
 }
 
-.patient-grid + .patient-grid {
-    margin-top: 4px;
-}
+.patient-grid + .patient-grid { margin-top: 4px; }
 
-.grid-row {
+.grid-4 {
     display: table;
     width: 100%;
     border-top: 0.8px solid #e5edf5;
 }
 
-.grid-row:first-child {
-    border-top: none;
-}
-
-.grid-2 .info-box {
-    width: 50%;
-}
-
-.grid-3 .info-box {
-    width: 33.33%;
-}
-
-.grid-4 .info-box {
-    width: 25%;
-}
+.grid-4 .info-box { width: 25%; }
 
 .info-box {
     display: table-cell;
     padding: 6px 8px;
     border-right: 0.8px solid #e5edf5;
     vertical-align: middle;
-    min-height: 38px;
+    height: 38px;
 }
 
-.info-box.no-border {
-    border-right: none;
-}
+.info-box.no-border { border-right: none; }
 
 .info-label {
     display: block;
@@ -234,41 +195,101 @@ body.rtl {
     line-height: 1.1;
 }
 
-.kv-table {
+.badge-urgent {
+    font-size: 5.8pt;
+    padding: 2px 5px;
+    line-height: 1;
+    display: inline-block;
+    border: 1px solid #2563eb;
+    background: #eff6ff;
+    color: #2563eb;
+    font-weight: 900;
+    border-radius: 3px;
+    text-transform: uppercase;
+}
+
+.diagnosis-grid {
+    display: table;
+    width: 100%;
+    border-spacing: 12px 0;
+}
+
+.diagnosis-card {
+    display: table-cell;
     width: 100%;
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    border-collapse: separate;
-    border-spacing: 0;
-    overflow: hidden;
+    border-radius: 6px;
+    padding: 16px;
+    background: #fafbfc;
+    min-height: 54px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
 }
 
-.kv-table tr td:first-child {
+.diagnosis-row {
+    display: table;
+    width: 100%;
+}
+
+.diagnosis-left {
+    display: table-cell;
+    width: 70%;
+    vertical-align: middle;
+}
+
+.diagnosis-right {
+    display: table-cell;
+    width: 30%;
+    vertical-align: middle;
+    text-align: right;
+    padding-left: 14px;
+}
+
+.diagnosis-title {
+    font-size: 9pt;
+    font-weight: 600;
+    color: #001f3f;
+    line-height: 1.3;
+    margin-bottom: 14px;
+    letter-spacing: -0.2px;
+}
+
+.diag-info-row {
+    display: table;
+    width: 100%;
+    margin-bottom: 4px;
+}
+
+.diag-label {
+    display: inline-block;
+    white-space: nowrap;
+    width: 110px;
+    text-align: left;
+    font-size: 6.5pt;
+    color: #64748b;
+    font-weight: 700;
+}
+
+.diagnosis-type-badge {
+    display: table-cell;
+    text-align: right;
+    font-size: 6pt;
+    font-weight: 800;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #2563eb;
+    white-space: nowrap;
+    text-transform: uppercase;
+}
+
+.diag-date {
+    display: table-cell;
+    text-align: right;
+    font-size: 7pt;
     font-weight: 900;
-    font-size: 7pt;
     color: #1e293b;
-    background: #f8fafc;
-    width: 160px;
-    border-right: 1px solid #e2e8f0;
-    padding: 8px 12px;
-}
-
-.kv-table tr td:last-child {
-    font-size: 7pt;
-    color: #334155;
-    padding: 8px 12px;
-}
-
-.kv-table tr {
-    border-bottom: 1px solid #f1f5f9;
-}
-
-.kv-table tr:last-child td {
-    border-bottom: none;
-}
-
-.kv-table tr:nth-child(even) {
-    background: #fcfcfd;
+    white-space: nowrap;
 }
 
 .table-container {
@@ -277,10 +298,7 @@ body.rtl {
     overflow: hidden;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
+table { width: 100%; border-collapse: collapse; }
 
 th {
     background: #f8fafc;
@@ -294,35 +312,25 @@ th {
 }
 
 td {
-    padding: 10px 14px;
+    padding: 12px 14px;
     font-size: 7.5pt;
     border-bottom: 1px solid #f1f5f9;
     color: #334155;
     vertical-align: top;
 }
 
-tr:last-child td {
-    border-bottom: none;
-}
+tr:last-child td { border-bottom: none; }
+tr:nth-child(even) { background: #fcfcfd; }
 
-tr:nth-child(even) {
-    background: #fcfcfd;
-}
+.text-center { text-align: center; }
+.text-muted { color: #64748b; }
+.text-italic { color: #94a3b8; font-style: italic; }
 
-.text-center {
-    text-align: center;
-}
-
-.text-muted {
-    color: #64748b;
-}
-
-.badge-red,
-.badge-orange,
-.badge-blue,
-.bool-yes,
-.bool-no {
+.badge-severe {
     display: inline-block;
+    border: 1px solid #2563eb;
+    background: #eff6ff;
+    color: #2563eb;
     font-size: 6.5pt;
     font-weight: 900;
     padding: 3px 8px;
@@ -330,45 +338,29 @@ tr:nth-child(even) {
     text-transform: uppercase;
 }
 
-.badge-red {
-    border: 1px solid #c0392b;
-    background: #fef2f2;
-    color: #c0392b;
-}
-
-.badge-orange {
-    border: 1px solid #d35400;
-    background: #fff7ed;
-    color: #d35400;
-}
-
-.badge-blue,
-.bool-yes {
-    border: 1px solid #2563eb;
-    background: #eff6ff;
-    color: #2563eb;
-}
-
-.bool-no {
-    border: 1px solid #cbd5e1;
-    background: #f8fafc;
-    color: #94a3b8;
-}
-
-.item-table th {
+.medication-table th {
     font-size: 6.5pt;
     padding: 10px 12px;
 }
 
-.item-table td {
-    padding: 9px 12px;
+.medication-table td {
+    padding: 10px 12px;
     font-size: 7pt;
 }
 
-.item-name {
+.med-name {
     font-weight: 900;
-    font-size: 7.5pt;
+    font-size: 8pt;
     text-transform: uppercase;
+    line-height: 1.25;
+    width: 140px;
+}
+
+.med-instructions {
+    font-style: italic;
+    color: #64748b;
+    font-size: 7pt;
+    line-height: 1.35;
 }
 
 .empty-message {
@@ -418,12 +410,6 @@ tr:nth-child(even) {
     vertical-align: top;
 }
 
-.no-page-break {
-    break-inside: avoid;
-    page-break-inside: avoid;
-    -webkit-column-break-inside: avoid;
-}
-
 .auth-block {
     display: inline-block;
     text-align: left;
@@ -439,6 +425,11 @@ tr:nth-child(even) {
     margin-bottom: 4px;
 }
 
+.verification-badge {
+    display: inline-block;
+    text-align: left;
+}
+
 .auth-name {
     font-size: 7pt;
     font-weight: 900;
@@ -446,101 +437,12 @@ tr:nth-child(even) {
     line-height: 1.2;
 }
 
-.auth-sub {
+.auth-email {
     font-size: 6.5pt;
     font-weight: 700;
     color: #64748b;
     line-height: 1.2;
-}
-
-/* RTL SUPPORT */
-
-body.rtl .header {
-    direction: rtl;
-}
-
-body.rtl .doc-id {
     text-align: left;
-}
-
-body.rtl th {
-    text-align: right;
-}
-
-body.rtl .section-header {
-    border-left: none;
-    border-right: 5px solid #001f3f;
-}
-
-body.rtl .section-header.blue {
-    border-right-color: #2980b9;
-}
-
-body.rtl .section-header.green {
-    border-right-color: #27ae60;
-}
-
-body.rtl .section-header.red {
-    border-right-color: #c0392b;
-}
-
-body.rtl .section-header.orange {
-    border-right-color: #d35400;
-}
-
-body.rtl .section-header.purple {
-    border-right-color: #8e44ad;
-}
-
-body.rtl .section-header.teal {
-    border-right-color: #16a085;
-}
-
-body.rtl .info-box {
-    border-right: none;
-    border-left: 0.8px solid #e5edf5;
-}
-
-body.rtl .info-box.no-border {
-    border-left: none;
-}
-
-body.rtl .kv-table tr td:first-child {
-    border-right: none;
-    border-left: 1px solid #e2e8f0;
-}
-
-body.rtl .footer {
-    direction: rtl;
-}
-
-body.rtl .footer-right {
-    text-align: right;
-}
-
-body.rtl .auth-block {
-    text-align: right;
-}
-
-body.rtl .signature-line {
-    margin-right: 0;
-    margin-left: auto;
-}
-
-body.rtl .main-title,
-body.rtl .section-title,
-body.rtl .info-label,
-body.rtl .info-value,
-body.rtl .item-name,
-body.rtl .auth-label,
-body.rtl .signature-label,
-body.rtl .badge-red,
-body.rtl .badge-orange,
-body.rtl .badge-blue,
-body.rtl .bool-yes,
-body.rtl .bool-no {
-    text-transform: none;
-    letter-spacing: normal;
 }
 .logo-box {
     width: 90px;

@@ -23,56 +23,21 @@ public class PrescriptionPdfRenderService {
 
     private final SpringTemplateEngine templateEngine;
     private final PrescriptionReportService prescriptionReportService;
-
+   private final ReportPdfCommonService reportPdfCommonService;
     public byte[] generatePrescriptionPdf(Long prescriptionId) {
         PrescriptionPrintDTO dto = prescriptionReportService.getPrescriptionPrint(prescriptionId);
 
         Context context = new Context();
         context.setVariable("report", dto);
-        context.setVariable("logo", getLogoBase64());
+        context.setVariable("logo",reportPdfCommonService.getLogoBase64());
+        String css = reportPdfCommonService.loadCss(
+                "templates/reports/styles/prescription-report.css"
+        );
 
+        context.setVariable("reportCss", css);
         String html = templateEngine.process("reports/prescription-report", context);
 
-        return renderPdfWithChromium(html);
+        return reportPdfCommonService.renderPdfWithChromium(html);
     }
 
-    private byte[] renderPdfWithChromium(String html) {
-        try (Playwright playwright = Playwright.create()) {
-            Browser browser = playwright.chromium().launch(
-                    new BrowserType.LaunchOptions().setHeadless(true)
-            );
-
-            BrowserContext browserContext = browser.newContext();
-            Page page = browserContext.newPage();
-
-            page.setContent(
-                    html,
-                    new Page.SetContentOptions().setWaitUntil(WaitUntilState.NETWORKIDLE)
-            );
-
-            byte[] pdfBytes = page.pdf(
-                    new Page.PdfOptions()
-                            .setPrintBackground(true)
-                            .setPreferCSSPageSize(true)
-            );
-
-            browserContext.close();
-            browser.close();
-
-            return pdfBytes;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to generate prescription PDF with Chromium: " + e.getMessage(), e);
-        }
-    }
-
-    private String getLogoBase64() {
-        try {
-            ClassPathResource resource = new ClassPathResource("static/logo.png");
-            InputStream inputStream = resource.getInputStream();
-            byte[] bytes = inputStream.readAllBytes();
-            return Base64.getEncoder().encodeToString(bytes);
-        } catch (Exception e) {
-            return "";
-        }
-    }
 }

@@ -1,7 +1,6 @@
 package com.dazzle.asklepios.web.rest;
 
-import com.dazzle.asklepios.service.PatientInformationPdfService;
-import com.dazzle.asklepios.service.PatientLabelPdfRenderService;
+import com.dazzle.asklepios.service.PatientPdfRenderService;
 import com.dazzle.asklepios.service.PatientService;
 import com.dazzle.asklepios.service.PatientWristbandPdfRenderService;
 import com.dazzle.asklepios.service.dto.patient.PatientInformationReportDTO;
@@ -24,13 +23,12 @@ public class PatientController {
 
     private final PatientService patientService;
     private final PatientWristbandPdfRenderService patientWristbandPdfRenderService;
-    private final PatientLabelPdfRenderService patientLabelPdfRenderService;
-    private  final PatientInformationPdfService patientInformationPdfService;
-    public PatientController(PatientService patientService, PatientWristbandPdfRenderService patientWristbandPdfRenderService, PatientLabelPdfRenderService patientLabelPdfRenderService, PatientInformationPdfService patientInformationPdfService) {
+    private final PatientPdfRenderService patientPdfRenderService;
+    public PatientController(PatientService patientService, PatientWristbandPdfRenderService patientWristbandPdfRenderService, PatientPdfRenderService patientPdfRenderService) {
         this.patientService = patientService;
         this.patientWristbandPdfRenderService = patientWristbandPdfRenderService;
-        this.patientLabelPdfRenderService = patientLabelPdfRenderService;
-        this.patientInformationPdfService = patientInformationPdfService;
+        this.patientPdfRenderService = patientPdfRenderService;
+
     }
 
     @GetMapping("/label/{id}")
@@ -64,7 +62,7 @@ public class PatientController {
     @GetMapping("{id}/label/pdf")
     public ResponseEntity<byte[]> generatePatientLabelPdf(@PathVariable Long id) {
 
-        byte[] pdf = patientLabelPdfRenderService.generatePatientLabelPdf(id);
+        byte[] pdf = patientPdfRenderService.generatePatientLabelPdf(id);
 
         return ResponseEntity.ok()
                 .header("Content-Disposition", "inline; filename=patient-label-" + id + ".pdf")
@@ -81,7 +79,7 @@ public class PatientController {
     @GetMapping("{id}/information/pdf")
     public ResponseEntity<byte[]> generatePatientInformationPdf(@PathVariable Long id) {
 
-        byte[] pdf = patientInformationPdfService.generatePatientInformationPdf(id);
+        byte[] pdf = patientPdfRenderService.generatePatientInformationPdf(id);
 
         return ResponseEntity.ok()
                 .header("Content-Disposition", "inline; filename=patient-label-" + id + ".pdf")
