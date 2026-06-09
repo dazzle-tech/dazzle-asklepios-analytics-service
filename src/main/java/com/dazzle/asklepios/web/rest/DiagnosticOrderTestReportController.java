@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -39,8 +40,9 @@ public class DiagnosticOrderTestReportController {
         return ResponseEntity.ok(report);
     }
     @GetMapping("/radiology-reports/{id}/pdf")
-    public ResponseEntity<byte[]> generateRadiologyPdf(@PathVariable Long id) {
-        byte[] pdf = radiologyPdfRenderService.generateRadiologyPdf(id);
+    public ResponseEntity<byte[]> generateRadiologyPdf(@PathVariable Long id ,
+                                                       @RequestParam (defaultValue = "en")String lang) {
+        byte[] pdf = radiologyPdfRenderService.generateRadiologyPdf(id,lang);
 
         return ResponseEntity.ok()
                 .header("Content-Disposition", "inline; filename=radiology-report-" + id + ".pdf")

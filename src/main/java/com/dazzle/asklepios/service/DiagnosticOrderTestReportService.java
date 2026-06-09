@@ -14,27 +14,20 @@ import com.dazzle.asklepios.repository.DiagnosticOrderTestRepository;
 import com.dazzle.asklepios.repository.DiagnosticTestRepository;
 import com.dazzle.asklepios.repository.PatientEncounterRepository;
 import com.dazzle.asklepios.repository.PatientRepository;
-import com.dazzle.asklepios.web.rest.errors.BadRequestAlertException;
 import com.dazzle.asklepios.service.dto.RadiologyReportDTO;
+import com.dazzle.asklepios.web.rest.errors.BadRequestAlertException;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.ZoneId;
-import java.util.Date;
-
 /**
  * Service layer for managing {@link DiagnosticOrderTestReport}.
- *
- * <p>This service owns all validations and persistence access for radiology reports:
- * test constraints (existence/type/order match), prerequisites (ACCEPTED), uniqueness,
- * and image workflow requirements.</p>
  */
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class DiagnosticOrderTestReportService {
 
     private static final Logger LOG = LoggerFactory.getLogger(DiagnosticOrderTestReportService.class);
@@ -46,39 +39,7 @@ public class DiagnosticOrderTestReportService {
     private final DiagnosticTestRepository diagnosticTestRepository;
     private final DepartmentsRepository departmentRepository;
     private final PatientEncounterRepository encounterRepository;
-
-    public DiagnosticOrderTestReportService(
-            DiagnosticOrderTestReportRepository diagnosticOrderTestReportRepository,
-            DiagnosticOrderTestRepository diagnosticOrderTestRepository, DiagnosticOrderRepository orderRepository, PatientRepository patientRepository, DiagnosticTestRepository diagnosticTestRepository, DepartmentsRepository departmentRepository, PatientEncounterRepository encounterRepository
-    ) {
-        this.diagnosticOrderTestReportRepository = diagnosticOrderTestReportRepository;
-        this.diagnosticOrderTestRepository = diagnosticOrderTestRepository;
-        this.orderRepository = orderRepository;
-        this.patientRepository = patientRepository;
-        this.diagnosticTestRepository = diagnosticTestRepository;
-        this.departmentRepository = departmentRepository;
-        this.encounterRepository = encounterRepository;
-    }
-
-
-    private String calculateAge(Date dateOfBirth) {
-
-        if (dateOfBirth == null) {
-            return null;
-        }
-
-        LocalDate birthDate = dateOfBirth.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
-
-        LocalDate today = LocalDate.now();
-
-        Period period = Period.between(birthDate, today);
-
-        return period.getYears() + " Years " +
-                period.getMonths() + " Months " +
-                period.getDays() + " Days";
-    }
+    private final ReportCommonService reportCommonService;
 
     public RadiologyReportDTO getRadiologyReport(Long diagnosticTestReportId) {
 
@@ -127,6 +88,7 @@ public class DiagnosticOrderTestReportService {
                         "patientEncounters",
                         "Encounter not found with id " + order.getEncounterId()
                 ));
+
         DiagnosticTest test = diagnosticTestRepository.findById(orderTest.getTestId())
                 .orElseThrow(() -> new BadRequestAlertException(
                         "notfound",
@@ -140,6 +102,7 @@ public class DiagnosticOrderTestReportService {
                         "departments",
                         "Department not found with id " + orderTest.getReceivedDepartmentId()
                 ));
+
         Department fromDepartment = departmentRepository.findById(order.getFromDepartmentId())
                 .orElseThrow(() -> new BadRequestAlertException(
                         "notfound",
@@ -147,12 +110,12 @@ public class DiagnosticOrderTestReportService {
                         "Department not found with id " + order.getFromDepartmentId()
                 ));
 
-        String patientName = (patient.getFirstName() + " " + patient.getLastName()).trim();
-        String mrn = patient.getMedicalRecordNumber();
-        String facilityName = department.getFacility().getName();
-        String departmentName = department.getName();
-        String fromDepartmentName = fromDepartment.getName();
-        String age = calculateAge(patient.getDateOfBirth());
+        String patientName = reportCommonService.getPatientDisplayName(patient);
+        String facilityName = reportCommonService.getFacilityName(department);
+        String departmentName = reportCommonService.getDepartmentName(department);
+        String fromDepartmentName = reportCommonService.getDepartmentName(fromDepartment);
+        String age = reportCommonService.calculateAge(patient.getDateOfBirth());
+
         LOG.debug(
                 "[RadiologyReportService] GET_RADIOLOGY_REPORT - data prepared. orderTestId={} patient={} test={}",
                 orderTest.getId(),
@@ -165,21 +128,21 @@ public class DiagnosticOrderTestReportService {
                 departmentName,
 
                 patientName,
-                mrn,
+                patient.getMedicalRecordNumber(),
                 patient.getDateOfBirth(),
                 age,
                 patient.getSexAtBirth(),
                 patient.getPrimaryMobileNumber(),
 
                 encounter.getEncounterNumber(),
-                order.getCreatedBy(),
+                reportCommonService.getDisplayUserName(order.getCreatedBy()),
                 fromDepartmentName,
                 test.getName(),
 
                 report.getReport(),
-                report.getSeverity(),
-                report.getApprovedBy(),
-                report.getReviewBy()
+                reportCommonService.getLovDisplayValue(report.getSeverity()),
+                reportCommonService.getDisplayUserName(report.getApprovedBy()),
+                reportCommonService.getDisplayUserName(report.getReviewBy())
         );
     }
 }
