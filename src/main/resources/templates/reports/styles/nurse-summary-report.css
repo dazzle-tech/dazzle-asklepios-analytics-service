@@ -497,3 +497,142 @@ tr:nth-child(even) {
 body.rtl .logo-box {
     justify-content: flex-end;
 }
+body.ltr {
+    direction: ltr;
+    text-align: left;
+    font-family: Arial, sans-serif;
+}
+
+body.rtl {
+    direction: rtl;
+    text-align: right;
+    font-family: Tahoma, Arial, sans-serif;
+}
+
+/* Header */
+body.rtl .header {
+    direction: rtl;
+}
+
+body.rtl .doc-id {
+    text-align: right;
+}
+
+/* Section header border flip */
+body.rtl .section-header {
+    border-left: none;
+    border-right: 5px solid #001f3f;
+}
+
+body.rtl .section-header.blue {
+    border-right-color: #2980b9;
+}
+
+body.rtl .section-header.green {
+    border-right-color: #27ae60;
+}
+
+body.rtl .section-header.red {
+    border-right-color: #c0392b;
+}
+
+body.rtl .section-header.orange {
+    border-right-color: #d35400;
+}
+
+body.rtl .section-header.purple {
+    border-right-color: #8e44ad;
+}
+
+body.rtl .section-header.teal {
+    border-right-color: #16a085;
+}
+
+/* Patient grid borders flip */
+body.rtl .info-box {
+    border-right: none;
+    border-left: 0.8px solid #e5edf5;
+}
+
+body.rtl .info-box.no-border {
+    border-left: none;
+}
+
+/* KV table flip */
+body.rtl .kv-table tr td:first-child {
+    border-right: none;
+    border-left: 1px solid #e2e8f0;
+    text-align: right;
+}
+
+body.rtl .kv-table tr td:last-child {
+    text-align: right;
+}
+
+/* Regular tables */
+body.rtl th,
+body.rtl td {
+    text-align: right;
+}
+
+body.rtl .text-center {
+    text-align: center;
+}
+
+/* Date spacing */
+body.rtl .date-time-info strong {
+    margin-left: 0;
+    margin-right: 4px;
+}
+
+/* Footer */
+body.rtl .footer {
+    direction: rtl;
+}
+
+body.rtl .footer-right {
+    text-align: left;
+}
+
+body.rtl .auth-block {
+    text-align: right;
+}
+
+/* Logo */
+body.ltr .logo-box {
+    justify-content: flex-start;
+}
+
+body.rtl .logo-box {
+    justify-content: flex-end;
+}
+
+/* Arabic text cleanup */
+body.rtl .org-name,
+body.rtl .dept-name,
+body.rtl .main-title,
+body.rtl .section-title,
+body.rtl .info-label,
+body.rtl .info-value,
+body.rtl .badge-priority,
+body.rtl .bool-yes,
+body.rtl .bool-no,
+body.rtl .badge-red,
+body.rtl .badge-orange,
+body.rtl .badge-blue,
+body.rtl .item-name,
+body.rtl .signature-label,
+body.rtl .auth-label,
+body.rtl th {
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+/* Keep numbers / ids / dates clean */
+.doc-id,
+.info-value,
+.badge-priority,
+.auth-name,
+.auth-sub {
+    unicode-bidi: plaintext;
+}

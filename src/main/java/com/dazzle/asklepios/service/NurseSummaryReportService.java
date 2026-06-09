@@ -1,7 +1,6 @@
 package com.dazzle.asklepios.service;
 
 import com.dazzle.asklepios.domain.AdditionalMeasurements;
-import com.dazzle.asklepios.domain.ApLovValue;
 import com.dazzle.asklepios.domain.BodyMeasurements;
 import com.dazzle.asklepios.domain.Department;
 import com.dazzle.asklepios.domain.EncounterVaccination;
@@ -18,7 +17,6 @@ import com.dazzle.asklepios.domain.enumeration.EncounterVaccinationStatus;
 import com.dazzle.asklepios.domain.enumeration.PatientAllergyStatus;
 import com.dazzle.asklepios.domain.enumeration.PatientWarningStatus;
 import com.dazzle.asklepios.repository.AdditionalMeasurementsRepository;
-import com.dazzle.asklepios.repository.ApLovValueRepository;
 import com.dazzle.asklepios.repository.BodyMeasurementsRepository;
 import com.dazzle.asklepios.repository.DepartmentsRepository;
 import com.dazzle.asklepios.repository.EncounterVaccinationRepository;
@@ -50,10 +48,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -77,7 +71,7 @@ public class NurseSummaryReportService {
     private final PatientEncounterRepository encounterRepository;
     private final PatientDiagnosisRepository patientDiagnosisRepository;
     private final PainAssessmentRepository painAssessmentRepository;
-    private final ApLovValueRepository apLovValueRepository;
+    private final ReportCommonService reportCommonService;
 
     public NurseSummaryReportDTO getNurseSummaryReport(Long encounterId) {
         LOG.debug("[NURSE_SUMMARY] start encounterId={}", encounterId);
@@ -193,22 +187,6 @@ public class NurseSummaryReportService {
         );
     }
 
-    private String calculateAge(Date dateOfBirth) {
-        if (dateOfBirth == null) {
-            return null;
-        }
-
-        LocalDate birthDate = dateOfBirth.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
-
-        LocalDate today = LocalDate.now();
-        Period period = Period.between(birthDate, today);
-
-        return period.getYears() + " Years " +
-                period.getMonths() + " Months " +
-                period.getDays() + " Days";
-    }
 
     private NurseSummaryPatientInfoDTO mapPatient(Patient patient) {
         String fullName = buildFullName(
@@ -224,7 +202,7 @@ public class NurseSummaryReportService {
                 fullName,
                 patient.getMedicalRecordNumber(),
                 patient.getDateOfBirth(),
-                calculateAge(patient.getDateOfBirth()),
+                reportCommonService.calculateAge(patient.getDateOfBirth()),
                 patient.getSexAtBirth() != null ? patient.getSexAtBirth().name() : null
         );
     }
@@ -238,18 +216,9 @@ public class NurseSummaryReportService {
                         "notfound"
                 ));
 
-        Department department = departmentsRepository.findById(freshEncounter.getDepartmentId())
-                .orElseThrow(() -> new NotFoundAlertException(
-                        "Department not found with id " + freshEncounter.getDepartmentId(),
-                        "departments",
-                        "notfound"
-                ));
-
-        String facilityName = department.getFacility() != null
-                ? department.getFacility().getName()
-                : null;
-
-        String departmentName = department.getName();
+        
+        String facilityName = reportCommonService.getFacilityNameFromDepartment(freshEncounter.getDepartmentId());
+        String departmentName = reportCommonService.getDepartmentName(freshEncounter.getDepartmentId());
 
         return new NurseSummaryEncounterInfoDTO(
                 freshEncounter.getId(),
@@ -283,11 +252,7 @@ public class NurseSummaryReportService {
         return new NurseSummaryVitalSignsDTO(
                 entity.getBloodPressureSystolic(),
                 entity.getBloodPressureDiastolic(),
-                entity.getMeasurementSite() != null
-                        ? apLovValueRepository.findById(entity.getMeasurementSite())
-                                .map(ApLovValue::getLovDisplayVale)
-                                .orElse(null)
-                        : null,
+                reportCommonService.getLovDisplayValue(entity.getMeasurementSite()),
                 entity.getHeartRate(),
                 entity.getTemperature(),
                 entity.getOxygenSaturation(),
@@ -333,11 +298,8 @@ public class NurseSummaryReportService {
     }
 
     private NurseSummaryWarningDTO mapWarning(PatientWarnings entity) {
-        String warningTypeDisplay = lovLookupService.findDisplayValue(entity.getWarningType());
         return new NurseSummaryWarningDTO(
-                apLovValueRepository.findById(entity.getWarningType())
-                        .map(ApLovValue::getLovDisplayVale)
-                        .orElse(null),
+                reportCommonService.getLovDisplayValue(entity.getWarningType()),
                 entity.getWarning(),
                 entity.getSeverity() != null ? entity.getSeverity().name() : null,
                 entity.getOnsetDate(),
@@ -387,11 +349,7 @@ public class NurseSummaryReportService {
         return new PainAssessmentDTO(
                 entity.getPainDegree(),
                 entity.getPainLevel(),
-                entity.getPainPattern() != null
-                        ? apLovValueRepository.findById(entity.getPainPattern())
-                                .map(ApLovValue::getLovDisplayVale)
-                                .orElse(null)
-                        : null,
+                reportCommonService.getLovDisplayValue(entity.getPainPattern()),
                 entity.getPainDescription()
         );
     }

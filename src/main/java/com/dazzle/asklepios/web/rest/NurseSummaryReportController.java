@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -37,11 +38,12 @@ public class NurseSummaryReportController {
 
     @GetMapping("/nurse-summary/{encounterId}/pdf")
     public ResponseEntity<byte[]> getNurseSummaryReportPdf(
-            @PathVariable Long encounterId
+            @PathVariable Long encounterId,
+            @RequestParam (defaultValue = "en") String lang
     ) {
         LOG.debug("[REST][NURSE_SUMMARY_PDF] encounterId={}", encounterId);
 
-        byte[] pdf = nurseSummaryPdfRenderService.generateNurseSummaryPdf(encounterId);
+        byte[] pdf = nurseSummaryPdfRenderService.generateNurseSummaryPdf(encounterId,lang);
 
         LOG.debug("[REST][NURSE_SUMMARY_PDF] completed. encounterId={}, size={}", encounterId, pdf.length);
 
