@@ -4,7 +4,9 @@ import com.dazzle.asklepios.domain.ApLovValue;
 import com.dazzle.asklepios.domain.Department;
 import com.dazzle.asklepios.domain.Patient;
 import com.dazzle.asklepios.repository.ApLovValueRepository;
+import com.dazzle.asklepios.repository.DepartmentsRepository;
 import com.dazzle.asklepios.repository.UserRepository;
+import com.dazzle.asklepios.web.rest.errors.BadRequestAlertException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +28,7 @@ public class ReportCommonService {
     private final UserRepository userRepository;
     private final ApLovValueRepository apLovValueRepository;
     private final LovLookupService lovLookupService;
+    private final DepartmentsRepository departmentRepository;
     public String getDisplayUserName(String login) {
         if (login == null || login.isBlank()) {
             return "";
@@ -85,11 +88,23 @@ public class ReportCommonService {
                 .collect(Collectors.joining(" "));
     }
 
-    public String getDepartmentName(Department department) {
+    public String getDepartmentName(Long departmentId) {
+       Department department= departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new BadRequestAlertException(
+                        "notfound",
+                        "departments",
+                        "Department not found with id " + departmentId
+                ));
         return department != null ? department.getName() : "";
     }
 
-    public String getFacilityName(Department department) {
+    public String getFacilityNameFromDepartment(Long departmentId) {
+        Department department= departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new BadRequestAlertException(
+                        "notfound",
+                        "departments",
+                        "Department not found with id " + departmentId
+                ));
         if (department == null || department.getFacility() == null) {
             return "";
         }

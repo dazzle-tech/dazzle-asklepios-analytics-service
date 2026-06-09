@@ -96,24 +96,10 @@ public class DiagnosticOrderTestReportService {
                         "Diagnostic test not found with id " + orderTest.getTestId()
                 ));
 
-        Department department = departmentRepository.findById(orderTest.getReceivedDepartmentId())
-                .orElseThrow(() -> new BadRequestAlertException(
-                        "notfound",
-                        "departments",
-                        "Department not found with id " + orderTest.getReceivedDepartmentId()
-                ));
-
-        Department fromDepartment = departmentRepository.findById(order.getFromDepartmentId())
-                .orElseThrow(() -> new BadRequestAlertException(
-                        "notfound",
-                        "departments",
-                        "Department not found with id " + order.getFromDepartmentId()
-                ));
-
         String patientName = reportCommonService.getPatientDisplayName(patient);
-        String facilityName = reportCommonService.getFacilityName(department);
-        String departmentName = reportCommonService.getDepartmentName(department);
-        String fromDepartmentName = reportCommonService.getDepartmentName(fromDepartment);
+        String facilityName = reportCommonService.getFacilityNameFromDepartment(orderTest.getReceivedDepartmentId());
+        String departmentName = reportCommonService.getDepartmentName(orderTest.getReceivedDepartmentId());
+        String fromDepartmentName = reportCommonService.getDepartmentName(order.getFromDepartmentId());
         String age = reportCommonService.calculateAge(patient.getDateOfBirth());
 
         LOG.debug(

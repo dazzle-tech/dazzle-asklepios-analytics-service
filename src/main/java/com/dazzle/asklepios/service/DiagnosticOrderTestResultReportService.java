@@ -54,10 +54,10 @@ public class DiagnosticOrderTestResultReportService {
     private final PatientEncounterRepository encounterRepository;
     private final DiagnosticTestProfileRepository diagnosticTestProfileRepository;
     private final ApLovValueRepository apLovValueRepository;
-
+    private final ReportCommonService reportCommonService;
     public DiagnosticOrderTestResultReportService(
             DiagnosticOrderTestResultRepository diagnosticOrderTestResultRepository,
-            DiagnosticOrderTestRepository diagnosticOrderTestRepository, DiagnosticOrderRepository orderRepository, PatientRepository patientRepository, DiagnosticTestRepository diagnosticTestRepository, DepartmentsRepository departmentRepository, PatientEncounterRepository encounterRepository, DiagnosticTestProfileRepository diagnosticTestProfileRepository, ApLovValueRepository apLovValueRepository
+            DiagnosticOrderTestRepository diagnosticOrderTestRepository, DiagnosticOrderRepository orderRepository, PatientRepository patientRepository, DiagnosticTestRepository diagnosticTestRepository, DepartmentsRepository departmentRepository, PatientEncounterRepository encounterRepository, DiagnosticTestProfileRepository diagnosticTestProfileRepository, ApLovValueRepository apLovValueRepository, ReportCommonService reportCommonService
     ) {
         this.diagnosticOrderTestResultRepository = diagnosticOrderTestResultRepository;
         this.diagnosticOrderTestRepository = diagnosticOrderTestRepository;
@@ -68,27 +68,9 @@ public class DiagnosticOrderTestResultReportService {
         this.encounterRepository = encounterRepository;
         this.diagnosticTestProfileRepository = diagnosticTestProfileRepository;
         this.apLovValueRepository = apLovValueRepository;
+        this.reportCommonService = reportCommonService;
     }
 
-
-    private String calculateAge(Date dateOfBirth) {
-
-        if (dateOfBirth == null) {
-            return null;
-        }
-
-        LocalDate birthDate = dateOfBirth.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
-
-        LocalDate today = LocalDate.now();
-
-        Period period = Period.between(birthDate, today);
-
-        return period.getYears() + " Years " +
-                period.getMonths() + " Months " +
-                period.getDays() + " Days";
-    }
 
     public LaboratoryResultReportDTO getLaboratoryResult(Long diagnosticTestResultId) {
 
@@ -150,25 +132,14 @@ public class DiagnosticOrderTestResultReportService {
                         "Diagnostic test profile not found with id " + result.getProfileTestId()
                 ));
 
-        Department department = departmentRepository.findById(orderTest.getReceivedDepartmentId())
-                .orElseThrow(() -> new BadRequestAlertException(
-                        "notfound",
-                        "departments",
-                        "Department not found with id " + orderTest.getReceivedDepartmentId()
-                ));
-        Department fromDepartment = departmentRepository.findById(order.getFromDepartmentId())
-                .orElseThrow(() -> new BadRequestAlertException(
-                        "notfound",
-                        "departments",
-                        "Department not found with id " + order.getFromDepartmentId()
-                ));
+
 
         String patientName = (patient.getFirstName() + " " + patient.getLastName()).trim();
         String mrn = patient.getMedicalRecordNumber();
-        String facilityName = department.getFacility().getName();
-        String departmentName = department.getName();
-        String fromDepartmentName = fromDepartment.getName();
-        String age = calculateAge(patient.getDateOfBirth());
+        String facilityName = reportCommonService.getFacilityNameFromDepartment(orderTest.getReceivedDepartmentId());
+        String departmentName = reportCommonService.getDepartmentName(orderTest.getReceivedDepartmentId());
+        String fromDepartmentName = reportCommonService.getDepartmentName(order.getFromDepartmentId());
+        String age = reportCommonService.calculateAge(patient.getDateOfBirth());
         LOG.debug(
                 "[LaboratoryResultReportService] GET_LABORATORY_RESULT_REPORT - data prepared. orderTestId={} patient={} test={}",
                 orderTest.getId(),
@@ -210,12 +181,11 @@ public class DiagnosticOrderTestResultReportService {
                 testProfile.getName(),
 
                 resultValue,
-                apLovValueRepository.findById(String.valueOf(testProfile.getResultUnit()))
-                        .map(ApLovValue::getLovDisplayVale)
-                        .orElse(null),
+                reportCommonService.getLovDisplayValue(String.valueOf(testProfile.getResultUnit())),
                 result.getMarker(),
                 result.getReviewDate(),
-                result.getReviewBy()
+                reportCommonService.getDisplayUserName( result.getReviewBy())
+
         );
     }
 }
