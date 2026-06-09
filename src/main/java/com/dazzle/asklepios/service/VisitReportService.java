@@ -1,6 +1,5 @@
 package com.dazzle.asklepios.service;
 
-import com.dazzle.asklepios.domain.ApLovValue;
 import com.dazzle.asklepios.domain.DiagnosticOrder;
 import com.dazzle.asklepios.domain.DiagnosticTest;
 import com.dazzle.asklepios.domain.EncounterPlan;
@@ -12,11 +11,11 @@ import com.dazzle.asklepios.domain.PatientPrescriptionMedication;
 import com.dazzle.asklepios.domain.PatientProcedure;
 import com.dazzle.asklepios.domain.PatientWarnings;
 import com.dazzle.asklepios.domain.PrescriptionInstruction;
-import com.dazzle.asklepios.repository.ApLovValueRepository;
 import com.dazzle.asklepios.repository.BodyMeasurementsRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderTestRepository;
 import com.dazzle.asklepios.repository.DiagnosticTestRepository;
+import com.dazzle.asklepios.repository.EncounterPlanRepository;
 import com.dazzle.asklepios.repository.PatientAllergyRepository;
 import com.dazzle.asklepios.repository.PatientEncounterRepository;
 import com.dazzle.asklepios.repository.PatientPrescriptionRepository;
@@ -41,11 +40,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -53,13 +50,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class VisitReportService {
+
     private static final Logger LOG = LoggerFactory.getLogger(VisitReportService.class);
 
     private final NurseSummaryReportService nurseSummaryReportService;
     private final LovLookupService lovLookupService;
+    private final ReportCommonService reportCommonService;
+
     private final PatientProcedureRepository patientProcedureRepository;
     private final ProcedureRepository procedureRepository;
-    private final ApLovValueRepository apLovValueRepository;
     private final PrescriptionMedicationRepository prescriptionMedicationRepository;
     private final PrescriptionInstructionRepository prescriptionInstructionRepository;
     private final PatientPrescriptionRepository patientPrescriptionRepository;
@@ -70,7 +69,7 @@ public class VisitReportService {
     private final PatientWarningRepository patientWarningRepository;
     private final BodyMeasurementsRepository bodyMeasurementsRepository;
     private final PatientEncounterRepository patientEncounterRepository;
-    private final com.dazzle.asklepios.repository.EncounterPlanRepository encounterPlanRepository;
+    private final EncounterPlanRepository encounterPlanRepository;
 
     public VisitReportDTO getVisitReport(Long encounterId) {
         PatientEncounter encounter = patientEncounterRepository.findById(encounterId).orElse(null);
@@ -78,7 +77,9 @@ public class VisitReportService {
             LOG.debug("[getVisitReport] No encounter found for id={}", encounterId);
             return null;
         }
+
         Patient patient = encounter.getPatient();
+
         NurseSummaryReportDTO nurseSummary =
                 nurseSummaryReportService.getNurseSummaryReport(encounterId);
 
@@ -91,14 +92,13 @@ public class VisitReportService {
 
         List<PrescriptionMedicationDTO> medicationDTOS =
                 getMedicationsByEncounterId(encounterId);
+
         List<ProceduresDTO> procedures = patientProcedureRepository
-                .findByEncounterIdAndStatusNotOrderByCreatedDateAsc(
-                        encounterId,
-                        "CANCELLED"
-                )
+                .findByEncounterIdAndStatusNotOrderByCreatedDateAsc(encounterId, "CANCELLED")
                 .stream()
                 .map(this::mapProcedure)
                 .toList();
+
         List<PatientAllergies> allergies =
                 Optional.ofNullable(patientAllergyRepository.findAllByPatientId(patient.getId()))
                         .orElse(Collections.emptyList());
@@ -106,6 +106,7 @@ public class VisitReportService {
         List<PatientWarnings> warnings =
                 Optional.ofNullable(patientWarningRepository.findAllByPatientId(patient.getId()))
                         .orElse(Collections.emptyList());
+
         List<NurseSummaryAllergyDTO> allergyDTOS = allergies.stream()
                 .map(a -> new NurseSummaryAllergyDTO(
                         a.getAllergenType() != null ? a.getAllergenType() : null,
@@ -116,7 +117,9 @@ public class VisitReportService {
 
         List<NurseSummaryWarningDTO> warningDTOS = warnings.stream()
                 .map(w -> new NurseSummaryWarningDTO(
-                        resolveLovDisplayValue(w.getWarningType()),
+                        w.getWarningType() != null
+                                ? reportCommonService.getLovDisplayValue(String.valueOf(w.getWarningType()))
+                                : null,
                         w.getWarning(),
                         w.getSeverity() != null ? w.getSeverity().name() : null,
                         w.getOnsetDate(),
@@ -128,7 +131,6 @@ public class VisitReportService {
                 ))
                 .toList();
 
-        // Fetch latest body measurements for the patient (across all visits), not only this encounter
         NurseSummaryBodyMeasurementsDTO bodyMeasurementsDto = null;
         if (patient != null) {
             Optional<com.dazzle.asklepios.domain.BodyMeasurements> latestBody =
@@ -143,7 +145,7 @@ public class VisitReportService {
                 );
             }
         }
-        // fetch latest encounter plan instructions
+
         String plan = encounterPlanRepository.findTopByEncounterIdOrderByCreatedDateDesc(encounterId)
                 .map(EncounterPlan::getTreatmentPlan)
                 .orElse(null);
@@ -166,16 +168,14 @@ public class VisitReportService {
         );
     }
 
-
     private ProceduresDTO mapProcedure(PatientProcedure entity) {
         return procedureRepository.findById(entity.getProcedureId())
                 .map(procedure -> {
                     String categoryDisplay = lovLookupService.findDisplayValue(procedure.getCategoryType());
-                    // categoryDisplay already has the resolved value — just use it directly
                     return new ProceduresDTO(
                             procedure.getName(),
                             procedure.getCode(),
-                            categoryDisplay,          // ← use lovLookupService result
+                            categoryDisplay,
                             entity.getNotes()
                     );
                 })
@@ -188,101 +188,38 @@ public class VisitReportService {
             return null;
         }
 
-        LOG.debug("[resolveInstruction] START medicationId={} instructionsType={} rawInstructions={}",
-                medication.getId(),
-                medication.getInstructionsType(),
-                medication.getInstructions());
-
         return switch (medication.getInstructionsType()) {
+            case MANUAL_INSTRUCTIONS -> medication.getInstructions();
 
-            case MANUAL_INSTRUCTIONS -> {
-                LOG.debug("[resolveInstruction] MANUAL_INSTRUCTIONS medicationId={} result={}",
-                        medication.getId(),
-                        medication.getInstructions());
-                yield medication.getInstructions();
-            }
-
-            case CUSTOM_INSTRUCTIONS -> {
-                LOG.debug("[resolveInstruction] CUSTOM_INSTRUCTIONS medicationId={}", medication.getId());
-                String result = buildCustomInstruction(medication);
-                LOG.debug("[resolveInstruction] CUSTOM_INSTRUCTIONS medicationId={} result={}",
-                        medication.getId(),
-                        result);
-                yield result;
-            }
+            case CUSTOM_INSTRUCTIONS -> buildCustomInstruction(medication);
 
             case PRE_DEFINED_INSTRUCTIONS -> {
-                LOG.debug("[resolveInstruction] PRE_DEFINED_INSTRUCTIONS medicationId={} rawInstructions={}",
-                        medication.getId(),
-                        medication.getInstructions());
-
                 Long id = safeParse(medication.getInstructions());
-
-                LOG.debug("[resolveInstruction] PRE_DEFINED_INSTRUCTIONS medicationId={} parsedId={}",
-                        medication.getId(),
-                        id);
-
                 if (id == null) {
-                    LOG.debug("[resolveInstruction] PRE_DEFINED_INSTRUCTIONS medicationId={} parsedId is null",
-                            medication.getId());
                     yield null;
                 }
 
-                LOG.debug("[resolveInstruction] PRE_DEFINED_INSTRUCTIONS medicationId={} calling repository.findById({})",
-                        medication.getId(),
-                        id);
-
-                Optional<PrescriptionInstruction> instructionOptional = prescriptionInstructionRepository.findById(id);
-
-                LOG.debug("[resolveInstruction] PRE_DEFINED_INSTRUCTIONS medicationId={} repository result present={}",
-                        medication.getId(),
-                        instructionOptional.isPresent());
+                Optional<PrescriptionInstruction> instructionOptional =
+                        prescriptionInstructionRepository.findById(id);
 
                 if (instructionOptional.isEmpty()) {
                     yield null;
                 }
 
-                PrescriptionInstruction instruction = instructionOptional.get();
-
-                LOG.debug("[resolveInstruction] PRE_DEFINED_INSTRUCTIONS medicationId={} dbInstruction dose={} unit={} rout={} frequency={}",
-                        medication.getId(),
-                        instruction.getDose(),
-                        instruction.getUnit(),
-                        instruction.getRout(),
-                        instruction.getFrequency());
-
-                String result = buildPredefinedInstruction(instruction);
-
-                LOG.debug("[resolveInstruction] PRE_DEFINED_INSTRUCTIONS medicationId={} result={}",
-                        medication.getId(),
-                        result);
-
-                yield result;
+                yield buildPredefinedInstruction(instructionOptional.get());
             }
         };
     }
 
     private String buildCustomInstruction(PatientPrescriptionMedication medication) {
-        LOG.debug("[buildCustomInstruction] START medicationId={}", medication.getId());
-
         List<String> parts = new ArrayList<>();
 
         if (medication.getDose() != null) {
-            LOG.debug("[buildCustomInstruction] medicationId={} dose={}", medication.getId(), medication.getDose());
-
             String dosePart = medication.getDose().toString();
 
             if (medication.getDoesUnit() != null && !medication.getDoesUnit().isBlank()) {
-                LOG.debug("[buildCustomInstruction] medicationId={} doseUnitKey={}",
-                        medication.getId(),
-                        medication.getDoesUnit());
-
-                String unitDisplay = lovLookupService.findDisplayValue(String.valueOf(medication.getDoesUnit()));
-
-                LOG.debug("[buildCustomInstruction] medicationId={} doseUnitDisplay={}",
-                        medication.getId(),
-                        unitDisplay);
-
+                String unitDisplay =
+                        lovLookupService.findDisplayValue(String.valueOf(medication.getDoesUnit()));
                 dosePart += " " + unitDisplay;
             }
 
@@ -290,50 +227,22 @@ public class VisitReportService {
         }
 
         if (medication.getRout() != null && !medication.getRout().isBlank()) {
-            LOG.debug("[buildCustomInstruction] medicationId={} rout={}",
-                    medication.getId(),
-                    medication.getRout());
             parts.add(medication.getRout());
         }
 
         if (medication.getFrequency() != null && !medication.getFrequency().isBlank()) {
-            LOG.debug("[buildCustomInstruction] medicationId={} frequencyKey={}",
-                    medication.getId(),
-                    medication.getFrequency());
-
-            String frequencyDisplay = lovLookupService.findDisplayValue(String.valueOf(medication.getFrequency()));
-
-            LOG.debug("[buildCustomInstruction] medicationId={} frequencyDisplay={}",
-                    medication.getId(),
-                    frequencyDisplay);
-
+            String frequencyDisplay =
+                    lovLookupService.findDisplayValue(String.valueOf(medication.getFrequency()));
             parts.add(frequencyDisplay);
         }
 
-        String result = parts.isEmpty() ? null : String.join(" - ", parts);
-
-        LOG.debug("[buildCustomInstruction] END medicationId={} result={}",
-                medication.getId(),
-                result);
-
-        return result;
+        return parts.isEmpty() ? null : String.join(" - ", parts);
     }
 
     private String buildPredefinedInstruction(PrescriptionInstruction instruction) {
-        LOG.debug("[buildPredefinedInstruction] START instructionId={}",
-                instruction != null ? instruction.getId() : null);
-
         if (instruction == null) {
-            LOG.debug("[buildPredefinedInstruction] instruction is null");
             return null;
         }
-
-        LOG.debug("[buildPredefinedInstruction] instructionId={} dose={} unit={} rout={} frequency={}",
-                instruction.getId(),
-                instruction.getDose(),
-                instruction.getUnit(),
-                instruction.getRout(),
-                instruction.getFrequency());
 
         StringBuilder sb = new StringBuilder();
 
@@ -356,44 +265,13 @@ public class VisitReportService {
             sb.append(instruction.getFrequency());
         }
 
-        String result = sb.isEmpty() ? null : sb.toString();
-
-        LOG.debug("[buildPredefinedInstruction] END instructionId={} result={}",
-                instruction.getId(),
-                result);
-
-        return result;
-    }
-
-    private String resolveLovDisplayValues(String commaSeparatedKeys) {
-        if (commaSeparatedKeys == null || commaSeparatedKeys.isBlank()) {
-            return null;
-        }
-
-        List<String> keys = Arrays.stream(commaSeparatedKeys.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isBlank())
-                .distinct()
-                .toList();
-
-        if (keys.isEmpty()) {
-            return null;
-        }
-
-        Map<String, String> lovMap = lovLookupService.findDisplayValues(keys);
-        List<String> resolved = keys.stream()
-                .map(lovMap::get)
-                .filter(Objects::nonNull)
-                .toList();
-        return resolved.isEmpty() ? null : String.join(", ", resolved);
+        return sb.isEmpty() ? null : sb.toString();
     }
 
     private List<PrescriptionMedicationDTO> getMedicationsByEncounterId(Long encounterId) {
-
         List<PatientPrescription> prescriptions =
                 Optional.ofNullable(
-                        patientPrescriptionRepository
-                                .findByEncounterIdOrderByCreatedDateAsc(encounterId)
+                        patientPrescriptionRepository.findByEncounterIdOrderByCreatedDateAsc(encounterId)
                 ).orElse(List.of());
 
         if (prescriptions.isEmpty()) {
@@ -413,7 +291,7 @@ public class VisitReportService {
                         m.getDuration(),
                         m.getNumberOfRefills() != null && m.getNumberOfRefills() > 0,
                         m.getNumberOfRefills(),
-                        resolveLovDisplayValues(m.getAdministrationInstructions()),
+                        reportCommonService.getLovDisplayValues(m.getAdministrationInstructions()),
                         m.getAllowedSubstitute(),
                         m.getIndicationIcd() != null
                                 ? m.getIndicationIcd().getIcdShortDescription()
@@ -423,20 +301,15 @@ public class VisitReportService {
     }
 
     private Long safeParse(String value) {
-        LOG.debug("[safeParse] rawValue={}", value);
         try {
-            Long parsed = value != null ? Long.parseLong(value) : null;
-            LOG.debug("[safeParse] parsedValue={}", parsed);
-            return parsed;
+            return value != null ? Long.parseLong(value) : null;
         } catch (NumberFormatException e) {
             LOG.debug("[safeParse] failed to parse value={}", value, e);
             return null;
         }
     }
 
-
     private List<OrderedDiagnosticsDTO> getDiagnosticsByEncounterId(Long encounterId) {
-
         List<DiagnosticOrder> orders =
                 Optional.ofNullable(
                         diagnosticOrderRepository.findByEncounterIdOrderByCreatedDateAsc(encounterId)
@@ -457,7 +330,6 @@ public class VisitReportService {
                 .findByOrderIdInOrderByIdAsc(orderIds)
                 .stream()
                 .map(test -> {
-
                     DiagnosticOrder order = orderMap.get(test.getOrderId());
 
                     DiagnosticTest diagnosticTest = diagnosticTestRepository
@@ -472,15 +344,4 @@ public class VisitReportService {
                 })
                 .toList();
     }
-
-    private String resolveLovDisplayValue(Object key) {
-        if (key == null) {
-            return null;
-        }
-
-        return apLovValueRepository.findById(String.valueOf(key))
-                .map(ApLovValue::getLovDisplayVale)
-                .orElse(null);
-    }
-
 }

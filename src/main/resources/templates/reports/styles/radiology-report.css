@@ -329,3 +329,106 @@ tr:last-child td { border-bottom: none; }
 body.rtl .logo-box {
     justify-content: flex-end;
 }
+body.ltr {
+    direction: ltr;
+    text-align: left;
+    font-family: Arial, sans-serif;
+}
+
+body.rtl {
+    direction: rtl;
+    text-align: right;
+    font-family: Tahoma, Arial, sans-serif;
+}
+
+/* Header */
+body.rtl .header {
+    direction: rtl;
+}
+
+body.rtl .doc-id {
+    text-align: right;
+}
+
+/* Section header border flip */
+body.rtl .section-header {
+    border-left: none;
+    border-right: 5px solid #001f3f;
+}
+
+/* Patient grid borders flip */
+body.rtl .info-box {
+    border-right: none;
+    border-left: 0.8px solid #e5edf5;
+}
+
+body.rtl .info-box.no-border {
+    border-left: none;
+}
+
+/* Tables */
+body.rtl th,
+body.rtl td {
+    text-align: right;
+}
+
+body.rtl .text-center {
+    text-align: center;
+}
+
+/* Severity */
+body.rtl .severity-label {
+    margin-right: 0;
+    margin-left: 12px;
+}
+
+/* Footer */
+body.rtl .footer {
+    direction: rtl;
+}
+
+body.rtl .footer-right {
+    text-align: left;
+}
+
+body.rtl .auth-block {
+    text-align: right;
+}
+
+body.rtl .auth-email {
+    text-align: right;
+}
+
+/* Logo */
+body.ltr .logo-box {
+    justify-content: flex-start;
+}
+
+body.rtl .logo-box {
+    justify-content: flex-end;
+}
+
+/* Arabic text cleanup */
+body.rtl .org-name,
+body.rtl .dept-name,
+body.rtl .main-title,
+body.rtl .section-title,
+body.rtl .info-label,
+body.rtl .info-value,
+body.rtl th,
+body.rtl .severity-label,
+body.rtl .severity-value-text,
+body.rtl .signature-label,
+body.rtl .auth-label {
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+/* Keep numbers / ids / dates clean */
+.doc-id,
+.info-value,
+.severity-value-text,
+.auth-name,
+.auth-email {
+    unicode-bidi: plaintext;
+}
