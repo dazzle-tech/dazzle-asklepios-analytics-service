@@ -1,66 +1,65 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:attr="lang=${lang}, dir=${dir}">
 <head>
     <meta charset="UTF-8">
-    <title>Patient Report</title>
-
+    <title th:text="${labels.patientReport}">Patient Report</title>
     <style th:utext="${reportCss}"></style>
-
 </head>
 
-<body>
+<body th:class="${dir}">
 <div class="container">
 
-    <!-- HEADER -->
     <div class="header">
         <div class="logo-box">
             <img class="report-logo"
                  th:src="'data:image/png;base64,' + ${logo}" />
         </div>
-
     </div>
 
-    <!-- MAIN TITLE -->
     <div class="main-title-section">
-        <h1 class="main-title">PATIENT REPORT</h1>
+        <h1 class="main-title" th:text="${labels.patientReport}">PATIENT REPORT</h1>
+
         <div class="title-underline">
             <div class="underline-accent"></div>
         </div>
+
         <div class="date-time-info">
             <span>
-                Registration Date:
+                <span th:text="${labels.registrationDate}">Registration Date</span>:
                 <strong th:text="${#temporals.format(report.registrationDate, 'yyyy-MM-dd HH:mm')}">—</strong>
             </span>
         </div>
     </div>
 
-    <!-- 1. PATIENT INFO -->
     <section class="report-section">
         <div class="section-header blue">
-            <h2 class="section-title">1. Patient Information</h2>
+            <h2 class="section-title" th:text="${labels.patientInformation}">
+                1. Patient Information
+            </h2>
         </div>
 
         <div class="patient-grid">
             <div class="grid-row grid-3">
-
                 <div class="info-box">
-                    <span class="info-label">Full Name</span>
+                    <span class="info-label" th:text="${labels.fullName}">Full Name</span>
                     <span class="info-value" th:text="${report.fullName}">—</span>
                 </div>
+
                 <div class="info-box">
-                    <span class="info-label">MRN</span>
+                    <span class="info-label" th:text="${labels.mrn}">MRN</span>
                     <span class="info-value" th:text="${report.mrn}">—</span>
                 </div>
+
                 <div class="info-box no-border">
-                    <span class="info-label">Gender</span>
+                    <span class="info-label" th:text="${labels.gender}">Gender</span>
                     <span class="info-value" th:text="${report.gender}">—</span>
                 </div>
             </div>
 
             <div class="grid-row grid-3">
-
                 <div class="info-box">
-                    <span class="info-label">D.O.B / Age</span>
+                    <span class="info-label" th:text="${labels.dobAge}">D.O.B / Age</span>
                     <span class="info-value">
                         <span th:text="${report.dateOfBirth != null ? #dates.format(report.dateOfBirth, 'dd/MM/yyyy') : '—'}">01/01/1990</span>
                         <span th:if="${report.age != null}"
@@ -69,138 +68,144 @@
                 </div>
 
                 <div class="info-box">
-                    <span class="info-label">Registration Date</span>
+                    <span class="info-label" th:text="${labels.registrationDate}">Registration Date</span>
                     <span class="info-value"
                           th:text="${#temporals.format(report.registrationDate,'yyyy-MM-dd HH:mm')}">—</span>
                 </div>
-
-
-
             </div>
-        </div> <!-- patient-grid -->
-
+        </div>
     </section>
 
-
-    <!-- 2. CONTACT -->
     <section class="report-section">
         <div class="section-header blue">
-            <h2 class="section-title">2. Contact Information</h2>
+            <h2 class="section-title" th:text="${labels.contactInformation}">
+                2. Contact Information
+            </h2>
         </div>
 
         <div class="patient-grid">
             <div class="grid-row grid-3">
                 <div class="info-box">
-                    <span class="info-label">Mobile</span>
+                    <span class="info-label" th:text="${labels.mobile}">Mobile</span>
                     <span class="info-value" th:text="${report.mobileNumber}">—</span>
                 </div>
+
                 <div class="info-box">
-                    <span class="info-label">Secondary Phone</span>
+                    <span class="info-label" th:text="${labels.secondaryPhone}">Secondary Phone</span>
                     <span class="info-value" th:text="${report.secondaryPhone ?: '-'}">—</span>
                 </div>
+
                 <div class="info-box no-border">
-                    <span class="info-label">Email</span>
+                    <span class="info-label" th:text="${labels.email}">Email</span>
                     <span class="info-value" th:text="${report.email}">—</span>
                 </div>
             </div>
 
             <div class="grid-row grid-3">
                 <div class="info-box">
-                    <span class="info-label">City</span>
+                    <span class="info-label" th:text="${labels.city}">City</span>
                     <span class="info-value" th:text="${report.city ?: '-'}">—</span>
                 </div>
+
                 <div class="info-box">
-                    <span class="info-label">State</span>
+                    <span class="info-label" th:text="${labels.state}">State</span>
                     <span class="info-value" th:text="${report.state ?: '-'}">—</span>
                 </div>
+
                 <div class="info-box no-border">
-                    <span class="info-label">Country</span>
+                    <span class="info-label" th:text="${labels.country}">Country</span>
                     <span class="info-value" th:text="${report.country ?: '-'}">—</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 3. DOCUMENT -->
     <section class="report-section">
         <div class="section-header blue">
-            <h2 class="section-title">3. Document Info</h2>
+            <h2 class="section-title" th:text="${labels.documentInfo}">
+                3. Document Info
+            </h2>
         </div>
 
         <div class="patient-grid">
             <div class="grid-row grid-2">
                 <div class="info-box">
-                    <span class="info-label">Type</span>
+                    <span class="info-label" th:text="${labels.type}">Type</span>
                     <span class="info-value" th:text="${report.documentType ?: '-'}">—</span>
                 </div>
+
                 <div class="info-box no-border">
-                    <span class="info-label">Number</span>
+                    <span class="info-label" th:text="${labels.number}">Number</span>
                     <span class="info-value" th:text="${report.documentNumber ?: '-'}">—</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 4. EMERGENCY -->
     <section class="report-section">
         <div class="section-header blue">
-            <h2 class="section-title">4. Emergency Contact</h2>
+            <h2 class="section-title" th:text="${labels.emergencyContact}">
+                4. Emergency Contact
+            </h2>
         </div>
 
         <div class="patient-grid">
             <div class="grid-row grid-3">
                 <div class="info-box">
-                    <span class="info-label">Name</span>
+                    <span class="info-label" th:text="${labels.name}">Name</span>
                     <span class="info-value" th:text="${report.emergencyName ?: '-'}">—</span>
                 </div>
+
                 <div class="info-box">
-                    <span class="info-label">Relation</span>
+                    <span class="info-label" th:text="${labels.relation}">Relation</span>
                     <span class="info-value" th:text="${report.emergencyRelationship ?: '-'}">—</span>
                 </div>
+
                 <div class="info-box no-border">
-                    <span class="info-label">Phone</span>
+                    <span class="info-label" th:text="${labels.phone}">Phone</span>
                     <span class="info-value" th:text="${report.emergencyPhone ?: '-'}">—</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 5. INSURANCE -->
     <section class="report-section">
         <div class="section-header blue">
-            <h2 class="section-title">5. Insurance</h2>
+            <h2 class="section-title" th:text="${labels.insurance}">
+                5. Insurance
+            </h2>
         </div>
 
         <div class="patient-grid">
             <div class="grid-row grid-3">
                 <div class="info-box">
-                    <span class="info-label">Provider</span>
+                    <span class="info-label" th:text="${labels.provider}">Provider</span>
                     <span class="info-value" th:text="${report.insuranceProvider ?: '-'}">—</span>
                 </div>
+
                 <div class="info-box">
-                    <span class="info-label">Policy</span>
+                    <span class="info-label" th:text="${labels.policy}">Policy</span>
                     <span class="info-value" th:text="${report.policyNumber ?: '-'}">—</span>
                 </div>
+
                 <div class="info-box no-border">
-                    <span class="info-label">Preferred Doctor</span>
+                    <span class="info-label" th:text="${labels.preferredDoctor}">Preferred Doctor</span>
                     <span class="info-value" th:text="${report.preferredHealthProfessional ?: '-'}">—</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- FOOTER -->
     <div class="footer">
         <div class="footer-left">
             <div class="signature-line"></div>
-            <p class="signature-label">Authorized Signature</p>
+
+            <p class="signature-label" th:text="${labels.authorizedSignature}">
+                Authorized Signature
+            </p>
         </div>
-        <div class="footer-right">
-            <div class="auth-block">
-                <p class="auth-label">Digitally Authenticated By</p>
-                <div class="auth-name">—</div>
-            </div>
-        </div>
+
+        
     </div>
 
 </div>

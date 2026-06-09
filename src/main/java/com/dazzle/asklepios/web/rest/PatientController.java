@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -77,9 +78,9 @@ public class PatientController {
     }
 
     @GetMapping("{id}/information/pdf")
-    public ResponseEntity<byte[]> generatePatientInformationPdf(@PathVariable Long id) {
+    public ResponseEntity<byte[]> generatePatientInformationPdf(@PathVariable Long id , @RequestParam (defaultValue = "en") String lang) {
 
-        byte[] pdf = patientPdfRenderService.generatePatientInformationPdf(id);
+        byte[] pdf = patientPdfRenderService.generatePatientInformationPdf(id ,lang);
 
         return ResponseEntity.ok()
                 .header("Content-Disposition", "inline; filename=patient-label-" + id + ".pdf")
