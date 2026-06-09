@@ -297,6 +297,96 @@ body {
     object-fit: contain;
     display: block;
 }
+body.ltr {
+    direction: ltr;
+    text-align: left;
+    font-family: Arial, sans-serif;
+}
+
+body.rtl {
+    direction: rtl;
+    text-align: right;
+    font-family: Tahoma, Arial, sans-serif;
+}
+
+/* Header */
+body.rtl .header {
+    direction: rtl;
+}
+
+/* Section header border flip */
+body.rtl .section-header {
+    border-left: none;
+    border-right: 5px solid #001f3f;
+}
+
+body.rtl .section-header.blue {
+    border-right-color: #2980b9;
+}
+
+body.rtl .section-header.green {
+    border-right-color: #27ae60;
+}
+
+body.rtl .section-header.red {
+    border-right-color: #c0392b;
+}
+
+/* Patient grid borders flip */
+body.rtl .info-box {
+    border-right: none;
+    border-left: 0.8px solid #e5edf5;
+}
+
+body.rtl .info-box.no-border {
+    border-left: none;
+}
+
+/* Date spacing */
+body.rtl .date-time-info strong {
+    margin-left: 0;
+    margin-right: 4px;
+}
+
+/* Footer */
+body.rtl .footer {
+    direction: rtl;
+}
+
+body.rtl .footer-right {
+    text-align: left;
+}
+
+body.rtl .auth-block {
+    text-align: right;
+}
+
+/* Logo */
+body.ltr .logo-box {
+    justify-content: flex-start;
+}
+
 body.rtl .logo-box {
     justify-content: flex-end;
+}
+
+/* Arabic text cleanup */
+body.rtl .org-name,
+body.rtl .dept-name,
+body.rtl .main-title,
+body.rtl .section-title,
+body.rtl .info-label,
+body.rtl .info-value,
+body.rtl .signature-label,
+body.rtl .auth-label {
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+/* Keep numbers / ids / dates clean */
+.doc-id,
+.info-value,
+.auth-name,
+.auth-sub {
+    unicode-bidi: plaintext;
 }
