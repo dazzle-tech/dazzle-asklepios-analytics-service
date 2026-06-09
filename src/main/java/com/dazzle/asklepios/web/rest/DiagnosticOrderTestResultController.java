@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -41,8 +42,8 @@ public class DiagnosticOrderTestResultController {
     }
 
     @GetMapping("/laboratory-reports/result/{id}/pdf")
-    public ResponseEntity<byte[]> generateLaboratoryPdf(@PathVariable Long id) {
-        byte[] pdf = laboratoryPdfRenderService.generateLaboratoryPdf(id);
+    public ResponseEntity<byte[]> generateLaboratoryPdf(@PathVariable Long id , @RequestParam (defaultValue = "en") String lang) {
+        byte[] pdf = laboratoryPdfRenderService.generateLaboratoryPdf(id,lang);
 
         return ResponseEntity.ok()
                 .header("Content-Disposition", "inline; filename=laboratory-result-" + id + ".pdf")

@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:attr="lang=${lang}, dir=${dir}">
 <head>
     <meta charset="UTF-8">
-    <title>Laboratory Result Report</title>
+    <title th:text="${labels.laboratoryResult}">Laboratory Result Report</title>
     <style th:utext="${reportCss}"></style>
-
 </head>
-<body>
+
+<body th:class="${dir}">
 <div class="container">
 
     <div class="header">
@@ -14,11 +15,13 @@
             <img class="report-logo"
                  th:src="'data:image/png;base64,' + ${logo}" />
         </div>
+
         <div style="text-align:center; flex:1;">
             <h1 class="org-name"
                 th:text="${report.facilityName != null and !#strings.isEmpty(report.facilityName) ? report.facilityName : 'FACILITY NAME'}">
                 FACILITY NAME
             </h1>
+
             <div class="dept-name"
                  th:text="${report.departmentName != null and !#strings.isEmpty(report.departmentName) ? report.departmentName : 'LABORATORY DEPARTMENT'}">
                 LABORATORY DEPARTMENT
@@ -27,44 +30,49 @@
 
         <div style="text-align:right;">
             <p class="doc-id">
-                ENCOUNTER:
+                <span th:text="${labels.encounter}">ENCOUNTER</span>:
                 <span th:text="${report.encounterNumber != null ? report.encounterNumber : '—'}">—</span>
             </p>
+
             <p class="doc-id" style="margin-top:4px;">
-                ORDER:
+                <span th:text="${labels.order}">ORDER</span>:
                 <span th:text="${report.orderNumber != null ? report.orderNumber : '—'}">—</span>
             </p>
         </div>
     </div>
 
     <div class="main-title-section">
-        <h1 class="main-title">LABORATORY RESULT</h1>
-        <div class="title-underline"><div class="underline-accent"></div></div>
+        <h1 class="main-title" th:text="${labels.laboratoryResult}">LABORATORY RESULT</h1>
+        <div class="title-underline">
+            <div class="underline-accent"></div>
+        </div>
     </div>
 
     <section class="report-section">
         <div class="section-header">
-            <h2 class="section-title">Patient Identification</h2>
+            <h2 class="section-title" th:text="${labels.patientIdentification}">
+                Patient Identification
+            </h2>
         </div>
 
         <div class="patient-grid grid-4">
             <div class="info-box">
-                <span class="info-label">Full Name</span>
+                <span class="info-label" th:text="${labels.fullName}">Full Name</span>
                 <span class="info-value" th:text="${report.patientFullName}">PATIENT NAME</span>
             </div>
 
             <div class="info-box">
-                <span class="info-label">Gender</span>
+                <span class="info-label" th:text="${labels.gender}">Gender</span>
                 <span class="info-value" th:text="${report.gender}">MALE</span>
             </div>
 
             <div class="info-box">
-                <span class="info-label">MRN Number</span>
+                <span class="info-label" th:text="${labels.mrnNumber}">MRN Number</span>
                 <span class="info-value" th:text="'#' + ${report.mrn}">#123</span>
             </div>
 
             <div class="info-box no-border">
-                <span class="info-label">D.O.B / Age</span>
+                <span class="info-label" th:text="${labels.dobAge}">D.O.B / Age</span>
                 <span class="info-value">
                     <span th:text="${report.dateOfBirth != null ? #dates.format(report.dateOfBirth, 'dd/MM/yyyy') : '—'}">01/01/1990</span>
                     <span th:if="${report.age != null and !#strings.isEmpty(report.age)}"
@@ -75,22 +83,31 @@
 
         <div class="patient-grid grid-4">
             <div class="info-box">
-                <span class="info-label">Mobile Number</span>
-                <span class="info-value" th:text="${report.primaryMobileNumber != null and !#strings.isEmpty(report.primaryMobileNumber) ? report.primaryMobileNumber : '—'}">059...</span>
+                <span class="info-label" th:text="${labels.mobileNumber}">Mobile Number</span>
+                <span class="info-value"
+                      th:text="${report.primaryMobileNumber != null and !#strings.isEmpty(report.primaryMobileNumber) ? report.primaryMobileNumber : '—'}">
+                    059...
+                </span>
             </div>
 
             <div class="info-box">
-                <span class="info-label">From Department</span>
-                <span class="info-value" th:text="${report.fromDepartment != null and !#strings.isEmpty(report.fromDepartment) ? report.fromDepartment : '—'}">ER</span>
+                <span class="info-label" th:text="${labels.fromDepartment}">From Department</span>
+                <span class="info-value"
+                      th:text="${report.fromDepartment != null and !#strings.isEmpty(report.fromDepartment) ? report.fromDepartment : '—'}">
+                    ER
+                </span>
             </div>
 
             <div class="info-box">
-                <span class="info-label">Test Name</span>
-                <span class="info-value" th:text="${report.testName != null and !#strings.isEmpty(report.testName) ? report.testName : '—'}">CBC</span>
+                <span class="info-label" th:text="${labels.testName}">Test Name</span>
+                <span class="info-value"
+                      th:text="${report.testName != null and !#strings.isEmpty(report.testName) ? report.testName : '—'}">
+                    CBC
+                </span>
             </div>
 
             <div class="info-box no-border">
-                <span class="info-label">Result Date</span>
+                <span class="info-label" th:text="${labels.resultDate}">Result Date</span>
                 <span class="info-value"
                       th:text="${report.resultDate != null ? #temporals.format(report.resultDate, 'dd/MM/yyyy HH:mm') : '—'}">
                     01/01/2026 09:30
@@ -101,45 +118,53 @@
 
     <section class="report-section">
         <div class="section-header">
-            <h2 class="section-title">Result Details</h2>
+            <h2 class="section-title" th:text="${labels.resultDetails}">
+                Result Details
+            </h2>
         </div>
 
         <div class="table-container">
             <table>
                 <thead>
                 <tr>
-                    <th>Test</th>
-                    <th>Result</th>
-                    <th>Unit</th>
-                    <th>Normal Range</th>
-                    <th>Marker</th>
+                    <th th:text="${labels.test}">Test</th>
+                    <th th:text="${labels.result}">Result</th>
+                    <th th:text="${labels.unit}">Unit</th>
+                    <th th:text="${labels.normalRange}">Normal Range</th>
+                    <th th:text="${labels.marker}">Marker</th>
                 </tr>
                 </thead>
+
                 <tbody>
                 <tr>
                     <td th:text="${report.testName != null and !#strings.isEmpty(report.testName) ? report.testName : '—'}">Hemoglobin</td>
                     <td th:text="${report.result != null and !#strings.isEmpty(report.result) ? report.result : '—'}">13.5</td>
                     <td th:text="${report.unit != null and !#strings.isEmpty(report.unit) ? report.unit : '—'}">g/dL</td>
                     <td th:text="${report.normalRange != null and !#strings.isEmpty(report.normalRange) ? report.normalRange : '—'}">12 - 16</td>
-                    <td class="marker-cell">
 
-                        <span th:if="${report.marker != null and report.marker.name() == 'ABNORMAL_MARKER'}" class="marker-group">
+                    <td class="marker-cell">
+                        <span th:if="${report.marker != null and report.marker.name() == 'ABNORMAL_MARKER'}"
+                              class="marker-group">
                             ⚠
                         </span>
 
-                        <span th:if="${report.marker != null and report.marker.name() == 'UPPER_LIMIT'}" class="marker-group">
+                        <span th:if="${report.marker != null and report.marker.name() == 'UPPER_LIMIT'}"
+                              class="marker-group">
                             ↑
                         </span>
 
-                        <span th:if="${report.marker != null and report.marker.name() == 'LOWER_LIMIT'}" class="marker-group">
+                        <span th:if="${report.marker != null and report.marker.name() == 'LOWER_LIMIT'}"
+                              class="marker-group">
                             ↓
                         </span>
 
-                        <span th:if="${report.marker != null and report.marker.name() == 'CRITICAL_UPPER'}" class="marker-group">
+                        <span th:if="${report.marker != null and report.marker.name() == 'CRITICAL_UPPER'}"
+                              class="marker-group">
                             ⚠ ↑
                         </span>
 
-                        <span th:if="${report.marker != null and report.marker.name() == 'CRITICAL_LOWER'}" class="marker-group">
+                        <span th:if="${report.marker != null and report.marker.name() == 'CRITICAL_LOWER'}"
+                              class="marker-group">
                             ⚠ ↓
                         </span>
 
@@ -153,7 +178,6 @@
                         </span>
 
                         <span th:if="${report.marker == null}">-</span>
-
                     </td>
                 </tr>
                 </tbody>
@@ -163,21 +187,29 @@
 
     <section class="report-section">
         <div class="section-header">
-            <h2 class="section-title">Review Information</h2>
+            <h2 class="section-title" th:text="${labels.reviewInformation}">
+                Review Information
+            </h2>
         </div>
 
         <div class="table-container">
             <table>
                 <thead>
                 <tr>
-                    <th>Reviewed Date</th>
-                    <th>Reviewed By</th>
+                    <th th:text="${labels.reviewedDate}">Reviewed Date</th>
+                    <th th:text="${labels.reviewedBy}">Reviewed By</th>
                 </tr>
                 </thead>
+
                 <tbody>
                 <tr>
-                    <td th:text="${report.reviewedDate != null ? #temporals.format(report.reviewedDate, 'dd/MM/yyyy HH:mm') : '—'}">01/01/2026 10:00</td>
-                    <td th:text="${report.reviewedBy != null and !#strings.isEmpty(report.reviewedBy) ? report.reviewedBy : '—'}">LAB</td>
+                    <td th:text="${report.reviewedDate != null ? #temporals.format(report.reviewedDate, 'dd/MM/yyyy HH:mm') : '—'}">
+                        01/01/2026 10:00
+                    </td>
+
+                    <td th:text="${report.reviewedBy != null and !#strings.isEmpty(report.reviewedBy) ? report.reviewedBy : '—'}">
+                        LAB
+                    </td>
                 </tr>
                 </tbody>
             </table>
@@ -187,12 +219,17 @@
     <div class="footer">
         <div class="footer-left">
             <div class="signature-line"></div>
-            <p class="signature-label">Lab Signature</p>
+            <p class="signature-label" th:text="${labels.labSignature}">
+                Lab Signature
+            </p>
         </div>
 
         <div class="footer-right">
             <div class="auth-block">
-                <p class="auth-label">Digitally Generated Report</p>
+                <p class="auth-label" th:text="${labels.digitallyGeneratedReport}">
+                    Digitally Generated Report
+                </p>
+
                 <div class="auth-name"
                      th:text="${report.reviewedDate != null ? #temporals.format(report.reviewedDate, 'dd/MM/yyyy HH:mm') : '—'}">
                     Review Date
