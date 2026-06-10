@@ -131,3 +131,57 @@ html, body {
     letter-spacing: 0.4px;
     margin-top: 0.5mm;
 }
+.label-wrapper {
+    margin-bottom: 3mm;
+}
+
+.label-wrapper:last-child {
+    margin-bottom: 0;
+}
+
+body.ltr {
+    direction: ltr;
+    text-align: left;
+    font-family: Arial, Tahoma, sans-serif;
+}
+
+body.rtl {
+    direction: rtl;
+    text-align: right;
+    font-family: Tahoma, Arial, sans-serif;
+}
+
+body.rtl .header {
+    direction: rtl;
+}
+
+body.rtl .header-right {
+    text-align: left;
+}
+
+body.rtl .right-text {
+    text-align: left;
+    padding-right: 0;
+    padding-left: 2mm;
+}
+
+body.rtl .row {
+    direction: rtl;
+    text-align: right;
+}
+
+body.rtl .barcode-box {
+    right: auto;
+    left: 5mm;
+}
+
+body.rtl .title,
+body.rtl .label-text {
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.barcode-text,
+.label-date {
+    unicode-bidi: plaintext;
+}
