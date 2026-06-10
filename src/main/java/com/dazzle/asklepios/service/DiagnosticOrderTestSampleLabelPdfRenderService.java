@@ -1,27 +1,21 @@
 package com.dazzle.asklepios.service;
 
 import com.dazzle.asklepios.service.dto.DiagnosticOrderTestSampleLabelDTO;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.EncodeHintType;
-import com.google.zxing.MultiFormatWriter;
-import com.google.zxing.common.BitMatrix;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
-import javax.imageio.ImageIO;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Base64;
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.dazzle.asklepios.web.rest.Helper.BarcodeImageUtil.generateCode128BarcodeBase64;
+import static com.dazzle.asklepios.web.rest.Helper.BarcodeImageUtil.generateQrBase64;
 
 @Service
 @RequiredArgsConstructor
@@ -37,118 +31,83 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
     private static final DateTimeFormatter DATE_TIME_FORMAT =
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-    public byte[] generateSampleLabelPdf(Long orderTestId, Integer copies) {
+    public byte[] generateSampleLabelPdf(Long orderTestId, String lang, Integer copies) {
         DiagnosticOrderTestSampleLabelDTO dto =
                 sampleService.getSampleLabel(orderTestId);
 
-        int safeCopies = copies == null || copies < 1 ? 1 : copies;
-
-        StringBuilder htmlBuilder = buildHtmlStart();
-
-        for (int i = 0; i < safeCopies; i++) {
-            htmlBuilder.append("<div class=\"label-page\">");
-            htmlBuilder.append(generateSampleLabelHtml(dto));
-            htmlBuilder.append("</div>");
-        }
-
-        htmlBuilder.append(buildHtmlEnd());
-
-        return reportPdfCommonService.renderPdfWithChromium(htmlBuilder.toString());
+        return renderSampleLabels(List.of(dto), lang, copies);
     }
 
-    public byte[] generateAllSampleLabelsPdf(Long orderTestId, Integer copies) {
-        List<DiagnosticOrderTestSampleLabelDTO> labels =
+    public byte[] generateAllSampleLabelsPdf(Long orderTestId, String lang, Integer copies) {
+        List<DiagnosticOrderTestSampleLabelDTO> sampleLabels =
                 sampleService.getSampleLabelsByOrderTestId(orderTestId);
 
-        if (labels.isEmpty()) {
+        if (sampleLabels.isEmpty()) {
             return reportPdfCommonService.renderEmptyPdf("No collected samples found");
         }
 
+        return renderSampleLabels(sampleLabels, lang, copies);
+    }
+
+    private byte[] renderSampleLabels(
+            List<DiagnosticOrderTestSampleLabelDTO> sampleLabels,
+            String lang,
+            Integer copies
+    ) {
         int safeCopies = copies == null || copies < 1 ? 1 : copies;
-
-        StringBuilder htmlBuilder = buildHtmlStart();
-
-        for (DiagnosticOrderTestSampleLabelDTO dto : labels) {
-            for (int i = 0; i < safeCopies; i++) {
-                htmlBuilder.append("<div class=\"label-page\">");
-                htmlBuilder.append(generateSampleLabelHtml(dto));
-                htmlBuilder.append("</div>");
-            }
-        }
-
-        htmlBuilder.append(buildHtmlEnd());
-
-        return reportPdfCommonService.renderPdfWithChromium(htmlBuilder.toString());
-    }
-
-    private StringBuilder buildHtmlStart() {
-        StringBuilder htmlBuilder = new StringBuilder();
-
-        htmlBuilder.append("""
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <style>
-                    @page {
-                        size: 120mm 55mm;
-                        margin: 0;
-                    }
-
-                    html, body {
-                        margin: 0;
-                        padding: 0;
-                    }
-
-                    .label-page {
-                        width: 120mm;
-                        height: 55mm;
-                        page-break-after: always;
-                        break-after: page;
-                    }
-
-                    .label-page:last-child {
-                        page-break-after: auto;
-                        break-after: auto;
-                    }
-                </style>
-            </head>
-            <body>
-        """);
-
-        return htmlBuilder;
-    }
-
-    private String buildHtmlEnd() {
-        return """
-            </body>
-            </html>
-        """;
-    }
-
-    private String generateSampleLabelHtml(DiagnosticOrderTestSampleLabelDTO dto) {
-        String sampleDateTime = dto.sampleDateTime() != null
-                ? DATE_TIME_FORMAT.format(dto.sampleDateTime().atZone(ZoneId.systemDefault()))
-                : "—";
-
-        String today = DATE_FORMAT.format(java.time.LocalDate.now());
-
-        String qrValue = buildQrValue(dto, sampleDateTime);
+        boolean isArabic = "ar".equalsIgnoreCase(lang);
 
         Context context = new Context();
-        context.setVariable("label", dto);
-        context.setVariable("today", today);
-        context.setVariable("sampleDateTimeFormatted", sampleDateTime);
-        context.setVariable("sampleQuantityFormatted", formatQuantity(dto.sampleQuantity()));
-        context.setVariable("expiryDate", dto.expiryDate());
-        context.setVariable("qrImage", generateQrBase64(qrValue, 220, 220));
-        context.setVariable("barcodeImage", generateCode128BarcodeBase64(dto.mrn(), 520, 110));
-        String css = reportPdfCommonService.loadCss(
-                "templates/reports/styles/sample-label.css"
-        );
 
-        context.setVariable("reportCss", css);
-        return templateEngine.process("reports/sample-label", context);
+        context.setVariable("labelsList", sampleLabels);
+        context.setVariable("copies", safeCopies);
+
+        context.setVariable("today", DATE_FORMAT.format(LocalDate.now()));
+
+        context.setVariable("lang", isArabic ? "ar" : "en");
+        context.setVariable("dir", isArabic ? "rtl" : "ltr");
+        context.setVariable("labels", buildSampleLabelLabels(isArabic));
+
+        context.setVariable("reportCss", reportPdfCommonService.loadCss(
+                "templates/reports/styles/sample-label.css"
+        ));
+
+        context.setVariable("service", this);
+
+        String html = templateEngine.process("reports/sample-label", context);
+
+        return reportPdfCommonService.renderPdfWithChromium(html);
+    }
+
+    public String formatSampleDateTime(DiagnosticOrderTestSampleLabelDTO dto) {
+        return dto.sampleDateTime() != null
+                ? DATE_TIME_FORMAT.format(dto.sampleDateTime().atZone(ZoneId.systemDefault()))
+                : "—";
+    }
+
+    public String formatExpiryDate(DiagnosticOrderTestSampleLabelDTO dto) {
+        return dto.expiryDate() != null
+                ? DATE_TIME_FORMAT.format(dto.expiryDate().atZone(ZoneId.systemDefault()))
+                : "";
+    }
+
+    public String formatQuantity(BigDecimal value) {
+        if (value == null) {
+            return "—";
+        }
+
+        return value.stripTrailingZeros().toPlainString();
+    }
+
+    public String buildQrImage(DiagnosticOrderTestSampleLabelDTO dto) {
+        String sampleDateTime = formatSampleDateTime(dto);
+        String qrValue = buildQrValue(dto, sampleDateTime);
+
+        return generateQrBase64(qrValue, 220, 220);
+    }
+
+    public String buildBarcodeImage(DiagnosticOrderTestSampleLabelDTO dto) {
+        return generateCode128BarcodeBase64(dto.mrn(), 520, 110);
     }
 
     private String buildQrValue(DiagnosticOrderTestSampleLabelDTO dto, String sampleDateTime) {
@@ -157,97 +116,26 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
                 + ";TEST:" + nullSafe(dto.testName())
                 + ";SAMPLE_DT:" + nullSafe(sampleDateTime)
                 + ";SOURCE:" + nullSafe(dto.sourceOfSample())
-                + ";EXPIRY:" + (dto.expiryDate() != null
-                ? DATE_TIME_FORMAT.format(dto.expiryDate().atZone(ZoneId.systemDefault()))
-                : "—")
+                + ";EXPIRY:" + formatExpiryDate(dto)
                 + ";QTY:" + formatQuantity(dto.sampleQuantity()) + " " + nullSafe(dto.sampleUnit());
-    }
-
-    private String formatQuantity(BigDecimal value) {
-        if (value == null) {
-            return "—";
-        }
-
-        return value.stripTrailingZeros().toPlainString();
     }
 
     private String nullSafe(String value) {
         return value == null || value.isBlank() ? "—" : value;
     }
 
-    private String generateQrBase64(String content, int width, int height) {
-        try {
-            Map<EncodeHintType, Object> hints = new EnumMap<>(EncodeHintType.class);
+    private Map<String, String> buildSampleLabelLabels(boolean isArabic) {
+        Map<String, String> labels = new HashMap<>();
 
-            BitMatrix bitMatrix = new MultiFormatWriter().encode(
-                    content,
-                    BarcodeFormat.QR_CODE,
-                    width,
-                    height,
-                    hints
-            );
+        labels.put("sampleLabel", isArabic ? "ملصق العينة" : "Sample Label");
+        labels.put("patient", isArabic ? "المريض" : "Patient");
+        labels.put("mrn", isArabic ? "رقم الملف" : "MRN");
+        labels.put("sample", isArabic ? "تاريخ العينة" : "Sample");
+        labels.put("expiry", isArabic ? "تاريخ الانتهاء" : "Expiry");
+        labels.put("source", isArabic ? "مصدر العينة" : "Source");
+        labels.put("test", isArabic ? "الفحص" : "Test");
+        labels.put("amount", isArabic ? "الكمية" : "Amount");
 
-            BufferedImage image = toBufferedImage(bitMatrix);
-
-            return toBase64Png(image);
-        } catch (Exception e) {
-            return "";
-        }
-    }
-
-    private String generateCode128BarcodeBase64(String content, int width, int height) {
-        try {
-            BitMatrix bitMatrix = new MultiFormatWriter().encode(
-                    nullSafe(content),
-                    BarcodeFormat.CODE_128,
-                    width,
-                    height
-            );
-
-            BufferedImage image = toBufferedImage(bitMatrix);
-
-            return toBase64Png(image);
-        } catch (Exception e) {
-            return "";
-        }
-    }
-
-    private BufferedImage toBufferedImage(BitMatrix matrix) {
-        int width = matrix.getWidth();
-        int height = matrix.getHeight();
-
-        BufferedImage image =
-                new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-
-        Graphics2D graphics = image.createGraphics();
-
-        graphics.setColor(Color.WHITE);
-        graphics.fillRect(0, 0, width, height);
-
-        graphics.setColor(Color.BLACK);
-
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                if (matrix.get(x, y)) {
-                    image.setRGB(x, y, Color.BLACK.getRGB());
-                }
-            }
-        }
-
-        graphics.dispose();
-
-        return image;
-    }
-
-    private String toBase64Png(BufferedImage image) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-            ImageIO.write(image, "png", baos);
-
-            return Base64.getEncoder().encodeToString(baos.toByteArray());
-        } catch (Exception e) {
-            return "";
-        }
+        return labels;
     }
 }

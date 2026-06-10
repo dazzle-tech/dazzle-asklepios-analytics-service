@@ -1,109 +1,112 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:attr="lang=${lang}, dir=${dir}">
 <head>
   <meta charset="UTF-8">
-  <title>Sample Label</title>
-
-
+  <title th:text="${labels.sampleLabel}">Sample Label</title>
   <style th:utext="${reportCss}"></style>
 </head>
 
-<body>
-<div class="label">
+<body th:class="${dir}">
 
-  <!-- HEADER -->
-  <div class="header">
+<div th:each="label : ${labelsList}">
+  <div th:each="copy : ${#numbers.sequence(1, copies)}"
+       class="label-wrapper">
 
-    <div class="header-left">
-      <div class="title">Sample Label</div>
-    </div>
+    <div class="label">
 
-    <div class="header-right">
-      <div class="right-block">
-
-        <div class="right-text">
-          <div class="date" th:text="${today} ?: ''"></div>
-
-          <div class="facility"
-               th:text="${label.facilityName} ?: ''">
+      <div class="header">
+        <div class="header-left">
+          <div class="title" th:text="${labels.sampleLabel}">
+            Sample Label
           </div>
         </div>
 
-        <div class="right-qr">
-          <img
-                  class="qr"
-                  th:if="${qrImage != null and !#strings.isEmpty(qrImage)}"
-                  th:src="'data:image/png;base64,' + ${qrImage}"
-          />
+        <div class="header-right">
+          <div class="right-block">
+            <div class="right-text">
+              <div class="date" th:text="${today} ?: ''"></div>
+
+              <div class="facility"
+                   dir="auto"
+                   th:text="${label.facilityName} ?: ''">
+              </div>
+            </div>
+
+            <div class="right-qr">
+              <img class="qr"
+                   th:if="${service.buildQrImage(label) != null and !#strings.isEmpty(service.buildQrImage(label))}"
+                   th:src="'data:image/png;base64,' + ${service.buildQrImage(label)}" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+
+        <div class="row">
+          <span class="label-text">
+            <span th:text="${labels.patient}">Patient</span>:
+          </span>
+          <span dir="auto" th:text="${label.patientName} ?: ''"></span>
         </div>
 
+        <div class="row">
+          <span class="label-text">
+            <span th:text="${labels.mrn}">MRN</span>:
+          </span>
+          <span th:text="${label.mrn} ?: ''"></span>
+        </div>
+
+        <div class="row">
+          <span class="label-text">
+            <span th:text="${labels.sample}">Sample</span>:
+          </span>
+          <span th:text="${service.formatSampleDateTime(label)}"></span>
+        </div>
+
+        <div class="row">
+          <span class="label-text">
+            <span th:text="${labels.expiry}">Expiry</span>:
+          </span>
+          <span th:text="${service.formatExpiryDate(label)}"></span>
+        </div>
+
+        <div class="row">
+          <span class="label-text">
+            <span th:text="${labels.source}">Source</span>:
+          </span>
+          <span dir="auto" th:text="${label.sourceOfSample} ?: ''"></span>
+        </div>
+
+        <div class="row">
+          <span class="label-text">
+            <span th:text="${labels.test}">Test</span>:
+          </span>
+          <span dir="auto" th:text="${label.testName} ?: ''"></span>
+        </div>
+
+        <div class="row">
+          <span class="label-text">
+            <span th:text="${labels.amount}">Amount</span>:
+          </span>
+
+          <span th:text="${service.formatQuantity(label.sampleQuantity) + ' ' + (label.sampleUnit != null ? label.sampleUnit : '')}">
+          </span>
+        </div>
       </div>
-    </div>
 
+      <div class="barcode-box">
+        <img class="barcode"
+             th:if="${service.buildBarcodeImage(label) != null and !#strings.isEmpty(service.buildBarcodeImage(label))}"
+             th:src="'data:image/png;base64,' + ${service.buildBarcodeImage(label)}" />
+
+        <div class="barcode-text" th:text="${label.mrn} ?: ''"></div>
+      </div>
+
+    </div>
   </div>
-
-  <!-- CONTENT -->
-  <div class="content">
-
-    <div class="row">
-      <span class="label-text">Patient: </span>
-      <span th:text="${label.patientName} ?: ''"></span>
-    </div>
-
-    <div class="row">
-      <span class="label-text">MRN: </span>
-      <span th:text="${label.mrn} ?: ''"></span>
-    </div>
-
-    <div class="row">
-      <span class="label-text">Sample: </span>
-      <span th:text="${sampleDateTimeFormatted} ?: ''"></span>
-    </div>
-
-    <div class="row">
-      <span class="label-text">Expiry: </span>
-
-      <span
-              th:text="${expiryDate != null ? #temporals.format(expiryDate, 'dd/MM/yyyy HH:mm') : ''}">
-      </span>
-    </div>
-
-    <div class="row">
-      <span class="label-text">Source: </span>
-      <span th:text="${label.sourceOfSample} ?: ''"></span>
-    </div>
-
-    <div class="row">
-      <span class="label-text">Test: </span>
-      <span th:text="${label.testName} ?: ''"></span>
-    </div>
-
-    <div class="row">
-      <span class="label-text">Amount: </span>
-
-      <span
-              th:text="${sampleQuantityFormatted != null ? sampleQuantityFormatted + ' ' + (label.sampleUnit != null ? label.sampleUnit : '') : ''}">
-      </span>
-    </div>
-
-  </div>
-
-  <!-- BARCODE -->
-  <div class="barcode-box">
-
-    <img
-            class="barcode"
-            th:if="${barcodeImage != null and !#strings.isEmpty(barcodeImage)}"
-            th:src="'data:image/png;base64,' + ${barcodeImage}"
-    />
-
-    <div
-            class="barcode-text"
-            th:text="${label.mrn} ?: ''">
-    </div>
-
-  </div>
-
 </div>
+
 </body>
 </html>

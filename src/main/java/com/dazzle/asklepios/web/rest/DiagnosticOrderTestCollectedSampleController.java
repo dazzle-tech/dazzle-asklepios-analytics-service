@@ -58,11 +58,13 @@ public class DiagnosticOrderTestCollectedSampleController {
     @GetMapping("/diagnostic-order-tests/{orderTestId}/sample-label/pdf")
     public ResponseEntity<byte[]> generateSampleLabelPdf(
             @PathVariable Long orderTestId,
-            @RequestParam(defaultValue = "1") Integer copies
+            @RequestParam(defaultValue = "1") Integer copies,
+            @RequestParam(defaultValue = "en") String lang
     ) {
         byte[] pdf =
                 diagnosticOrderTestSampleLabelPdfRenderService.generateSampleLabelPdf(
                         orderTestId,
+                        lang,
                         copies
                 );
 
@@ -78,11 +80,14 @@ public class DiagnosticOrderTestCollectedSampleController {
     @GetMapping("/diagnostic-order-tests/{orderTestId}/sample-labels/pdf")
     public ResponseEntity<byte[]> generateAllSampleLabelsPdf(
             @PathVariable Long orderTestId,
-            @RequestParam(defaultValue = "1") Integer copies
+            @RequestParam(defaultValue = "1") Integer copies,
+            @RequestParam(defaultValue = "en") String lang
+
     ) {
         byte[] pdf =
                 diagnosticOrderTestSampleLabelPdfRenderService.generateAllSampleLabelsPdf(
                         orderTestId,
+                        lang,
                         copies
                 );
 
