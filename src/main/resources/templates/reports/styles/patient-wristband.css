@@ -140,3 +140,62 @@ body {
     letter-spacing: 0.4px;
     margin-top: 0.8mm;
 }
+body.ltr {
+    direction: ltr;
+    text-align: left;
+    font-family: Arial, sans-serif;
+}
+
+body.rtl {
+    direction: rtl;
+    text-align: right;
+    font-family: Tahoma, Arial, sans-serif;
+}
+
+body.rtl .header {
+    direction: rtl;
+}
+
+body.rtl .header-right {
+    text-align: left;
+}
+
+body.rtl .right-text {
+    text-align: left;
+    padding-right: 0;
+    padding-left: 3mm;
+}
+
+body.rtl .content {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+body.rtl .row {
+    direction: rtl;
+    text-align: right;
+}
+
+body.rtl .barcode-box {
+    right: auto;
+    left: 7mm;
+}
+
+body.rtl .title,
+body.rtl .label-text {
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.barcode-text,
+.admission-date,
+.facility {
+    unicode-bidi: plaintext;
+}
+.label-wrapper {
+    margin-bottom: 4mm;
+}
+
+.label-wrapper:last-child {
+    margin-bottom: 0;
+}

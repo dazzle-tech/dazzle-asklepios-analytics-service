@@ -1,17 +1,22 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:attr="lang=${lang}, dir=${dir}">
 <head>
   <meta charset="UTF-8">
-  <title>Patient Wristband</title>
+  <title th:text="${labels.patientWristband}">Patient Wristband</title>
   <style th:utext="${reportCss}"></style>
-
 </head>
-<body>
+<div th:each="copy : ${#numbers.sequence(1, copies)}"
+     class="label-wrapper">
+<body th:class="${dir}">
+
 <div class="label">
 
   <div class="header">
     <div class="header-left">
-      <div class="title">Patient Wristband</div>
+      <div class="title" th:text="${labels.patientWristband}">
+        Patient Wristband
+      </div>
     </div>
 
     <div class="header-right">
@@ -32,32 +37,45 @@
 
   <div class="content">
     <div class="row">
-      <span class="label-text">Name: </span>
+      <span class="label-text">
+        <span th:text="${labels.name}">Name</span>:
+      </span>
       <span dir="auto" th:text="${wristband.fullName} ?: ''"></span>
     </div>
 
     <div class="row">
-      <span class="label-text">MRN: </span>
+      <span class="label-text">
+        <span th:text="${labels.mrn}">MRN</span>:
+      </span>
       <span th:text="${wristband.mrn} ?: ''"></span>
     </div>
 
     <div class="row">
-      <span class="label-text">DOB: </span>
+      <span class="label-text">
+        <span th:text="${labels.dob}">DOB</span>:
+      </span>
       <span th:text="${dateOfBirthFormatted} ?: ''"></span>
     </div>
 
     <div class="row">
-      <span class="label-text">Gender: </span>
+      <span class="label-text">
+        <span th:text="${labels.gender}">Gender</span>:
+      </span>
       <span th:text="${wristband.gender} ?: ''"></span>
     </div>
 
     <div class="row">
-      <span class="label-text">Blood Group: </span>
+      <span class="label-text">
+        <span th:text="${labels.bloodGroup}">Blood Group</span>:
+      </span>
       <span th:text="${wristband.bloodGroup} ?: ''"></span>
     </div>
 
-    <div class="row" th:if="${wristband.allergyAlert != null and !#strings.isEmpty(wristband.allergyAlert)}">
-      <span class="label-text">Allergy: </span>
+    <div class="row"
+         th:if="${wristband.allergyAlert != null and !#strings.isEmpty(wristband.allergyAlert)}">
+      <span class="label-text">
+        <span th:text="${labels.allergy}">Allergy</span>:
+      </span>
       <span class="alert" dir="auto" th:text="${wristband.allergyAlert}"></span>
     </div>
   </div>
@@ -70,5 +88,7 @@
   </div>
 
 </div>
+</div>
+
 </body>
 </html>
