@@ -50,9 +50,12 @@ public class PatientController {
     }
 
     @GetMapping("/{patientId}/wristband/pdf")
-    public ResponseEntity<byte[]> generateWristbandPdf(@PathVariable Long patientId) {
+    public ResponseEntity<byte[]> generateWristbandPdf(@PathVariable Long patientId,
+                                                       @RequestParam(defaultValue = "1") Integer copies,
+                                                       @RequestParam(defaultValue = "en") String lang
+    ) {
 
-        byte[] pdf = patientWristbandPdfRenderService.generateWristbandPdf(patientId);
+        byte[] pdf = patientWristbandPdfRenderService.generateWristbandPdf(patientId,lang,copies);
 
         return ResponseEntity.ok()
                 .header("Content-Disposition", "inline; filename=wristband-" + patientId + ".pdf")

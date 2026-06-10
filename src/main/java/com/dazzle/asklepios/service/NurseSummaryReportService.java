@@ -216,7 +216,7 @@ public class NurseSummaryReportService {
                         "notfound"
                 ));
 
-        
+
         String facilityName = reportCommonService.getFacilityNameFromDepartment(freshEncounter.getDepartmentId());
         String departmentName = reportCommonService.getDepartmentName(freshEncounter.getDepartmentId());
 
