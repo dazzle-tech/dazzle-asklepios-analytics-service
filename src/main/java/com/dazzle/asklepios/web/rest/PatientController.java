@@ -61,9 +61,12 @@ public class PatientController {
     }
 
     @GetMapping("{id}/label/pdf")
-    public ResponseEntity<byte[]> generatePatientLabelPdf(@PathVariable Long id) {
+    public ResponseEntity<byte[]> generatePatientLabelPdf(@PathVariable Long id,
+                                                          @RequestParam(defaultValue = "1") Integer copies,
+                                                          @RequestParam(defaultValue = "en") String lang) {
 
-        byte[] pdf = patientPdfRenderService.generatePatientLabelPdf(id);
+        byte[] pdf = patientPdfRenderService.generatePatientLabelPdf(id,lang,copies
+        );
 
         return ResponseEntity.ok()
                 .header("Content-Disposition", "inline; filename=patient-label-" + id + ".pdf")

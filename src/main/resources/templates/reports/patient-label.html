@@ -1,63 +1,81 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ar">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:attr="lang=${lang}, dir=${dir}">
 <head>
     <meta charset="UTF-8">
-    <title>Patient Label</title>
+    <title th:text="${labels.patientLabel}">Patient Label</title>
     <style th:utext="${reportCss}"></style>
-
 </head>
-<body>
-<div class="label">
 
-    <div class="header">
-        <div class="header-left">
-            <div class="title">Patient Label</div>
-        </div>
+<body th:class="${dir}">
 
-        <div class="header-right">
-            <div class="right-block">
-                <div class="right-text">
-                    <div class="label-date" th:text="${labelDateTimeFormatted} ?: ''"></div>
+<div th:each="copy : ${#numbers.sequence(1, copies)}"
+     class="label-wrapper">
+
+    <div class="label">
+
+        <div class="header">
+            <div class="header-left">
+                <div class="title" th:text="${labels.patientLabel}">
+                    Patient Label
                 </div>
+            </div>
 
-                <div class="right-qr">
-                    <img class="qr"
-                         th:if="${qrImage != null and !#strings.isEmpty(qrImage)}"
-                         th:src="'data:image/png;base64,' + ${qrImage}" />
+            <div class="header-right">
+                <div class="right-block">
+                    <div class="right-text">
+                        <div class="label-date"
+                             th:text="${labelDateTimeFormatted} ?: ''"></div>
+                    </div>
+
+                    <div class="right-qr">
+                        <img class="qr"
+                             th:if="${qrImage != null and !#strings.isEmpty(qrImage)}"
+                             th:src="'data:image/png;base64,' + ${qrImage}" />
+                    </div>
                 </div>
             </div>
         </div>
+
+        <div class="content">
+            <div class="row">
+                <span class="label-text">
+                    <span th:text="${labels.name}">Name</span>:
+                </span>
+                <span dir="auto" th:text="${label.patientFullName} ?: ''"></span>
+            </div>
+
+            <div class="row">
+                <span class="label-text">
+                    <span th:text="${labels.mrn}">MRN</span>:
+                </span>
+                <span th:text="${label.mrn} ?: ''"></span>
+            </div>
+
+            <div class="row">
+                <span class="label-text">
+                    <span th:text="${labels.dob}">DOB</span>:
+                </span>
+                <span th:text="${dateOfBirthFormatted} ?: ''"></span>
+            </div>
+
+            <div class="row">
+                <span class="label-text">
+                    <span th:text="${labels.gender}">Gender</span>:
+                </span>
+                <span th:text="${label.gender} ?: ''"></span>
+            </div>
+        </div>
+
+        <div class="barcode-box">
+            <img class="barcode"
+                 th:if="${barcodeImage != null and !#strings.isEmpty(barcodeImage)}"
+                 th:src="'data:image/png;base64,' + ${barcodeImage}" />
+            <div class="barcode-text" th:text="${label.mrn} ?: ''"></div>
+        </div>
+
     </div>
-
-    <div class="content">
-        <div class="row">
-            <span class="label-text">Name: </span>
-            <span dir="auto" th:text="${label.patientFullName} ?: ''"></span>
-        </div>
-
-        <div class="row">
-            <span class="label-text">MRN: </span>
-            <span th:text="${label.mrn} ?: ''"></span>
-        </div>
-
-        <div class="row">
-            <span class="label-text">DOB: </span>
-            <span th:text="${dateOfBirthFormatted} ?: ''"></span>
-        </div>
-
-        <div class="row">
-            <span class="label-text">Gender: </span>
-            <span th:text="${label.gender} ?: ''"></span>
-        </div>
-    </div>
-
-    <div class="barcode-box">
-        <img class="barcode"
-             th:if="${barcodeImage != null and !#strings.isEmpty(barcodeImage)}"
-             th:src="'data:image/png;base64,' + ${barcodeImage}" />
-        <div class="barcode-text" th:text="${label.mrn} ?: ''"></div>
-    </div>
-
 </div>
+
 </body>
 </html>
