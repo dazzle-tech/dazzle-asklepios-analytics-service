@@ -2,15 +2,16 @@ package com.dazzle.asklepios.web.rest;
 
 import com.dazzle.asklepios.service.DiagnosticOrderTestResultReportService;
 import com.dazzle.asklepios.service.LaboratoryPdfRenderService;
-import com.dazzle.asklepios.service.dto.LaboratoryResultReportDTO;
+import com.dazzle.asklepios.service.dto.laboratory.LaboratoryResultReportDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/analytics")
@@ -29,24 +30,32 @@ public class DiagnosticOrderTestResultController {
         this.laboratoryPdfRenderService = laboratoryPdfRenderService;
     }
 
-    @GetMapping("/laboratory-reports/result/{resultId}")
-    public ResponseEntity<LaboratoryResultReportDTO> getLaboratoryResult(@PathVariable Long resultId) {
+    @GetMapping("/laboratory-reports/results")
+    public ResponseEntity<LaboratoryResultReportDTO> getLaboratoryResults(
+            @RequestParam List<Long> resultIds
+    ) {
+        LOG.debug("[LaboratoryResultReportResource] GET_LABORATORY_RESULTS - start. resultIds={}", resultIds);
 
-        LOG.debug("[LaboratoryResultReportResource] GET_LABORATORY_RESULT - start. resultId={}", resultId);
+        LaboratoryResultReportDTO report = resultReportService.getLaboratoryResults(resultIds);
 
-        LaboratoryResultReportDTO report = resultReportService.getLaboratoryResult(resultId);
-
-        LOG.debug("[LaboratoryResultReportResource] GET_LABORATORY_RESULT - completed. resultId={}", resultId);
+        LOG.debug("[LaboratoryResultReportResource] GET_LABORATORY_RESULTS - completed. resultIds={}", resultIds);
 
         return ResponseEntity.ok(report);
     }
 
-    @GetMapping("/laboratory-reports/result/{id}/pdf")
-    public ResponseEntity<byte[]> generateLaboratoryPdf(@PathVariable Long id , @RequestParam (defaultValue = "en") String lang) {
-        byte[] pdf = laboratoryPdfRenderService.generateLaboratoryPdf(id,lang);
+    @GetMapping("/laboratory-reports/results/pdf")
+    public ResponseEntity<byte[]> generateLaboratoryPdf(
+            @RequestParam List<Long> resultIds,
+            @RequestParam(defaultValue = "en") String lang
+    ) {
+        LOG.debug("[LaboratoryResultReportResource] GENERATE_LABORATORY_RESULTS_PDF - start. resultIds={}, lang={}", resultIds, lang);
+
+        byte[] pdf = laboratoryPdfRenderService.generateLaboratoryPdf(resultIds, lang);
+
+        LOG.debug("[LaboratoryResultReportResource] GENERATE_LABORATORY_RESULTS_PDF - completed. resultIds={}", resultIds);
 
         return ResponseEntity.ok()
-                .header("Content-Disposition", "inline; filename=laboratory-result-" + id + ".pdf")
+                .header("Content-Disposition", "inline; filename=laboratory-results.pdf")
                 .header("Content-Type", "application/pdf")
                 .body(pdf);
     }

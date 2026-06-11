@@ -29,14 +29,8 @@
         </div>
 
         <div style="text-align:right;">
-            <p class="doc-id">
-                <span th:text="${labels.encounter}">ENCOUNTER</span>:
-                <span th:text="${report.encounterNumber != null ? report.encounterNumber : '—'}">—</span>
-            </p>
-
-            <p class="doc-id" style="margin-top:4px;">
-                <span th:text="${labels.order}">ORDER</span>:
-                <span th:text="${report.orderNumber != null ? report.orderNumber : '—'}">—</span>
+            <p class="doc-id" th:text="${labels.laboratoryResult}">
+                LABORATORY RESULT
             </p>
         </div>
     </div>
@@ -58,25 +52,37 @@
         <div class="patient-grid grid-4">
             <div class="info-box">
                 <span class="info-label" th:text="${labels.fullName}">Full Name</span>
-                <span class="info-value" th:text="${report.patientFullName}">PATIENT NAME</span>
+                <span class="info-value"
+                      th:text="${report.patientFullName != null and !#strings.isEmpty(report.patientFullName) ? report.patientFullName : '—'}">
+                    PATIENT NAME
+                </span>
             </div>
 
             <div class="info-box">
                 <span class="info-label" th:text="${labels.gender}">Gender</span>
-                <span class="info-value" th:text="${report.gender}">MALE</span>
+                <span class="info-value"
+                      th:text="${report.gender != null ? report.gender : '—'}">
+                    MALE
+                </span>
             </div>
 
             <div class="info-box">
                 <span class="info-label" th:text="${labels.mrnNumber}">MRN Number</span>
-                <span class="info-value" th:text="'#' + ${report.mrn}">#123</span>
+                <span class="info-value"
+                      th:text="${report.mrn != null and !#strings.isEmpty(report.mrn) ? '#' + report.mrn : '—'}">
+                    #123
+                </span>
             </div>
 
             <div class="info-box no-border">
                 <span class="info-label" th:text="${labels.dobAge}">D.O.B / Age</span>
                 <span class="info-value">
-                    <span th:text="${report.dateOfBirth != null ? #dates.format(report.dateOfBirth, 'dd/MM/yyyy') : '—'}">01/01/1990</span>
+                    <span th:text="${report.dateOfBirth != null ? #dates.format(report.dateOfBirth, 'dd/MM/yyyy') : '—'}">
+                        01/01/1990
+                    </span>
                     <span th:if="${report.age != null and !#strings.isEmpty(report.age)}"
-                          th:text="' (' + ${report.age} + ')'"></span>
+                          th:text="' (' + ${report.age} + ')'">
+                    </span>
                 </span>
             </div>
         </div>
@@ -89,30 +95,6 @@
                     059...
                 </span>
             </div>
-
-            <div class="info-box">
-                <span class="info-label" th:text="${labels.fromDepartment}">From Department</span>
-                <span class="info-value"
-                      th:text="${report.fromDepartment != null and !#strings.isEmpty(report.fromDepartment) ? report.fromDepartment : '—'}">
-                    ER
-                </span>
-            </div>
-
-            <div class="info-box">
-                <span class="info-label" th:text="${labels.testName}">Test Name</span>
-                <span class="info-value"
-                      th:text="${report.testName != null and !#strings.isEmpty(report.testName) ? report.testName : '—'}">
-                    CBC
-                </span>
-            </div>
-
-            <div class="info-box no-border">
-                <span class="info-label" th:text="${labels.resultDate}">Result Date</span>
-                <span class="info-value"
-                      th:text="${report.resultDate != null ? #temporals.format(report.resultDate, 'dd/MM/yyyy HH:mm') : '—'}">
-                    01/01/2026 09:30
-                </span>
-            </div>
         </div>
     </section>
 
@@ -123,96 +105,157 @@
             </h2>
         </div>
 
-        <div class="table-container">
-            <table>
-                <thead>
-                <tr>
-                    <th th:text="${labels.test}">Test</th>
-                    <th th:text="${labels.result}">Result</th>
-                    <th th:text="${labels.unit}">Unit</th>
-                    <th th:text="${labels.normalRange}">Normal Range</th>
-                    <th th:text="${labels.marker}">Marker</th>
-                </tr>
-                </thead>
-
-                <tbody>
-                <tr>
-                    <td th:text="${report.testName != null and !#strings.isEmpty(report.testName) ? report.testName : '—'}">Hemoglobin</td>
-                    <td th:text="${report.result != null and !#strings.isEmpty(report.result) ? report.result : '—'}">13.5</td>
-                    <td th:text="${report.unit != null and !#strings.isEmpty(report.unit) ? report.unit : '—'}">g/dL</td>
-                    <td th:text="${report.normalRange != null and !#strings.isEmpty(report.normalRange) ? report.normalRange : '—'}">12 - 16</td>
-
-                    <td class="marker-cell">
-                        <span th:if="${report.marker != null and report.marker.name() == 'ABNORMAL_MARKER'}"
-                              class="marker-group">
-                            ⚠
-                        </span>
-
-                        <span th:if="${report.marker != null and report.marker.name() == 'UPPER_LIMIT'}"
-                              class="marker-group">
-                            ↑
-                        </span>
-
-                        <span th:if="${report.marker != null and report.marker.name() == 'LOWER_LIMIT'}"
-                              class="marker-group">
-                            ↓
-                        </span>
-
-                        <span th:if="${report.marker != null and report.marker.name() == 'CRITICAL_UPPER'}"
-                              class="marker-group">
-                            ⚠ ↑
-                        </span>
-
-                        <span th:if="${report.marker != null and report.marker.name() == 'CRITICAL_LOWER'}"
-                              class="marker-group">
-                            ⚠ ↓
-                        </span>
-
-                        <span th:if="${report.marker != null and report.marker.name() != 'ABNORMAL_MARKER'
-                                                  and report.marker.name() != 'UPPER_LIMIT'
-                                                  and report.marker.name() != 'LOWER_LIMIT'
-                                                  and report.marker.name() != 'CRITICAL_UPPER'
-                                                  and report.marker.name() != 'CRITICAL_LOWER'}"
-                              th:text="${report.marker}">
-                            NORMAL
-                        </span>
-
-                        <span th:if="${report.marker == null}">-</span>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
-
-    <section class="report-section">
-        <div class="section-header">
-            <h2 class="section-title" th:text="${labels.reviewInformation}">
-                Review Information
-            </h2>
+        <div th:if="${report.orders == null or #lists.isEmpty(report.orders)}">
+            <p th:text="${labels.notAvailable}">—</p>
         </div>
 
-        <div class="table-container">
-            <table>
-                <thead>
-                <tr>
-                    <th th:text="${labels.reviewedDate}">Reviewed Date</th>
-                    <th th:text="${labels.reviewedBy}">Reviewed By</th>
-                </tr>
-                </thead>
+        <div th:each="order, orderStat : ${report.orders}" class="order-wrapper">
 
-                <tbody>
-                <tr>
-                    <td th:text="${report.reviewedDate != null ? #temporals.format(report.reviewedDate, 'dd/MM/yyyy HH:mm') : '—'}">
-                        01/01/2026 10:00
-                    </td>
+            <div class="order-block">
+                <div class="patient-grid grid-4 order-summary">
+                    <div class="info-box">
+                        <span class="info-label" th:text="${labels.order}">Order</span>
+                        <span class="info-value"
+                              th:text="${order.orderNumber != null ? order.orderNumber : '—'}">
+                            —
+                        </span>
+                    </div>
 
-                    <td th:text="${report.reviewedBy != null and !#strings.isEmpty(report.reviewedBy) ? report.reviewedBy : '—'}">
-                        LAB
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                    <div class="info-box">
+                        <span class="info-label" th:text="${labels.encounter}">Encounter</span>
+                        <span class="info-value"
+                              th:text="${order.encounterNumber != null and !#strings.isEmpty(order.encounterNumber) ? order.encounterNumber : '—'}">
+                            —
+                        </span>
+                    </div>
+
+                    <div class="info-box no-border">
+                        <span class="info-label" th:text="${labels.fromDepartment}">From Department</span>
+                        <span class="info-value"
+                              th:text="${order.fromDepartment != null and !#strings.isEmpty(order.fromDepartment) ? order.fromDepartment : '—'}">
+                            —
+                        </span>
+                    </div>
+                </div>
+
+                <div th:each="orderTest : ${order.orderTests}" class="order-test-block">
+
+                    <div class="section-header sub-section-header">
+                        <h3 class="section-title">
+                            <span th:text="${labels.orderTest}">Order Test</span>:
+                            <span th:text="${orderTest.testName != null and !#strings.isEmpty(orderTest.testName) ? orderTest.testName : '—'}">
+                                CBC
+                            </span>
+                        </h3>
+
+                        <div class="sub-info">
+                            <span th:text="${labels.receivedDepartment}">Received Department</span>:
+                            <span th:text="${orderTest.receivedDepartment != null and !#strings.isEmpty(orderTest.receivedDepartment) ? orderTest.receivedDepartment : '—'}">
+                                Lab
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th th:text="${labels.test}">Test</th>
+                                <th th:text="${labels.result}">Result</th>
+                                <th th:text="${labels.unit}">Unit</th>
+                                <th th:text="${labels.normalRange}">Normal Range</th>
+                                <th th:text="${labels.marker}">Marker</th>
+                                <th th:text="${labels.resultDate}">Result Date</th>
+                                <th th:text="${labels.reviewedDate}">Reviewed Date</th>
+                                <th th:text="${labels.reviewedBy}">Reviewed By</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            <tr th:each="item : ${orderTest.results}">
+                                <td>
+                                    <strong class="test-name"
+                                            th:text="${item.testName != null and !#strings.isEmpty(item.testName) ? item.testName : '—'}">
+                                        Hemoglobin
+                                    </strong>
+                                    <br/>
+                                    <small class="test-category"
+                                           th:text="${item.categoryName != null and !#strings.isEmpty(item.categoryName) ? item.categoryName : '—'}">
+                                        Hematology
+                                    </small>
+                                </td>
+
+                                <td th:text="${item.result != null and !#strings.isEmpty(item.result) ? item.result : '—'}">
+                                    13.5
+                                </td>
+
+                                <td th:text="${item.unit != null and !#strings.isEmpty(item.unit) ? item.unit : '—'}">
+                                    g/dL
+                                </td>
+
+                                <td th:text="${item.normalRange != null and !#strings.isEmpty(item.normalRange) ? item.normalRange : '—'}">
+                                    12 - 16
+                                </td>
+
+                                <td class="marker-cell">
+                                    <span th:if="${item.marker != null and item.marker.name() == 'ABNORMAL_MARKER'}"
+                                          class="marker-group">⚠</span>
+
+                                    <span th:if="${item.marker != null and item.marker.name() == 'UPPER_LIMIT'}"
+                                          class="marker-group">↑</span>
+
+                                    <span th:if="${item.marker != null and item.marker.name() == 'LOWER_LIMIT'}"
+                                          class="marker-group">↓</span>
+
+                                    <span th:if="${item.marker != null and item.marker.name() == 'CRITICAL_UPPER'}"
+                                          class="marker-group">⚠ ↑</span>
+
+                                    <span th:if="${item.marker != null and item.marker.name() == 'CRITICAL_LOWER'}"
+                                          class="marker-group">⚠ ↓</span>
+
+                                    <span th:if="${item.marker != null
+                                                  and item.marker.name() != 'ABNORMAL_MARKER'
+                                                  and item.marker.name() != 'UPPER_LIMIT'
+                                                  and item.marker.name() != 'LOWER_LIMIT'
+                                                  and item.marker.name() != 'CRITICAL_UPPER'
+                                                  and item.marker.name() != 'CRITICAL_LOWER'}"
+                                          th:text="${item.marker}">
+                                        NORMAL
+                                    </span>
+
+                                    <span th:if="${item.marker == null}">—</span>
+                                </td>
+
+                                <td th:text="${item.resultDate != null ? #temporals.format(item.resultDate, 'dd/MM/yyyy HH:mm') : '—'}">
+                                    —
+                                </td>
+
+                                <td th:text="${item.reviewedDate != null ? #temporals.format(item.reviewedDate, 'dd/MM/yyyy HH:mm') : '—'}">
+                                    —
+                                </td>
+
+                                <td th:text="${item.reviewedBy != null and !#strings.isEmpty(item.reviewedBy) ? item.reviewedBy : '—'}">
+                                    —
+                                </td>
+                            </tr>
+
+                            <tr th:if="${orderTest.results == null or #lists.isEmpty(orderTest.results)}">
+                                <td colspan="8" th:text="${labels.notAvailable}">—</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="order-separator" th:if="${!orderStat.last}">
+                <span>
+
+                    <span th:text="${order.orderNumber}">_</span>
+                </span>
+            </div>
+
         </div>
     </section>
 
@@ -229,11 +272,6 @@
                 <p class="auth-label" th:text="${labels.digitallyGeneratedReport}">
                     Digitally Generated Report
                 </p>
-
-                <div class="auth-name"
-                     th:text="${report.reviewedDate != null ? #temporals.format(report.reviewedDate, 'dd/MM/yyyy HH:mm') : '—'}">
-                    Review Date
-                </div>
             </div>
         </div>
     </div>
