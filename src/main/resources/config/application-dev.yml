@@ -14,6 +14,12 @@ management:
       probability: 1.0 # report 100% of traces
 service:
   asklepios-setup-service-url: http://localhost:8082
+
+ai:
+  ocr-parsing:
+    base-url: http://localhost:8080/api/ai/v1/ocr-parsing-service
+    timeout-seconds: 120
+
 spring:
   devtools:
     restart:
