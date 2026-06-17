@@ -179,7 +179,11 @@ dependencies {
     implementation 'com.google.zxing:javase:3.5.3'
     implementation 'com.microsoft.playwright:playwright:1.45.0'
     annotationProcessor "org.glassfish.jaxb:jaxb-runtime"
-    annotationProcessor "org.hibernate.orm:hibernate-processor"}
+    annotationProcessor "org.hibernate.orm:hibernate-processor"
+    implementation "io.github.openfeign:feign-form-spring"
+    implementation "io.github.openfeign:feign-form"
+    implementation "org.springframework.cloud:spring-cloud-starter-openfeign"
+ }
 
 task cleanResources(type: Delete) {
     delete "build/resources"
@@ -187,3 +191,4 @@ task cleanResources(type: Delete) {
 
 compileJava.dependsOn processResources
 processResources.dependsOn bootBuildInfo
+
