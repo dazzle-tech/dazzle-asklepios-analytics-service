@@ -194,7 +194,7 @@
 
                 <tbody>
                 <tr th:each="a : ${report.allergies}">
-                    <td class="text-muted" th:text="${a.allergenType}">—</td>
+                    <td class="text-muted" th:text="${a.type}">—</td>
                     <td><span class="badge-red" th:text="${a.severity}">—</span></td>
                     <td th:text="${a.allergen}">—</td>
                 </tr>

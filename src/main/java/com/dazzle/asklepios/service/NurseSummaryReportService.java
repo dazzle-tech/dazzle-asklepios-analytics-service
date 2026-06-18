@@ -2,7 +2,6 @@ package com.dazzle.asklepios.service;
 
 import com.dazzle.asklepios.domain.AdditionalMeasurements;
 import com.dazzle.asklepios.domain.BodyMeasurements;
-import com.dazzle.asklepios.domain.Department;
 import com.dazzle.asklepios.domain.EncounterVaccination;
 import com.dazzle.asklepios.domain.PainAssessment;
 import com.dazzle.asklepios.domain.Patient;
@@ -18,7 +17,6 @@ import com.dazzle.asklepios.domain.enumeration.PatientAllergyStatus;
 import com.dazzle.asklepios.domain.enumeration.PatientWarningStatus;
 import com.dazzle.asklepios.repository.AdditionalMeasurementsRepository;
 import com.dazzle.asklepios.repository.BodyMeasurementsRepository;
-import com.dazzle.asklepios.repository.DepartmentsRepository;
 import com.dazzle.asklepios.repository.EncounterVaccinationRepository;
 import com.dazzle.asklepios.repository.PainAssessmentRepository;
 import com.dazzle.asklepios.repository.PatientAllergiesRepository;
@@ -57,13 +55,11 @@ public class NurseSummaryReportService {
 
     private static final Logger LOG = LoggerFactory.getLogger(NurseSummaryReportService.class);
 
-    private final LovLookupService lovLookupService;
     private final PatientEncounterRepository patientEncounterRepository;
     private final PatientObservationsComplaintsRepository patientObservationsComplaintsRepository;
     private final VitalSignsRepository vitalSignsRepository;
     private final BodyMeasurementsRepository bodyMeasurementsRepository;
     private final AdditionalMeasurementsRepository additionalMeasurementsRepository;
-    private final DepartmentsRepository departmentsRepository;
     private final PatientAllergiesRepository patientAllergiesRepository;
     private final PatientWarningsRepository patientWarningsRepository;
     private final EncounterVaccinationRepository encounterVaccinationRepository;
