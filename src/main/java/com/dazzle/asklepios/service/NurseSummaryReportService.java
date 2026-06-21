@@ -2,6 +2,7 @@ package com.dazzle.asklepios.service;
 
 import com.dazzle.asklepios.domain.AdditionalMeasurements;
 import com.dazzle.asklepios.domain.BodyMeasurements;
+import com.dazzle.asklepios.domain.Department;
 import com.dazzle.asklepios.domain.EncounterVaccination;
 import com.dazzle.asklepios.domain.PainAssessment;
 import com.dazzle.asklepios.domain.Patient;
@@ -56,6 +57,7 @@ public class NurseSummaryReportService {
 
     private static final Logger LOG = LoggerFactory.getLogger(NurseSummaryReportService.class);
 
+    private final LovLookupService lovLookupService;
     private final PatientEncounterRepository patientEncounterRepository;
     private final PatientObservationsComplaintsRepository patientObservationsComplaintsRepository;
     private final VitalSignsRepository vitalSignsRepository;

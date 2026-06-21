@@ -54,9 +54,8 @@ public class PatientAllergies extends AbstractAuditingEntity<Long> implements Se
     @Column(name = "severity", nullable = false)
     private Severity severity;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "medication_class_id")
-    private MedicationCategoriesClass medicationClass;
+    @Column(name = "medication_class_id")
+    private Long medicationClassId;
 
     @Column(name = "criticality")
     private String criticality;

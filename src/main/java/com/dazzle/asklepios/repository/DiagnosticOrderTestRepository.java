@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 public interface DiagnosticOrderTestRepository extends JpaRepository<DiagnosticOrderTest, Long> {
+    List<DiagnosticOrderTest> findByOrderIdOrderByIdAsc(Long orderId);
     List<DiagnosticOrderTest> findByOrderIdInOrderByIdAsc(List<Long> orderIds);
-    List<DiagnosticOrderTest> findByOrderIdIn(List<Long> orderIds);
 }
