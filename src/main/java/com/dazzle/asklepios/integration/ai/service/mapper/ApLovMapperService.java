@@ -1,14 +1,11 @@
 package com.dazzle.asklepios.integration.ai.service.mapper;
 
-
 import com.dazzle.asklepios.domain.ApLovValue;
 import com.dazzle.asklepios.repository.ApLovValueRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -16,138 +13,133 @@ public class ApLovMapperService {
 
     private final ApLovValueRepository apLovValueRepository;
 
-    private static final Map<String, String> MARITAL_STATUS_TO_NPHIES = Map.of(
-            "MARRIED", "M",
-            "SINGLE", "U",
-            "DIVORCED", "D",
-            "WIDOWED", "W"
-    );
+    /**
+     * Map nationality text (OCR / LLM) -> LOV key
+     */
+    public String mapNationalityToKey(String nationality) {
 
-    private static final Map<String, String> OCCUPATION_TO_NPHIES = Map.ofEntries(
-            Map.entry("NURSE", "medical field"),
-            Map.entry("DOCTOR", "medical field"),
-            Map.entry("PHAR", "medical field"),
-            Map.entry("TECH", "medical field"),
-            Map.entry("DEN", "medical field"),
-            Map.entry("OCCTH", "medical field"),
-            Map.entry("RAD", "medical field"),
-            Map.entry("PHD", "medical field"),
-
-            Map.entry("ENGINEER", "skilled worker"),
-            Map.entry("DEV", "skilled worker"),
-            Map.entry("IT", "skilled worker"),
-            Map.entry("TRAD", "skilled worker"),
-
-            Map.entry("EDU", "education"),
-            Map.entry("AGRI", "agriculture"),
-
-            Map.entry("FIN", "business"),
-            Map.entry("BUSI", "business"),
-            Map.entry("RET", "business"),
-
-            Map.entry("PUBSER", "administration"),
-
-            Map.entry("ART", "others"),
-            Map.entry("HOSP", "others")
-    );
-
-    public String getKeyByLovCodeAndValueCode(String lovCode, String valueCode) {
-        if (isBlank(lovCode) || isBlank(valueCode)) {
-            return "";
+        if (nationality == null || nationality.isBlank()) {
+            return null;
         }
 
-        List<ApLovValue> values = apLovValueRepository.findByLovCodeAndIsValidTrue(lovCode);
-        String normalizedValueCode = normalize(valueCode);
+        String input = normalize(nationality);
 
+        List<ApLovValue> values =
+                apLovValueRepository.findByLovCodeAndIsValidTrue("NAT");
+
+        // 1) direct smart match
+        Optional<ApLovValue> matched = values.stream()
+                .filter(v -> matches(input, v))
+                .findFirst();
+
+        if (matched.isPresent()) {
+            return matched.get().getKey();
+        }
+
+        // 2) fallback: exact code match (NAT_019 etc)
         return values.stream()
-                .filter(v -> normalize(v.getValueCode()).equals(normalizedValueCode))
+                .filter(v -> v.getValueCode() != null)
+                .filter(v -> normalize(v.getValueCode()).equals(input))
                 .map(ApLovValue::getKey)
                 .findFirst()
-                .orElse("");
-    }
-
-    public String getValueCodeByLovCodeAndKey(String lovCode, String key) {
-        if (isBlank(lovCode) || isBlank(key)) {
-            return null;
-        }
-
-        List<ApLovValue> values = apLovValueRepository.findByLovCodeAndIsValidTrue(lovCode);
-        String normalizedKey = normalizeKey(key);
-
-        return values.stream()
-                .filter(v -> normalizeKey(v.getKey()).equals(normalizedKey))
-                .map(ApLovValue::getValueCode)
-                .findFirst()
                 .orElse(null);
     }
 
+    /**
+     * Main matching logic
+     */
+    private boolean matches(String input, ApLovValue value) {
 
-
-    public String mapMaritalStatusValueCodeToNphies(String valueCode) {
-        String normalized = normalize(valueCode);
-
-        if (normalized.isEmpty()) {
-            return null;
-        }
-
-        return MARITAL_STATUS_TO_NPHIES.getOrDefault(normalized, normalized);
-    }
-
-    public String mapOccupationValueCodeToNphies(String valueCode) {
-        String normalized = normalize(valueCode);
-
-        if (normalized.isEmpty()) {
-            return null;
-        }
-
-        return OCCUPATION_TO_NPHIES.getOrDefault(
-                normalized,
-                normalized.toLowerCase(Locale.ROOT)
+        String dbValue = firstNonNull(
+                value.getLovDisplayVale(),
+                value.getValueDescription(),
+                value.getValueCode()
         );
+
+        if (dbValue == null) return false;
+
+        String normalizedDb = normalize(dbValue);
+
+        // exact match
+        if (normalizedDb.equals(input)) {
+            return true;
+        }
+
+        // contains both directions
+        if (normalizedDb.contains(input) || input.contains(normalizedDb)) {
+            return true;
+        }
+
+        // alias matching (USA, UK, UAE etc)
+        return aliasMatch(input, normalizedDb);
     }
 
+    /**
+     * Handles common OCR / LLM variations WITHOUT hardcoding every country
+     */
+    private boolean aliasMatch(String input, String dbValue) {
+
+        Map<String, List<String>> aliases = getNationalityAliases();
+
+        for (Map.Entry<String, List<String>> entry : aliases.entrySet()) {
+
+            String canonical = normalize(entry.getKey());
+            List<String> variants = entry.getValue();
+
+            boolean inputMatches = variants.stream()
+                    .map(this::normalize)
+                    .anyMatch(input::contains);
+
+            boolean dbMatches = variants.stream()
+                    .map(this::normalize)
+                    .anyMatch(dbValue::contains);
+
+            if ((inputMatches && dbValue.contains(canonical)) ||
+                    (dbMatches && input.contains(canonical))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Generic normalization
+     */
     private String normalize(String value) {
-        return value == null
-                ? ""
-                : value.trim()
+        return value
+                .trim()
+                .toUpperCase(Locale.ROOT)
                 .replace("_", " ")
                 .replace("-", " ")
-                .replaceAll("\\s+", " ")
-                .toUpperCase(Locale.ROOT);
+                .replaceAll("\\s+", " ");
     }
 
-    public String getCleanValueCodeByLovCodeAndKey(String lovCode, String key) {
-        String valueCode = getValueCodeByLovCodeAndKey(lovCode, key);
-
-        if (valueCode == null || valueCode.trim().isEmpty()) {
-            return null;
-        }
-
-        return valueCode.trim()
-                .replace("NAT_", "")
-                .replace("LANG_", "");
-    }
-
-    private String normalizeKey(String value) {
-        return value == null ? "" : value.trim();
-    }
-
-    private boolean isBlank(String value) {
-        return value == null || value.trim().isEmpty();
-    }
-    public String getDisplayValueByLovCodeAndValueCode(String lovCode, String valueCode) {
-        if (isBlank(lovCode) || isBlank(valueCode)) {
-            return null;
-        }
-
-        List<ApLovValue> values = apLovValueRepository.findByLovCodeAndIsValidTrue(lovCode);
-        String normalizedValueCode = normalizeKey(valueCode);
-
-        return values.stream()
-                .filter(v -> normalizeKey(v.getValueCode()).equals(normalizedValueCode))
-                .map(ApLovValue::getLovDisplayVale)
+    /**
+     * Safe getter
+     */
+    private String firstNonNull(String... values) {
+        return Arrays.stream(values)
+                .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(null);
     }
 
+    /**
+     * Central alias registry (NOT per-country logic in code flow)
+     */
+    private Map<String, List<String>> getNationalityAliases() {
+
+        Map<String, List<String>> map = new HashMap<>();
+
+        map.put("UNITED STATES", List.of("USA", "US", "UNITED STATES", "AMERICA", "AMERICAN"));
+        map.put("UNITED KINGDOM", List.of("UK", "BRITAIN", "ENGLAND", "BRITISH"));
+        map.put("UNITED ARAB EMIRATES", List.of("UAE", "EMIRATES", "EMIRATI"));
+        map.put("SAUDI ARABIA", List.of("SAUDI", "KSA"));
+        map.put("PALESTINE", List.of("PALESTINIAN", "PALESTINE"));
+        map.put("JORDAN", List.of("JORDANIAN"));
+        map.put("EGYPT", List.of("EGYPTIAN"));
+
+        return map;
+    }
 }

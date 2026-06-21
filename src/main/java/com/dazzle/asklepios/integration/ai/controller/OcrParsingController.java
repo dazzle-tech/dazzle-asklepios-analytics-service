@@ -1,6 +1,7 @@
 package com.dazzle.asklepios.integration.ai.controller;
 
 import com.dazzle.asklepios.integration.ai.client.dto.OCRParsingResponseDTO;
+import com.dazzle.asklepios.integration.ai.client.dto.PatientInfoResponseDTO;
 import com.dazzle.asklepios.integration.ai.service.OcrParsingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -19,7 +20,7 @@ public class OcrParsingController {
     private final OcrParsingService ocrParsingService;
 
     @PostMapping(value = "/ocr/extract-and-parse", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<OCRParsingResponseDTO
+    public ResponseEntity<PatientInfoResponseDTO
             > extractAndParse(@RequestPart("file") MultipartFile file) {
         return ResponseEntity.ok(ocrParsingService.extractAndParse(file));
     }
