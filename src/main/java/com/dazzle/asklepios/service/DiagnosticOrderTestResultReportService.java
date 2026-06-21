@@ -3,7 +3,6 @@ package com.dazzle.asklepios.service;
 import com.dazzle.asklepios.domain.ApLovValue;
 import com.dazzle.asklepios.domain.DiagnosticOrder;
 import com.dazzle.asklepios.domain.DiagnosticOrderTest;
-import com.dazzle.asklepios.domain.DiagnosticOrderTestReport;
 import com.dazzle.asklepios.domain.DiagnosticOrderTestResult;
 import com.dazzle.asklepios.domain.DiagnosticTest;
 import com.dazzle.asklepios.domain.DiagnosticTestLaboratory;
@@ -47,7 +46,6 @@ public class DiagnosticOrderTestResultReportService {
     private final DiagnosticOrderRepository orderRepository;
     private final PatientRepository patientRepository;
     private final DiagnosticTestRepository diagnosticTestRepository;
-    private final DepartmentsRepository departmentRepository;
     private final PatientEncounterRepository encounterRepository;
     private final DiagnosticTestProfileRepository diagnosticTestProfileRepository;
     private final DiagnosticTestLaboratoryRepository diagnosticTestLaboratoryRepository;
@@ -60,7 +58,6 @@ public class DiagnosticOrderTestResultReportService {
             DiagnosticOrderRepository orderRepository,
             PatientRepository patientRepository,
             DiagnosticTestRepository diagnosticTestRepository,
-            DepartmentsRepository departmentRepository,
             PatientEncounterRepository encounterRepository,
             DiagnosticTestProfileRepository diagnosticTestProfileRepository,
             DiagnosticTestLaboratoryRepository diagnosticTestLaboratoryRepository,
@@ -72,7 +69,6 @@ public class DiagnosticOrderTestResultReportService {
         this.orderRepository = orderRepository;
         this.patientRepository = patientRepository;
         this.diagnosticTestRepository = diagnosticTestRepository;
-        this.departmentRepository = departmentRepository;
         this.encounterRepository = encounterRepository;
         this.diagnosticTestProfileRepository = diagnosticTestProfileRepository;
         this.diagnosticTestLaboratoryRepository = diagnosticTestLaboratoryRepository;

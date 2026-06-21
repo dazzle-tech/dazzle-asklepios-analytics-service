@@ -3,6 +3,7 @@ package com.dazzle.asklepios;
 import com.dazzle.asklepios.config.CRLFLogConverter;
 import com.dazzle.asklepios.config.Constants;
 import com.dazzle.asklepios.integration.ai.config.AiOcrParsingProperties;
+import com.dazzle.asklepios.integration.ai.config.AiRecommendationsProperties;
 import jakarta.annotation.PostConstruct;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -21,7 +22,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.core.env.Environment;
 
 
-@EnableConfigurationProperties(AiOcrParsingProperties.class)
+@EnableConfigurationProperties({AiOcrParsingProperties.class , AiRecommendationsProperties.class})
 @EnableFeignClients
 @SpringBootApplication
 public class AnalyticsApp {

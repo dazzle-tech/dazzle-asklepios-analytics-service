@@ -11,6 +11,7 @@ import com.dazzle.asklepios.domain.PatientPrescriptionMedication;
 import com.dazzle.asklepios.domain.PatientProcedure;
 import com.dazzle.asklepios.domain.PatientWarnings;
 import com.dazzle.asklepios.domain.PrescriptionInstruction;
+import com.dazzle.asklepios.domain.Procedure;
 import com.dazzle.asklepios.repository.BodyMeasurementsRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderTestRepository;
@@ -169,17 +170,27 @@ public class VisitReportService {
     }
 
     private ProceduresDTO mapProcedure(PatientProcedure entity) {
-        return procedureRepository.findById(entity.getProcedureId())
-                .map(procedure -> {
-                    String categoryDisplay = lovLookupService.findDisplayValue(procedure.getCategoryType());
-                    return new ProceduresDTO(
-                            procedure.getName(),
-                            procedure.getCode(),
-                            categoryDisplay,
-                            entity.getNotes()
-                    );
-                })
-                .orElse(new ProceduresDTO(null, null, null, entity.getNotes()));
+
+        Procedure procedure = entity.getProcedure();
+
+        if (procedure == null) {
+            return new ProceduresDTO(
+                    null,
+                    null,
+                    null,
+                    entity.getNotes()
+            );
+        }
+
+        String categoryDisplay =
+                lovLookupService.findDisplayValue(procedure.getCategoryType());
+
+        return new ProceduresDTO(
+                procedure.getName(),
+                procedure.getCode(),
+                categoryDisplay,
+                entity.getNotes()
+        );
     }
 
     private String resolveInstruction(PatientPrescriptionMedication medication) {
