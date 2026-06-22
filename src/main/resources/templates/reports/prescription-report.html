@@ -235,6 +235,7 @@
         <table class="medication-table">
           <thead>
           <tr>
+            <th th:text="${labels.activeIngredient}">Active Ingredient</th>
             <th th:text="${labels.medicationName}">Medication Name</th>
             <th th:text="${labels.instructions}">Instructions</th>
             <th th:text="${labels.duration}">Duration</th>
@@ -245,6 +246,7 @@
           </thead>
           <tbody>
           <tr th:each="med : ${report.medications}">
+            <td class="med-name" th:text="${med.activeIngredient}">Active Ingredient</td>
             <td class="med-name" th:text="${med.medicationName}">Medication</td>
             <td class="med-instructions" th:text="${med.instructions}">Instructions</td>
             <td th:text="${med.duration}">Duration</td>

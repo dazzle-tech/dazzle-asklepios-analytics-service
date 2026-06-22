@@ -98,6 +98,7 @@ public class PrescriptionPdfRenderService {
                         : "No warnings recorded.");
 
         // Medications
+        labels.put("activeIngredient",isArabic ? "المادة الفعالة" : "Active Ingredient");
         labels.put("medications", isArabic ? "5. الأدوية" : "5. Medications");
         labels.put("medicationName", isArabic ? "اسم الدواء" : "Medication Name");
         labels.put("instructions", isArabic ? "التعليمات" : "Instructions");

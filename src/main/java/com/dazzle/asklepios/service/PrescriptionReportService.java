@@ -277,6 +277,7 @@ public class PrescriptionReportService {
         List<PrescriptionMedicationDTO> medicationDTOS = medications.stream()
                 .sorted(Comparator.comparing(PatientPrescriptionMedication::getId))
                 .map(m -> new PrescriptionMedicationDTO(
+                        m.getActiveIngredient().getName(),
                         m.getMedications() != null ? m.getMedications().getName() : null,
                         resolveInstruction(m),
                         m.getDuration(),

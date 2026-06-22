@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -42,6 +43,10 @@ public class PatientPrescriptionMedication extends AbstractAuditingEntity<Long> 
     @JoinColumn(name = "medications_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private BrandMedication medications;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name ="active_ingredient_id" ,nullable = false)
+    private ActiveIngredients activeIngredient;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "instructions_type", nullable = false, length = 50)
