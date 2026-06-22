@@ -1,4 +1,4 @@
-package com.dazzle.asklepios.integration.ai.controller.dto;
+package com.dazzle.asklepios.integration.ai.controller.vm;
 
 import java.util.List;
 

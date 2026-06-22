@@ -1,107 +1,98 @@
 package com.dazzle.asklepios.integration.ai.service;
 
-import com.dazzle.asklepios.domain.ApLovValue;
-import com.dazzle.asklepios.domain.DiagnosticOrder;
-import com.dazzle.asklepios.domain.DiagnosticOrderTest;
-import com.dazzle.asklepios.domain.DiagnosticOrderTestResult;
-import com.dazzle.asklepios.domain.DiagnosticTest;
-import com.dazzle.asklepios.domain.DiagnosticTestProfile;
-import com.dazzle.asklepios.domain.EncounterAssessment;
 import com.dazzle.asklepios.domain.Patient;
-import com.dazzle.asklepios.domain.PatientAllergies;
 import com.dazzle.asklepios.domain.PatientEncounter;
-import com.dazzle.asklepios.domain.ProgressNote;
-import com.dazzle.asklepios.domain.enumeration.DiagnosisType;
-import com.dazzle.asklepios.domain.enumeration.PatientAllergyStatus;
-import com.dazzle.asklepios.domain.enumeration.PatientHistoryStatus;
-import com.dazzle.asklepios.domain.enumeration.TestResultType;
 import com.dazzle.asklepios.integration.ai.client.RecommendationsClient;
 import com.dazzle.asklepios.integration.ai.client.dto.recommendations.PatientContextDTO;
 import com.dazzle.asklepios.integration.ai.client.dto.recommendations.RecommendationRequestDTO;
 import com.dazzle.asklepios.integration.ai.client.dto.recommendations.RecommendationsResponseDTO;
-import com.dazzle.asklepios.integration.ai.client.dto.recommendations.SurgeryDTO;
-import com.dazzle.asklepios.integration.ai.controller.dto.PatientRecommendationRequestVM;
-import com.dazzle.asklepios.repository.ApLovValueRepository;
-import com.dazzle.asklepios.repository.CurrentMedicationRepository;
-import com.dazzle.asklepios.repository.DiagnosticOrderRepository;
-import com.dazzle.asklepios.repository.DiagnosticOrderTestRepository;
-import com.dazzle.asklepios.repository.DiagnosticOrderTestResultRepository;
-import com.dazzle.asklepios.repository.DiagnosticTestProfileRepository;
-import com.dazzle.asklepios.repository.DiagnosticTestRepository;
-import com.dazzle.asklepios.repository.EncounterAssessmentRepository;
-import com.dazzle.asklepios.repository.PatientAllergiesRepository;
-import com.dazzle.asklepios.repository.PatientDiagnosisRepository;
+import com.dazzle.asklepios.integration.ai.client.dto.recommendations.SpecialtyConsultationRequestDTO;
+import com.dazzle.asklepios.integration.ai.client.dto.recommendations.SpecialtyConsultationResponseDTO;
+import com.dazzle.asklepios.integration.ai.controller.vm.PatientRecommendationRequestVM;
+import com.dazzle.asklepios.integration.ai.controller.vm.PatientSpecialtyConsultationRequestVM;
 import com.dazzle.asklepios.repository.PatientEncounterRepository;
-import com.dazzle.asklepios.repository.PatientProcedureRepository;
 import com.dazzle.asklepios.repository.PatientRepository;
-import com.dazzle.asklepios.repository.ProgressNoteRepository;
-import com.dazzle.asklepios.repository.VitalSignsRepository;
 import com.dazzle.asklepios.web.rest.errors.BadRequestAlertException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.ZoneId;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-
 public class RecommendationsAiService {
+
     private static final Logger LOG = LoggerFactory.getLogger(RecommendationsAiService.class);
 
     private final RecommendationsClient recommendationsClient;
     private final PatientRepository patientRepository;
     private final PatientEncounterRepository patientEncounterRepository;
-    private final VitalSignsRepository vitalSignsRepository;
-    private final PatientAllergiesRepository patientAllergiesRepository;
-    private final PatientDiagnosisRepository patientDiagnosisRepository;
-    private final CurrentMedicationRepository currentMedicationRepository;
-    private final PatientProcedureRepository patientProcedureRepository;
-    private final DiagnosticOrderRepository diagnosticOrderRepository;
-    private final DiagnosticOrderTestRepository diagnosticOrderTestRepository;
-    private final DiagnosticOrderTestResultRepository diagnosticOrderTestResultRepository;
-    private final DiagnosticTestRepository diagnosticTestRepository;
-    private final DiagnosticTestProfileRepository diagnosticTestProfileRepository;
-    private final ProgressNoteRepository progressNoteRepository;
-    private final EncounterAssessmentRepository encounterAssessmentRepository;
-    private final ApLovValueRepository apLovValueRepository;
-    public RecommendationsResponseDTO getRecommendations(PatientRecommendationRequestVM request) {
 
-        Patient patient = patientRepository
-                .findById(request.patientId())
+    private final PatientAiContextBuilderService patientAiContextBuilderService;
+
+    public RecommendationsResponseDTO getRecommendations(PatientRecommendationRequestVM request) {
+        Patient patient = getPatient(request.patientId());
+        PatientEncounter encounter = getEncounter(request.encounterId());
+
+        RecommendationRequestDTO aiRequest =
+                buildAiRecommendationRequest(patient, encounter, request.focusAreas());
+
+        LOG.info(
+                "Recommendation request for patientId={} encounterId={}",
+                patient.getId(),
+                encounter.getId()
+        );
+
+        return recommendationsClient.getRecommendations(aiRequest);
+    }
+
+    public SpecialtyConsultationResponseDTO getSpecialtyConsultation(
+            PatientSpecialtyConsultationRequestVM request
+    ) {
+        Patient patient = getPatient(request.patientId());
+        PatientEncounter encounter = getEncounter(request.encounterId());
+
+        SpecialtyConsultationRequestDTO aiRequest =
+                new SpecialtyConsultationRequestDTO(
+                        UUID.randomUUID().toString(),
+                        request.specialty(),
+                       buildPatientContext(patient, encounter),
+                        encounter.getChiefComplaint()
+                );
+
+        LOG.info(
+                "Specialty consultation request for patientId={} encounterId={} specialty={}",
+                patient.getId(),
+                encounter.getId(),
+                request.specialty()
+        );
+
+        return recommendationsClient.getSpecialtyConsultation(aiRequest);
+    }
+
+    private Patient getPatient(Long patientId) {
+        return patientRepository
+                .findById(patientId)
                 .orElseThrow(() -> new BadRequestAlertException(
                         "Patient not found",
                         "patient",
                         "notfound"
                 ));
+    }
 
-        PatientEncounter encounter = patientEncounterRepository
-                .findById(request.encounterId())
+    private PatientEncounter getEncounter(Long encounterId) {
+        return patientEncounterRepository
+                .findById(encounterId)
                 .orElseThrow(() -> new BadRequestAlertException(
                         "Encounter not found",
                         "encounter",
                         "notfound"
                 ));
-
-        RecommendationRequestDTO aiRequest =
-                buildAiRecommendationRequest(patient, encounter, request.focusAreas());
-        LOG.info(
-                "Recommendation request for patientId={} request={}",
-                patient.getId(),
-                aiRequest
-        );        return recommendationsClient.getRecommendations(aiRequest);
     }
 
     private RecommendationRequestDTO buildAiRecommendationRequest(
@@ -109,321 +100,27 @@ public class RecommendationsAiService {
             PatientEncounter encounter,
             List<String> focusAreas
     ) {
-        PatientContextDTO patientContext = new PatientContextDTO(
-                calculateAge(patient.getDateOfBirth()),
-                patient.getSexAtBirth() != null ? patient.getSexAtBirth().toString() : "Unknown",
-                buildDiagnosis(encounter.getId()),
-                buildSymptoms(encounter),
-                buildCurrentMedications(patient.getId()),
-                buildAllergies(patient.getId()),
-                List.of(),
-                buildVitals(encounter.getId()),
-                buildLabResults(patient.getId()),
-                buildSurgeries(patient.getId()),
-                buildClinicalNotes(encounter.getId())
-
-        );
-
         return new RecommendationRequestDTO(
                 UUID.randomUUID().toString(),
-                patientContext,
+                buildPatientContext(patient, encounter),
                 List.of("general"),
                 focusAreas != null ? focusAreas : List.of()
         );
     }
-    private String resolveAllergenName(PatientAllergies allergy) {
-        if (allergy.getAllergen() != null && allergy.getAllergen().getName() != null) {
-            return allergy.getAllergen().getName();
-        }
 
-        if (allergy.getMedicationClass() != null && allergy.getMedicationClass().getName() != null) {
-            return allergy.getMedicationClass().getName();
-        }
-
-        return "Unknown allergen";
-    }
-    private List<String> buildAllergies(Long patientId) {
-        return patientAllergiesRepository
-                .findByPatientIdAndStatusNotOrderByCreatedDateAsc(
-                        patientId,
-                        PatientAllergyStatus.CANCELLED
-                )
-                .stream()
-                .map(allergy -> {
-                    String type = allergy.getAllergenType() != null
-                            ? allergy.getAllergenType().name()
-                            : null;
-
-                    String allergenName = resolveAllergenName(allergy);
-
-                    String severity = allergy.getSeverity() != null
-                            ? allergy.getSeverity().name()
-                            : null;
-
-                    return Stream.of(type, allergenName, severity)
-                            .filter(Objects::nonNull)
-                            .filter(value -> !value.isBlank())
-                            .collect(Collectors.joining(" - "));
-                })
-                .filter(value -> !value.isBlank())
-                .toList();
-    }
-    private Map<String, String> buildVitals(Long encounterId) {
-        return vitalSignsRepository
-                .findFirstByEncounterIdAndIsActiveTrueOrderByCreatedDateDesc(encounterId)
-                .map(vital -> {
-                    Map<String, String> vitals = new LinkedHashMap<>();
-
-                    putIfNotNull(vitals, "Blood Pressure Systolic", vital.getBloodPressureSystolic());
-                    putIfNotNull(vitals, "Blood Pressure Diastolic", vital.getBloodPressureDiastolic());
-                    putIfNotNull(vitals, "Heart Rate", vital.getHeartRate());
-                    putIfNotNull(vitals, "Temperature", vital.getTemperature());
-                    putIfNotNull(vitals, "Oxygen Saturation", vital.getOxygenSaturation());
-                    putIfNotNull(vitals, "Respiratory Rate", vital.getRespiratoryRate());
-                    putIfNotNull(vitals, "Notes", vital.getNotes());
-
-                    return vitals;
-                })
-                .orElse(Map.of());
-    }
-    private String buildDiagnosis(Long encounterId) {
-        return patientDiagnosisRepository
-                .findByEncounterIdAndType(encounterId, DiagnosisType.PRIMARY)
-                .map(patientDiagnosis -> patientDiagnosis.getDiagnosis() != null
-                        ? patientDiagnosis.getDiagnosis().getIcdShortDescription()
-                        : null
-                )
-                .filter(value -> value != null && !value.isBlank())
-                .orElse("General assessment");
-    }
-
-    private List<String> buildCurrentMedications(Long patientId) {
-        return currentMedicationRepository
-                .findByPatientIdAndStatusOrderByCreatedDateAsc(
-                        patientId,
-                        PatientHistoryStatus.ACTIVE
-                )
-                .stream()
-                .map(med -> {
-                    String medicationName = med.getActiveIngredient() != null
-                            ? med.getActiveIngredient().getName()
-                            : null;
-
-                    String instructions = med.getInstructions();
-
-                    String startDate = med.getStartDate() != null
-                            ? "Started: " + med.getStartDate()
-                            : null;
-
-                    return Stream.of(
-                                    medicationName,
-                                    instructions,
-                                    startDate
-                            )
-                            .filter(Objects::nonNull)
-                            .filter(value -> !value.isBlank())
-                            .collect(Collectors.joining(" - "));
-                })
-                .filter(value -> !value.isBlank())
-                .toList();
-    }
-    private List<SurgeryDTO> buildSurgeries(Long patientId) {
-        return patientProcedureRepository
-                .findByPatientIdOrderByScheduledDateTimeDesc(patientId)
-                .stream()
-                .map(procedure -> {
-
-                    String procedureName =
-                            procedure.getProcedure() != null
-                                    ? procedure.getProcedure().getName()
-                                    : "Unknown Procedure";
-
-                    String status = mapProcedureStatus(procedure.getStatus());
-
-                    return new SurgeryDTO(
-                            procedureName,
-                            status
-                    );
-                })
-                .toList();
-    }
-    private void putIfNotNull(Map<String, String> map, String key, Object value) {
-        if (value != null && !value.toString().isBlank()) {
-            map.put(key, value.toString());
-        }
-    }
-
-    public String calculateAge(Date dateOfBirth) {
-        if (dateOfBirth == null) {
-            return "Unknown";
-        }
-
-        LocalDate birthDate = dateOfBirth.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
-
-        Period period = Period.between(birthDate, LocalDate.now());
-
-        return period.getYears() + " Years " +
-                period.getMonths() + " Months " +
-                period.getDays() + " Days";
-    }
-    private String mapProcedureStatus(String status) {
-        if (status == null || status.isBlank()) {
-            return "scheduled";
-        }
-
-        return switch (status.trim().toUpperCase()) {
-            case "REQUESTED", "PENDING", "BOOKED", "SCHEDULED" -> "scheduled";
-            case "COMPLETED", "DONE", "FINISHED" -> "completed";
-            case "CANCELLED", "CANCELED" -> "cancelled";
-            default -> status.toLowerCase();
-        };
-    }
-    private Map<String, Object> buildLabResults(Long patientId) {
-        List<DiagnosticOrder> orders =
-                diagnosticOrderRepository.findByPatientIdOrderByCreatedDateDesc(patientId);
-
-        if (orders.isEmpty()) {
-            return Map.of();
-        }
-
-        List<Long> orderIds = orders.stream()
-                .map(DiagnosticOrder::getId)
-                .toList();
-
-        List<DiagnosticOrderTest> orderTests =
-                diagnosticOrderTestRepository.findByOrderIdIn(orderIds);
-
-        if (orderTests.isEmpty()) {
-            return Map.of();
-        }
-
-        Map<Long, DiagnosticOrderTest> orderTestById = orderTests.stream()
-                .collect(Collectors.toMap(
-                        DiagnosticOrderTest::getId,
-                        item -> item,
-                        (a, b) -> a
-                ));
-
-        List<Long> orderTestIds = orderTests.stream()
-                .map(DiagnosticOrderTest::getId)
-                .toList();
-
-        List<Map<String, String>> labResults =
-                diagnosticOrderTestResultRepository
-                        .findByOrderTestIdInOrderByCreatedDateDesc(orderTestIds)
-                        .stream()
-                        .limit(50)
-                        .map(result -> mapLabResult(result, orderTestById))
-                        .toList();
-
-        if (labResults.isEmpty()) {
-            return Map.of();
-        }
-
-        return Map.of("patient_lab_results", labResults);
-    }
-    private Map<String, String> mapLabResult(
-            DiagnosticOrderTestResult result,
-            Map<Long, DiagnosticOrderTest> orderTestById
-    ) {
-        DiagnosticOrderTest orderTest = orderTestById.get(result.getOrderTestId());
-
-        String testName = null;
-        String status = null;
-
-        if (orderTest != null) {
-            status = orderTest.getProcessingStatus() != null
-                    ? orderTest.getProcessingStatus().toString()
-                    : null;
-
-            if (orderTest.getTestId() != null) {
-                testName = diagnosticTestRepository
-                        .findById(orderTest.getTestId())
-                        .map(DiagnosticTest::getName)
-                        .orElse(null);
-            }
-        }
-
-        DiagnosticTestProfile profile = diagnosticTestProfileRepository
-                .findById(result.getProfileTestId())
-                .orElse(null);
-
-        Map<String, String> item = new LinkedHashMap<>();
-
-        putIfNotNull(item, "date", result.getCreatedDate());
-        putIfNotNull(item, "status", status);
-        putIfNotNull(item, "test", testName);
-        putIfNotNull(item, "profile", profile != null ? profile.getName() : null);
-        putIfNotNull(item, "result", resolveResultValue(profile, result));
-        putIfNotNull(item, "normal_range", resolveNormalRange(profile, result.getNormalRangeValue()));
-        putIfNotNull(item, "marker", result.getMarker());
-
-        return item;
-    }
-    private String buildClinicalNotes(Long encounterId) {
-        String assessment = encounterAssessmentRepository
-                .findFirstByEncounterIdOrderByCreatedDateDesc(encounterId)
-                .map(EncounterAssessment::getAssessment)
-                .orElse(null);
-
-        String progressNote = progressNoteRepository
-                .findFirstByEncounterIdAndCancelledByIsNullOrderByCreatedDateDesc(encounterId)
-                .map(ProgressNote::getNoteText)
-                .orElse(null);
-
-        return Stream.of(
-                        assessment != null && !assessment.isBlank()
-                                ? "Assessment: " + assessment
-                                : null,
-                        progressNote != null && !progressNote.isBlank()
-                                ? "Progress Note: " + progressNote
-                                : null
-                )
-                .filter(Objects::nonNull)
-                .collect(Collectors.joining("\n"));
-    }
-    private List<String> buildSymptoms(PatientEncounter encounter) {
-        if (encounter.getChiefComplaint() == null || encounter.getChiefComplaint().isBlank()) {
-            return List.of();
-        }
-
-        return List.of(encounter.getChiefComplaint());
-    }
-    private String resolveResultValue(
-            DiagnosticTestProfile profile,
-            DiagnosticOrderTestResult result
-    ) {
-        if (profile != null && profile.getResultType() == TestResultType.LOV) {
-            return apLovValueRepository
-                    .findById(String.valueOf(result.getResultValueText()))
-                    .map(ApLovValue::getLovDisplayVale)
-                    .orElse(result.getResultValueText());
-        }
-
-        if (result.getResultValueNumber() != null) {
-            return result.getResultValueNumber().toString();
-        }
-
-        return result.getResultValueText();
-    }
-
-    private String resolveNormalRange(
-            DiagnosticTestProfile profile,
-            String value
-    ) {
-        if (value == null) {
-            return null;
-        }
-
-        if (profile != null && profile.getResultType() == TestResultType.LOV) {
-            return apLovValueRepository
-                    .findById(String.valueOf(value))
-                    .map(ApLovValue::getLovDisplayVale)
-                    .orElse(value);
-        }
-
-        return value;
+    PatientContextDTO buildPatientContext(Patient patient, PatientEncounter encounter) {
+        return new PatientContextDTO(
+                patientAiContextBuilderService.calculateAge(patient.getDateOfBirth()),
+                patient.getSexAtBirth() != null ? patient.getSexAtBirth().toString() : "Unknown",
+                patientAiContextBuilderService.buildDiagnosis(encounter.getId()),
+                patientAiContextBuilderService.buildSymptoms(encounter),
+                patientAiContextBuilderService.buildCurrentMedications(patient.getId()),
+                patientAiContextBuilderService.buildAllergies(patient.getId()),
+                List.of(),
+                patientAiContextBuilderService.buildVitals(encounter.getId()),
+                patientAiContextBuilderService.buildLabResults(patient.getId()),
+                patientAiContextBuilderService.buildSurgeries(patient.getId()),
+                patientAiContextBuilderService.buildClinicalNotes(encounter.getId())
+        );
     }
 }

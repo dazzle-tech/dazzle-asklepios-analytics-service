@@ -16,6 +16,9 @@ ai:
   recommendations:
     base-url: http://localhost:8080/api/ai/v1/clinical-recommendations
     timeout-seconds: 120
+  clinical-summary:
+    base-url: http://localhost:8080/api/ai/v1/clinical-summary
+    timeout-seconds: 120
 feign:
   circuitbreaker:
     enabled: true
