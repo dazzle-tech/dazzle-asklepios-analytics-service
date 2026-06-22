@@ -286,6 +286,7 @@ public class VisitReportService {
                 .findAllByPrescriptionHeaderIdInOrderByIdAsc(prescriptionIds)
                 .stream()
                 .map(m -> new PrescriptionMedicationDTO(
+                        m.getActiveIngredient().getName(),
                         m.getMedications() != null ? m.getMedications().getName() : null,
                         resolveInstruction(m),
                         m.getDuration(),
