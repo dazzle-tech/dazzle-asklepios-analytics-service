@@ -11,6 +11,7 @@ import com.dazzle.asklepios.domain.PatientPrescriptionMedication;
 import com.dazzle.asklepios.domain.PatientProcedure;
 import com.dazzle.asklepios.domain.PatientWarnings;
 import com.dazzle.asklepios.domain.PrescriptionInstruction;
+import com.dazzle.asklepios.domain.enumeration.DiagnosticOrderTestStatus;
 import com.dazzle.asklepios.repository.BodyMeasurementsRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderTestRepository;
@@ -328,7 +329,7 @@ public class VisitReportService {
                 .toList();
 
         return diagnosticOrderTestRepository
-                .findByOrderIdInOrderByIdAsc(orderIds)
+                .findByOrderIdInAndStatusNotOrderByIdAsc(orderIds, DiagnosticOrderTestStatus.CANCELLED)
                 .stream()
                 .map(test -> {
                     DiagnosticOrder order = orderMap.get(test.getOrderId());

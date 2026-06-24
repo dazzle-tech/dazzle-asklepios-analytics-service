@@ -54,7 +54,7 @@ public class NurseSummaryPdfRenderService {
 
         // 2. Encounter Information
         labels.put("encounterInformation", isArabic ? "2. معلومات الزيارة" : "2. Encounter Information");
-        labels.put("facility", isArabic ? "المؤسسة" : "Facility");
+        labels.put("facility", isArabic ? "المركز الطبي" : "Facility");
         labels.put("department", isArabic ? "القسم" : "Department");
         labels.put("encounterDate", isArabic ? "تاريخ الزيارة" : "Encounter Date");
         labels.put("encounterNumber", isArabic ? "رقم الزيارة" : "Encounter Number");
@@ -63,14 +63,14 @@ public class NurseSummaryPdfRenderService {
         labels.put("encounterReason", isArabic ? "سبب الزيارة" : "Encounter Reason");
 
         // 3. Active Allergies
-        labels.put("activeAllergies", isArabic ? "3. الحساسية النشطة" : "3. Active Allergies");
+        labels.put("activeAllergies", isArabic ? "3. الحساسية " : "3. Active Allergies");
         labels.put("allergenType", isArabic ? "نوع الحساسية" : "Allergen Type");
         labels.put("severity", isArabic ? "الدرجة" : "Severity");
         labels.put("allergen", isArabic ? "مسبب الحساسية" : "Allergen");
-        labels.put("noActiveAllergies", isArabic ? "لا توجد حساسية نشطة مسجلة." : "No active allergies recorded.");
+        labels.put("noActiveAllergies", isArabic ? "لا توجد حساسية  مسجلة." : "No active allergies recorded.");
 
         // 4. Active Warnings
-        labels.put("activeWarnings", isArabic ? "4. التحذيرات النشطة" : "4. Active Warnings");
+        labels.put("activeWarnings", isArabic ? "4. التحذيرات " : "4. Active Warnings");
         labels.put("warningType", isArabic ? "نوع التحذير" : "Warning Type");
         labels.put("warning", isArabic ? "التحذير" : "Warning");
         labels.put("actionTaken", isArabic ? "الإجراء المتخذ" : "Action Taken");

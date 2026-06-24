@@ -193,75 +193,76 @@
                 <h2 class="section-title" th:text="${labels.observationsSummary}">5. Observations Summary</h2>
             </div>
 
-            <div class="table-container" style="margin-bottom:10px;">
-                <table class="kv-table">
-                    <tbody>
-                    <tr>
-                        <td th:text="${labels.bloodPressure}">Blood Pressure</td>
-                        <td>
-                            <span th:text="${report.vitalSigns?.bloodPressureSystolic}">—</span>
-                            /
-                            <span th:text="${report.vitalSigns?.bloodPressureDiastolic}">—</span>
-                            mmHg
-                        </td>
-                    </tr>
-                    <tr>
-                        <td th:text="${labels.heartRate}">Heart Rate</td>
-                        <td><span th:text="${report.vitalSigns?.heartRate}">—</span> bpm</td>
-                    </tr>
-                    <tr>
-                        <td th:text="${labels.temperature}">Temperature</td>
-                        <td><span th:text="${report.vitalSigns?.temperature}">—</span> °C</td>
-                    </tr>
-                    <tr>
-                        <td th:text="${labels.oxygenSaturation}">Oxygen Saturation</td>
-                        <td><span th:text="${report.vitalSigns?.oxygenSaturation}">—</span> %</td>
-                    </tr>
-                    <tr>
-                        <td th:text="${labels.respiratoryRate}">Respiratory Rate</td>
-                        <td><span th:text="${report.vitalSigns?.respiratoryRate}">—</span> /min</td>
-                    </tr>
-                    <tr>
-                        <td th:text="${labels.painDegree}">Pain Degree</td>
-                        <td th:text="${report.vitalSigns?.painDegree}">—</td>
-                    </tr>
-                    <tr>
-                        <td th:text="${labels.conditions}">Conditions</td>
-                        <td th:text="${report.observation?.patientConditions != null ?
-                        #strings.toLowerCase(#strings.replace(report.observation.patientConditions, '_', ' ')) : '—'}">
-                            —
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+            <div class="vital-signs-grid">
 
-            <div class="no-page-break">
-                <div class="patient-grid">
-                    <div class="grid-row grid-3">
-                        <div class="info-box">
-                            <span class="info-label" th:text="${labels.weight}">Weight</span>
-                            <span class="info-value">
-                                <span th:text="${report.bodyMeasurements?.weight}">—</span> kg
-                            </span>
-                        </div>
-
-                        <div class="info-box">
-                            <span class="info-label" th:text="${labels.height}">Height</span>
-                            <span class="info-value">
-                                <span th:text="${report.bodyMeasurements?.height}">—</span> cm
-                            </span>
-                        </div>
-
-                        <div class="info-box no-border">
-                            <span class="info-label" th:text="${labels.headCircumference}">Head Circumference</span>
-                            <span class="info-value">
-                                <span th:text="${report.bodyMeasurements?.headCircumference}">—</span> cm
-                            </span>
-                        </div>
-                    </div>
+                <div class="vital-card">
+                    <span class="vital-label" th:text="${labels.bloodPressure}"></span>
+                    <span class="vital-value">
+            <span th:text="${report.vitalSigns?.bloodPressureSystolic}"></span> /
+            <span th:text="${report.vitalSigns?.bloodPressureDiastolic}"></span>
+            mmHg
+        </span>
                 </div>
+
+                <div class="vital-card">
+                    <span class="vital-label" th:text="${labels.heartRate}"></span>
+                    <span class="vital-value">
+            <span th:text="${report.vitalSigns?.heartRate}"></span> bpm
+        </span>
+                </div>
+
+                <div class="vital-card">
+                    <span class="vital-label" th:text="${labels.temperature}"></span>
+                    <span class="vital-value">
+            <span th:text="${report.vitalSigns?.temperature}"></span> °C
+        </span>
+                </div>
+
+                <div class="vital-card">
+                    <span class="vital-label" th:text="${labels.oxygenSaturation}"></span>
+                    <span class="vital-value">
+            <span th:text="${report.vitalSigns?.oxygenSaturation}"></span> %
+        </span>
+                </div>
+
+                <div class="vital-card">
+                    <span class="vital-label" th:text="${labels.respiratoryRate}"></span>
+                    <span class="vital-value">
+            <span th:text="${report.vitalSigns?.respiratoryRate}"></span> /min
+        </span>
+                </div>
+
+                <div class="vital-card">
+                    <span class="vital-label" th:text="${labels.painDegree}"></span>
+                    <span class="vital-value"
+                          th:text="${report.vitalSigns?.painDegree}">
+        </span>
+                </div>
+                <div class="vital-card">
+                    <span class="vital-label" th:text="${labels.weight}">Weight</span>
+                    <span class="vital-value">
+        <span th:text="${report.bodyMeasurements?.weight}">—</span> kg
+    </span>
+                </div>
+
+                <div class="vital-card">
+                    <span class="vital-label" th:text="${labels.height}">Height</span>
+                    <span class="vital-value">
+        <span th:text="${report.bodyMeasurements?.height}">—</span> cm
+    </span>
+                </div>
+
+                <div class="vital-card">
+    <span class="vital-label" th:text="${labels.headCircumference}">
+        Head Circumference
+    </span>
+                    <span class="vital-value">
+        <span th:text="${report.bodyMeasurements?.headCircumference}">—</span> cm
+    </span>
+                </div>
+
             </div>
+
         </section>
 
         <!-- 6. ORDERED DIAGNOSTICS -->
