@@ -21,8 +21,8 @@ public class OcrParsingFeignConfig {
 
     @Bean
     public Request.Options options(AiOcrParsingProperties properties) {
-        int timeout = properties.timeoutSeconds() != null ? properties.timeoutSeconds() : 3600;
-//        int timeout = 3600;
+//        int timeout = properties.timeoutSeconds() != null ? properties.timeoutSeconds() : 3600;
+        int timeout = 3600;
         return new Request.Options(timeout, TimeUnit.SECONDS, timeout, TimeUnit.SECONDS, true);
     }
 }
