@@ -10,11 +10,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 @FeignClient(
         name = "ocrParsingClient",
-        url = "http://localhost:8080",
+//        url = "http://localhost:8080",
+        url = "${ai.ocr-parsing.base-url}",
         configuration = OcrParsingFeignConfig.class
 )
 public interface OcrParsingClient {
 
-    @PostMapping(value = "/api/ai/v1/ocr-parsing-service/extract-and-parse", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "extract-and-parse", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ExtractAndParseResponseDTO extractAndParse(@RequestPart("file") MultipartFile file);
 }

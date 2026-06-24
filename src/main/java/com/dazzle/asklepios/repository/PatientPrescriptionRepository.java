@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface PatientPrescriptionRepository extends JpaRepository<PatientPrescription, Long> {
     List<PatientPrescription> findByEncounterIdOrderByCreatedDateAsc(Long encounterId);
+
 }
