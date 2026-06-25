@@ -99,7 +99,7 @@ public class VisitReportPdfRenderService {
         labels.put("instructions", isArabic ? "التعليمات" : "Instructions");
         labels.put("duration", isArabic ? "المدة" : "Duration");
         labels.put("refill", isArabic ? "إعادة صرف" : "Refill");
-        labels.put("indication", isArabic ? "الدلالة" : "Indication");
+        labels.put("indication", isArabic ? "التشخيص" : "Indication");
         labels.put("yes", isArabic ? "نعم" : "Yes");
         labels.put("no", isArabic ? "لا" : "No");
         labels.put("days", isArabic ? "أيام" : "days");

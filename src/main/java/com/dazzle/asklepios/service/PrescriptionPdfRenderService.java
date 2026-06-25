@@ -106,7 +106,7 @@ public class PrescriptionPdfRenderService {
         labels.put("refills", isArabic ? "إعادات الصرف" : "Refills");
         labels.put("administrationInstructions",
                 isArabic ? "تعليمات الإعطاء" : "Administration Instructions");
-        labels.put("indication", isArabic ? "الدلالة العلاجية" : "Indication");
+        labels.put("indication", isArabic ? "التشخيص العلاجي" : "Indication");
         labels.put("noMedications",
                 isArabic ? "لا توجد أدوية موصوفة حالياً."
                         : "No active prescription medications found.");
