@@ -252,15 +252,21 @@
     </span>
                 </div>
 
-                <div class="vital-card">
-    <span class="vital-label" th:text="${labels.headCircumference}">
+                <div class="vital-card"
+                     th:if="${showHeadCircumference}">
+
+    <span class="vital-label"
+          th:text="${labels.headCircumference}">
         Head Circumference
     </span>
-                    <span class="vital-value">
-        <span th:text="${report.bodyMeasurements?.headCircumference}">—</span> cm
-    </span>
-                </div>
 
+                    <span class="vital-value">
+        <span th:text="${report.bodyMeasurements?.headCircumference}">
+            —
+        </span> cm
+    </span>
+
+                </div>
             </div>
 
         </section>

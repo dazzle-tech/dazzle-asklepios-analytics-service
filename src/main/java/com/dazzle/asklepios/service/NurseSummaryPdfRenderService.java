@@ -8,6 +8,9 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +27,27 @@ public class NurseSummaryPdfRenderService {
 
         Context context = new Context();
         context.setVariable("report", dto);
+
+        boolean showHeadCircumference = false;
+
+        if (dto.patientInfo() != null &&
+                dto.patientInfo().dateOfBirth() != null) {
+
+            LocalDate dob = dto.patientInfo()
+                    .dateOfBirth()
+                    .toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+
+            long months = ChronoUnit.MONTHS.between(
+                    dob,
+                    LocalDate.now()
+            );
+
+            showHeadCircumference = months < 24;
+        }
+
+        context.setVariable("showHeadCircumference", showHeadCircumference);
         context.setVariable("logo", reportPdfCommonService.getLogoBase64());
         boolean isArabic = "ar".equalsIgnoreCase(lang);
 

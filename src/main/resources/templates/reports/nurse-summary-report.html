@@ -395,14 +395,20 @@
                 </span>
                 </div>
 
-                <div class="info-box no-border">
-                <span class="info-label" th:text="${labels.headCircumference}">
-                    Head Circumference
-                </span>
+                <div class="info-box no-border"
+                     th:if="${showHeadCircumference}">
+
+    <span class="info-label"
+          th:text="${labels.headCircumference}">
+        Head Circumference
+    </span>
 
                     <span class="info-value">
-                    <span th:text="${report.bodyMeasurements?.headCircumference}">—</span> cm
-                </span>
+        <span th:text="${report.bodyMeasurements?.headCircumference}">
+            —
+        </span> cm
+    </span>
+
                 </div>
 
             </div>
