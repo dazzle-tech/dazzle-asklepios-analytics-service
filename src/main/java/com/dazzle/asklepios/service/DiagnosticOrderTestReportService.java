@@ -126,7 +126,7 @@ public class DiagnosticOrderTestReportService {
                 test.getName(),
 
                 report.getReport(),
-                reportCommonService.getLovDisplayValue(report.getSeverity()),
+                reportCommonService.formatEnum(report.getSeverity()),
                 reportCommonService.getDisplayUserName(report.getApprovedBy()),
                 reportCommonService.getDisplayUserName(report.getReviewBy())
         );
