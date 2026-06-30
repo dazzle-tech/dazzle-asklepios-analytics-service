@@ -157,4 +157,14 @@ ReportCommonService {
         return instant.atZone(zone)
                 .format(DATE_TIME_FORMATTER);
     }
+    public String formatEnum(String value) {
+        if (value == null || value.isBlank()) {
+            return "";
+        }
+
+        return Arrays.stream(value.split("_"))
+                .map(word -> word.substring(0, 1).toUpperCase() +
+                        word.substring(1).toLowerCase())
+                .collect(Collectors.joining(" "));
+    }
 }
