@@ -98,7 +98,7 @@ public class VisitReportPdfRenderService {
         labels.put("clinicalVisit", isArabic ? "4. الزيارة السريرية" : "4. Clinical Visit");
         labels.put("chiefComplaint", isArabic ? "الشكوى الطبية" : "Chief Complaint");
         labels.put("primaryDiagnosis", isArabic ? "التشخيص " : "Primary Diagnosis");
-        labels.put("plan", isArabic ? "الخطة العلاجية" : "Treatment Plan");
+        labels.put("plan", isArabic ? "الخطة" : "Plan");
 
         labels.put("observationsSummary", isArabic ? "5. ملخص الملاحظات" : "5. Observations Summary");
         labels.put("bloodPressure", isArabic ? "ضغط الدم" : "Blood Pressure");

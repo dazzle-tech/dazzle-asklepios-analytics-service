@@ -37,9 +37,9 @@ public class PrescriptionPdfRenderService {
         context.setVariable("labels", buildPrescriptionReportLabels(isArabic));
 
         context.setVariable("logo",reportPdfCommonService.getLogoBase64());
-
-        String css = reportPdfCommonService.loadCss("templates/reports/styles/prescription-report.css")
-                .replace("__PRIMARY_COLOR__", reportPdfCommonService.getPrimaryColor());
+        String css = reportPdfCommonService.loadCss(
+                "templates/reports/styles/prescription-report.css"
+        );
 
         context.setVariable("reportCss", css);
         String html = templateEngine.process("reports/prescription-report", context);
