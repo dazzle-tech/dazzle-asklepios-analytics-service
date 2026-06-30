@@ -18,9 +18,9 @@ public class LaboratoryPdfRenderService {
     private final DiagnosticOrderTestResultReportService diagnosticOrderTestResultReportService;
     private final ReportPdfCommonService reportPdfCommonService;
 
-    public byte[] generateLaboratoryPdf(List<Long> resultIds, String lang) {
+    public byte[] generateLaboratoryPdf(List<Long> resultIds, String lang, String timezone) {
         LaboratoryResultReportDTO dto =
-                diagnosticOrderTestResultReportService.getLaboratoryResults(resultIds);
+                diagnosticOrderTestResultReportService.getLaboratoryResults(resultIds,timezone);
 
         boolean isArabic = "ar".equalsIgnoreCase(lang);
 

@@ -32,11 +32,12 @@ public class DiagnosticOrderTestResultController {
 
     @GetMapping("/laboratory-reports/results")
     public ResponseEntity<LaboratoryResultReportDTO> getLaboratoryResults(
+            @RequestParam(required = false) String timezone,
             @RequestParam List<Long> resultIds
     ) {
         LOG.debug("[LaboratoryResultReportResource] GET_LABORATORY_RESULTS - start. resultIds={}", resultIds);
 
-        LaboratoryResultReportDTO report = resultReportService.getLaboratoryResults(resultIds);
+        LaboratoryResultReportDTO report = resultReportService.getLaboratoryResults(resultIds,timezone);
 
         LOG.debug("[LaboratoryResultReportResource] GET_LABORATORY_RESULTS - completed. resultIds={}", resultIds);
 
@@ -46,11 +47,12 @@ public class DiagnosticOrderTestResultController {
     @GetMapping("/laboratory-reports/results/pdf")
     public ResponseEntity<byte[]> generateLaboratoryPdf(
             @RequestParam List<Long> resultIds,
+            @RequestParam(required = false) String timezone,
             @RequestParam(defaultValue = "en") String lang
     ) {
         LOG.debug("[LaboratoryResultReportResource] GENERATE_LABORATORY_RESULTS_PDF - start. resultIds={}, lang={}", resultIds, lang);
 
-        byte[] pdf = laboratoryPdfRenderService.generateLaboratoryPdf(resultIds, lang);
+        byte[] pdf = laboratoryPdfRenderService.generateLaboratoryPdf(resultIds, lang,timezone);
 
         LOG.debug("[LaboratoryResultReportResource] GENERATE_LABORATORY_RESULTS_PDF - completed. resultIds={}", resultIds);
 

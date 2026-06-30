@@ -10,9 +10,11 @@ import com.dazzle.asklepios.web.rest.errors.BadRequestAlertException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -23,7 +25,8 @@ import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
-public class ReportCommonService {
+public class
+ReportCommonService {
 
     private final UserRepository userRepository;
     private final ApLovValueRepository apLovValueRepository;
@@ -135,5 +138,23 @@ public class ReportCommonService {
                 .toList();
 
         return resolved.isEmpty() ? null : String.join(", ", resolved);
+    }
+    private static final DateTimeFormatter DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm a");
+
+    public String formatDateTime(
+            Instant instant,
+            String timezone
+    ) {
+        if (instant == null) {
+            return null;
+        }
+
+        ZoneId zone = (timezone == null || timezone.isBlank())
+                ? ZoneId.systemDefault()
+                : ZoneId.of(timezone);
+
+        return instant.atZone(zone)
+                .format(DATE_TIME_FORMATTER);
     }
 }
