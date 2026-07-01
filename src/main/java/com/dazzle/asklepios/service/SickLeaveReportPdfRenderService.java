@@ -30,9 +30,10 @@ public class SickLeaveReportPdfRenderService {
         context.setVariable("labels", buildSickLeaveReportLabels(isArabic));
         context.setVariable("generatedAtDisplay", reportPdfCommonService.generatedAtDisplay(timezone));
         context.setVariable("logo", reportPdfCommonService.getLogoBase64());
+        String primaryColor = reportPdfCommonService.getPrimaryColor();
         String css = reportPdfCommonService.loadCss(
                 "templates/reports/styles/sick-leave-report.css"
-        );
+        ).replace("__PRIMARY_COLOR__", primaryColor);
 
         context.setVariable("reportCss", css);
         String html = templateEngine.process("reports/sick-leave-report", context);
