@@ -152,7 +152,7 @@ body {
     display: block;
     font-size: 7pt;
     font-weight: 800;
-    color: var(--primary-color);
+    color: #0f172a;
     text-transform: uppercase;
     line-height: 1.15;
 }
