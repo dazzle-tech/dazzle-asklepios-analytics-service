@@ -30,10 +30,10 @@ public class LaboratoryPdfRenderService {
         context.setVariable("lang", isArabic ? "ar" : "en");
         context.setVariable("dir", isArabic ? "rtl" : "ltr");
         context.setVariable("labels", buildLaboratoryResultReportLabels(isArabic));
-
+        String primaryColor = reportPdfCommonService.getPrimaryColor();
         String css = reportPdfCommonService.loadCss(
                 "templates/reports/styles/laboratory-result-report.css"
-        );
+        ).replace("__PRIMARY_COLOR__", primaryColor);
 
         context.setVariable("reportCss", css);
 
