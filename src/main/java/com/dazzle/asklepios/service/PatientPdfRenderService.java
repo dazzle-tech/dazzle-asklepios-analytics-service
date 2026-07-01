@@ -69,11 +69,13 @@ public class PatientPdfRenderService {
         context.setVariable("lang", isArabic ? "ar" : "en");
         context.setVariable("dir", isArabic ? "rtl" : "ltr");
         context.setVariable("labels", buildPatientReportLabels(isArabic));
-
-        context.setVariable("reportCss", reportPdfCommonService.loadCss(
+        String primaryColor = reportPdfCommonService.getPrimaryColor();
+        
+        String css = reportPdfCommonService.loadCss(
                 "templates/reports/styles/patient-information-report.css"
-        ));
+        ).replace("__PRIMARY_COLOR__", primaryColor);
 
+        context.setVariable("reportCss", css);
         String html = templateEngine.process("reports/patient-information-report", context);
 
         return reportPdfCommonService.renderPdfWithChromium(html);
