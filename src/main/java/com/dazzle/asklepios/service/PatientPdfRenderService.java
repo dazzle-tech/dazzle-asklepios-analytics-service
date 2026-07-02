@@ -70,7 +70,7 @@ public class PatientPdfRenderService {
         context.setVariable("dir", isArabic ? "rtl" : "ltr");
         context.setVariable("labels", buildPatientReportLabels(isArabic));
         String primaryColor = reportPdfCommonService.getPrimaryColor();
-        
+
         String css = reportPdfCommonService.loadCss(
                 "templates/reports/styles/patient-information-report.css"
         ).replace("__PRIMARY_COLOR__", primaryColor);
