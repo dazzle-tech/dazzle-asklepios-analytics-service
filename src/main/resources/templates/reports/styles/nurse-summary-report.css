@@ -3,7 +3,9 @@
     margin: 0;
     size: A4;
 }
-
+:root {
+    --primary-color: __PRIMARY_COLOR__;
+}
 * {
     margin: 0;
     padding: 0;
@@ -32,7 +34,7 @@ body {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    border-bottom: 2px solid #1e293b;
+    border-bottom: 2px solid var(--primary-color);
     padding-bottom: 20px;
     margin-bottom: 10px;
 }
@@ -40,7 +42,7 @@ body {
 .org-name {
     font-size: 18pt;
     font-weight: 900;
-    color: #001f3f;
+    color: var(--primary-color);
     line-height: 1.05;
     letter-spacing: 0.5px;
     text-transform: uppercase;
@@ -61,7 +63,7 @@ body {
 .doc-id {
     font-size: 6.5pt;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--primary-color);
     text-align: right;
 }
 
@@ -74,7 +76,7 @@ body {
     font-size: 10pt;
     font-weight: 900;
     letter-spacing: 5px;
-    color: #001f3f;
+    color: var(--primary-color);
     text-transform: uppercase;
     margin-bottom: 8px;
 }
@@ -124,7 +126,7 @@ body {
 
 .section-header {
     background: #f1f5f9;
-    border-left: 5px solid #001f3f;
+    border-left: 5px solid var(--primary-color);
     padding: 6px 14px;
     margin-bottom: 10px;
 }
@@ -132,14 +134,14 @@ body {
 .section-title {
     font-size: 7pt;
     font-weight: 900;
-    color: #001f3f;
+    color: var(--primary-color);
     letter-spacing: 0.8px;
     margin: 5px;
     text-transform: uppercase;
 }
 
 .section-header.blue {
-    border-left-color: #2980b9;
+    border-left-color: var(--primary-color);
 }
 
 .section-header.green {
@@ -233,9 +235,9 @@ body {
     padding: 2px 5px;
     line-height: 1;
     display: inline-block;
-    border: 1px solid #2563eb;
+    border: 1px solid var(--primary-color);
     background: #eff6ff;
-    color: #2563eb;
+    color: var(--primary-color);
     font-weight: 900;
     border-radius: 3px;
     text-transform: uppercase;
@@ -253,7 +255,7 @@ body {
 .kv-table tr td:first-child {
     font-weight: 900;
     font-size: 7pt;
-    color: #1e293b;
+    color: var(--primary-color);
     background: #f8fafc;
     width: 160px;
     border-right: 1px solid #e2e8f0;
@@ -376,9 +378,9 @@ tr:nth-child(even) {
 
 .badge-blue {
     display: inline-block;
-    border: 1px solid #2563eb;
+    border: 1px solid var(--primary-color);
     background: #eff6ff;
-    color: #2563eb;
+    color: var(--primary-color);
     font-size: 6.5pt;
     font-weight: 900;
     padding: 3px 8px;
@@ -525,7 +527,7 @@ body.rtl .section-header {
 }
 
 body.rtl .section-header.blue {
-    border-right-color: #2980b9;
+    border-right-color: var(--primary-color);
 }
 
 body.rtl .section-header.green {

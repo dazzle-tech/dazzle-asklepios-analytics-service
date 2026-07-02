@@ -54,9 +54,11 @@ public class NurseSummaryPdfRenderService {
         context.setVariable("lang", isArabic ? "ar" : "en");
         context.setVariable("dir", isArabic ? "rtl" : "ltr");
         context.setVariable("labels", buildNurseSummaryReportLabels(isArabic));
-        context.setVariable("reportCss", reportPdfCommonService.loadCss(
+        String primaryColor = reportPdfCommonService.getPrimaryColor();
+        String css = reportPdfCommonService.loadCss(
                 "templates/reports/styles/nurse-summary-report.css"
-        ));
+        ).replace("__PRIMARY_COLOR__", primaryColor);
+        context.setVariable("reportCss", css);
         String html = templateEngine.process("reports/nurse-summary-report", context);
 
         return reportPdfCommonService.renderPdfWithChromium(html);
