@@ -120,6 +120,8 @@ public class VisitReportPdfRenderService {
 
         labels.put("prescriptionMedications", isArabic ? "7. الأدوية الموصوفة" : "7. Prescription Medications");
         labels.put("medication", isArabic ? "الدواء" : "Medication");
+        labels.put("activeIngredient",isArabic ? "المادة الفعالة" : "Active Ingredient");
+
         labels.put("instructions", isArabic ? "التعليمات" : "Instructions");
         labels.put("duration", isArabic ? "المدة" : "Duration");
         labels.put("refill", isArabic ? "إعادة صرف" : "Refill");

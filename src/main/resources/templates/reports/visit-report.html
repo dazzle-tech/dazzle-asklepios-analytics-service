@@ -313,6 +313,8 @@
                 <table class="item-table">
                     <thead>
                     <tr>
+                        <th th:text="${labels.activeIngredient}">Active Ingredient</th>
+
                         <th th:text="${labels.medication}">Medication</th>
                         <th th:text="${labels.instructions}">Instructions</th>
                         <th th:text="${labels.duration}">Duration</th>
@@ -322,6 +324,7 @@
                     </thead>
                     <tbody>
                     <tr th:each="m : ${report.medications}">
+                        <td class="med-name" th:text="${m.activeIngredient}">Active Ingredient</td>
                         <td class="item-name" th:text="${m.medicationName}">—</td>
                         <td th:text="${m.instructions}">—</td>
                         <td th:text="${m.duration != null ? m.duration + ' ' + labels.days : '—'}">—</td>
