@@ -211,9 +211,6 @@ public class PrescriptionReportService {
                 Optional.ofNullable(prescriptionMedicationRepository.findAllByPrescriptionHeaderIdOrderByIdAsc(prescriptionId))
                         .orElse(Collections.emptyList());
 
-        List<PatientDiagnosis> diagnoses =
-                Optional.ofNullable(diagnosisRepository.findAllByEncounterId(encounter.getId()))
-                        .orElse(Collections.emptyList());
 
         List<PatientAllergies> allergies =
                 Optional.ofNullable(patientAllergyRepository.findAllByPatientId(patient.getId()))
@@ -251,11 +248,13 @@ public class PrescriptionReportService {
                 ? patientDocument.getNumber()
                 : null;
 
-        List<PrescriptionDiagnosisDTO> diagnosisDTOS = diagnoses.stream()
-                .map(d -> new PrescriptionDiagnosisDTO(
-                        d.getDiagnosis() != null ? d.getDiagnosis().getIcdShortDescription() : null,
-                        d.getCreatedDate()
+        List<PrescriptionDiagnosisDTO> diagnosisDTOS = medications.stream()
+                .filter(m -> m.getIndicationIcd() != null)
+                .map(m -> new PrescriptionDiagnosisDTO(
+                        m.getIndicationIcd().getIcdShortDescription(),
+                        m.getCreatedDate()
                 ))
+                .distinct()
                 .toList();
 
         List<PrescriptionAllergyDTO> allergyDTOS = allergies.stream()
@@ -276,17 +275,40 @@ public class PrescriptionReportService {
 
         List<PrescriptionMedicationDTO> medicationDTOS = medications.stream()
                 .sorted(Comparator.comparing(PatientPrescriptionMedication::getId))
-                .map(m -> new PrescriptionMedicationDTO(
-                        m.getActiveIngredient().getName(),
-                        m.getMedications() != null ? m.getMedications().getName() : null,
-                        resolveInstruction(m),
-                        m.getDuration(),
-                        m.getNumberOfRefills() != null && m.getNumberOfRefills() > 0,
-                        m.getNumberOfRefills(),
-                        resolveLovDisplayValues(m.getAdministrationInstructions()),
-                        m.getAllowedSubstitute(),
-                        m.getIndicationIcd() != null ? m.getIndicationIcd().getIcdShortDescription() : null
-                ))
+                .map(m -> {
+
+                    String indication = null;
+
+                    if (m.getIndicationIcd() != null) {
+                        indication = m.getIndicationIcd().getIcdCode() + " - "
+                                + m.getIndicationIcd().getIcdShortDescription();
+                    }
+
+                    return new PrescriptionMedicationDTO(
+                            m.getActiveIngredient() != null
+                                    ? m.getActiveIngredient().getName()
+                                    : null,
+
+                            m.getMedications() != null
+                                    ? m.getMedications().getName()
+                                    : null,
+
+                            resolveInstruction(m),
+
+                            m.getDuration(),
+
+                            m.getNumberOfRefills() != null
+                                    && m.getNumberOfRefills() > 0,
+
+                            m.getNumberOfRefills(),
+
+                            resolveLovDisplayValues(m.getAdministrationInstructions()),
+
+                            m.getAllowedSubstitute(),
+
+                            indication
+                    );
+                })
                 .toList();
 
         LOG.debug(
