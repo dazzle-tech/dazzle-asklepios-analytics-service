@@ -250,7 +250,7 @@ body {
 .diagnosis-title {
     font-size: 9pt;
     font-weight: 600;
-    color: var(--primary-color);
+    color: #1e293b;
     line-height: 1.3;
     margin-bottom: 14px;
     letter-spacing: -0.2px;
@@ -291,7 +291,7 @@ body {
     text-align: right;
     font-size: 7pt;
     font-weight: 900;
-    color: var(--primary-color);
+    color: #1e293b;
     white-space: nowrap;
 }
 
@@ -531,6 +531,7 @@ body.rtl .diagnosis-right {
 
 body.rtl .diag-label {
     text-align: right;
+
 }
 
 body.rtl .diag-date {
