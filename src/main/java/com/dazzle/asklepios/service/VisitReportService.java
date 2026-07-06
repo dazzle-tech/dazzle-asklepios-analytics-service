@@ -85,7 +85,11 @@ public class VisitReportService {
                 nurseSummaryReportService.getNurseSummaryReport(encounterId);
 
         if (nurseSummary == null) {
-            return null;
+            LOG.warn("Nurse summary is null for encounterId={}", encounterId);
+            nurseSummary = new NurseSummaryReportDTO(
+                    null, null, null, null, null, null,
+            null, null, null, null, null, null
+            );
         }
 
         List<OrderedDiagnosticsDTO> diagnostics =
