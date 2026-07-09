@@ -12,4 +12,5 @@ import java.util.Optional;
 public interface PatientDiagnosisRepository extends JpaRepository<PatientDiagnosis, Long> {
 
     Optional<PatientDiagnosis> findByEncounterIdAndType(Long encounterId, DiagnosisType type);
-}
+    List<PatientDiagnosis> findByPatientId(Long patientId);
+    }
