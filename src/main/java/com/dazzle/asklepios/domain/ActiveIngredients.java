@@ -5,6 +5,15 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
@@ -46,6 +55,7 @@ public class ActiveIngredients extends AbstractAuditingEntity<Long> implements S
 
     @Column(name = "high_alert")
     private Boolean highAlert = false;
+
     @Column(name = "is_look-alike-sound-alike")
     private Boolean isLookAlikeSoundAlike = false;
 

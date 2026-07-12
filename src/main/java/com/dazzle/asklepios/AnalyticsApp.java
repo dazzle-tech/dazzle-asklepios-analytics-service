@@ -2,6 +2,8 @@ package com.dazzle.asklepios;
 
 import com.dazzle.asklepios.config.CRLFLogConverter;
 import com.dazzle.asklepios.config.Constants;
+import com.dazzle.asklepios.integration.ai.config.AiOcrParsingProperties;
+import com.dazzle.asklepios.integration.ai.config.MedicationTestOrdersValidationProperties;
 import jakarta.annotation.PostConstruct;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -15,9 +17,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.core.env.Environment;
 
 
+
+@EnableConfigurationProperties({
+        AiOcrParsingProperties.class,
+        MedicationTestOrdersValidationProperties.class
+})
+@EnableFeignClients
 @SpringBootApplication
 public class AnalyticsApp {
 
@@ -33,19 +43,19 @@ public class AnalyticsApp {
     public void initApplication() {
         Collection<String> activeProfiles = Arrays.asList(env.getActiveProfiles());
         if (
-            activeProfiles.contains(Constants.SPRING_PROFILE_DEVELOPMENT) &&
-                activeProfiles.contains(Constants.SPRING_PROFILE_PRODUCTION)
+                activeProfiles.contains(Constants.SPRING_PROFILE_DEVELOPMENT) &&
+                        activeProfiles.contains(Constants.SPRING_PROFILE_PRODUCTION)
         ) {
             LOG.error(
-                "You have misconfigured your application! It should not run " + "with both the 'dev' and 'prod' profiles at the same time."
+                    "You have misconfigured your application! It should not run " + "with both the 'dev' and 'prod' profiles at the same time."
             );
         }
         if (
-            activeProfiles.contains(Constants.SPRING_PROFILE_DEVELOPMENT) &&
-                activeProfiles.contains(Constants.SPRING_PROFILE_CLOUD)
+                activeProfiles.contains(Constants.SPRING_PROFILE_DEVELOPMENT) &&
+                        activeProfiles.contains(Constants.SPRING_PROFILE_CLOUD)
         ) {
             LOG.error(
-                "You have misconfigured your application! It should not " + "run with both the 'dev' and 'cloud' profiles at the same time."
+                    "You have misconfigured your application! It should not " + "run with both the 'dev' and 'cloud' profiles at the same time."
             );
         }
     }
@@ -69,8 +79,8 @@ public class AnalyticsApp {
         String applicationName = env.getProperty("spring.application.name");
         String serverPort = env.getProperty("server.port");
         String contextPath = Optional.ofNullable(env.getProperty("server.servlet.context-path"))
-            .filter(StringUtils::isNotBlank)
-            .orElse("/");
+                .filter(StringUtils::isNotBlank)
+                .orElse("/");
         String hostAddress = "localhost";
         try {
             hostAddress = InetAddress.getLocalHost().getHostAddress();
@@ -78,24 +88,24 @@ public class AnalyticsApp {
             LOG.warn("The host name could not be determined, using `localhost` as fallback");
         }
         LOG.info(
-            CRLFLogConverter.CRLF_SAFE_MARKER,
-            """
-
-            ----------------------------------------------------------
-            \tApplication '{}' is running! Access URLs:
-            \tLocal: \t\t{}://localhost:{}{}
-            \tExternal: \t{}://{}:{}{}
-            \tProfile(s): \t{}
-            ----------------------------------------------------------""",
-            applicationName,
-            protocol,
-            serverPort,
-            contextPath,
-            protocol,
-            hostAddress,
-            serverPort,
-            contextPath,
-            env.getActiveProfiles().length == 0 ? env.getDefaultProfiles() : env.getActiveProfiles()
+                CRLFLogConverter.CRLF_SAFE_MARKER,
+                """
+    
+                ----------------------------------------------------------
+                \tApplication '{}' is running! Access URLs:
+                \tLocal: \t\t{}://localhost:{}{}
+                \tExternal: \t{}://{}:{}{}
+                \tProfile(s): \t{}
+                ----------------------------------------------------------""",
+                applicationName,
+                protocol,
+                serverPort,
+                contextPath,
+                protocol,
+                hostAddress,
+                serverPort,
+                contextPath,
+                env.getActiveProfiles().length == 0 ? env.getDefaultProfiles() : env.getActiveProfiles()
         );
     }
 }

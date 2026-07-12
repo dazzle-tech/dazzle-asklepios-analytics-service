@@ -10,4 +10,6 @@ import java.util.List;
 public interface DiagnosticOrderRepository extends JpaRepository<DiagnosticOrder, Long> {
 
     List<DiagnosticOrder>  findByEncounterIdOrderByCreatedDateAsc(Long encounterId);
+
+    List<DiagnosticOrder>  findByOrderNumber(Long orderNumber);
 }

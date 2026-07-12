@@ -31,5 +31,7 @@ public class DiagnosticTest {
     private String name;
     @Column(name = "type", length = 255, nullable = false)
     private String type;
+    @Column(name = "internal_code", length = 255, nullable = false, unique = true)
+    private String internalCode;
 
 }
