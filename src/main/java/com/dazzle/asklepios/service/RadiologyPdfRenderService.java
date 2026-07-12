@@ -23,15 +23,20 @@ public class RadiologyPdfRenderService {
         Context context = new Context();
         context.setVariable("report", dto);
         context.setVariable("logo", reportPdfCommonService.getLogoBase64());
-        String css = reportPdfCommonService.loadCss(
-                "templates/reports/styles/radiology-report.css"
-        );
+      
         boolean isArabic = "ar".equalsIgnoreCase(lang);
 
         context.setVariable("lang", isArabic ? "ar" : "en");
         context.setVariable("dir", isArabic ? "rtl" : "ltr");
         context.setVariable("labels", buildRadiologyReportLabels(isArabic));
+        String primaryColor = reportPdfCommonService.getPrimaryColor();
+
+        String css = reportPdfCommonService.loadCss(
+                "templates/reports/styles/visit-report.css"
+        ).replace("__PRIMARY_COLOR__", primaryColor);
+
         context.setVariable("reportCss", css);
+
 
         String html = templateEngine.process("reports/radiology-report", context);
 

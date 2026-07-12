@@ -42,6 +42,7 @@ public class ActiveIngredients extends AbstractAuditingEntity<Long> implements S
     @NotEmpty
     private String name;
 
+
     @Column(name = "atc_code", length = 100)
     private String atcCode;
 

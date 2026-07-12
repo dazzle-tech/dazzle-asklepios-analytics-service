@@ -80,7 +80,7 @@ public class DiagnosticOrderTestResultReportService {
         this.reportCommonService = reportCommonService;
     }
 
-    public LaboratoryResultReportDTO getLaboratoryResults(List<Long> resultIds) {
+    public LaboratoryResultReportDTO getLaboratoryResults(List<Long> resultIds, String timezone){
 
         LOG.debug("[LaboratoryResultReportService] GET_LABORATORY_RESULTS_REPORT - start. resultIds={}", resultIds);
 
@@ -155,7 +155,7 @@ public class DiagnosticOrderTestResultReportService {
                         (patient.getLastName() != null ? patient.getLastName() : "")).trim();
 
         List<LaboratoryOrderSectionDTO> orderSections = orderMap.values().stream()
-                .map(order -> buildOrderSection(order, results, orderTestMap))
+                .map(order -> buildOrderSection(order, results, orderTestMap, timezone))
                 .toList();
 
         LOG.debug(
@@ -199,7 +199,8 @@ public class DiagnosticOrderTestResultReportService {
     private LaboratoryOrderSectionDTO buildOrderSection(
             DiagnosticOrder order,
             List<DiagnosticOrderTestResult> allResults,
-            Map<Long, DiagnosticOrderTest> orderTestMap
+            Map<Long, DiagnosticOrderTest> orderTestMap,
+            String timezone
     ) {
         PatientEncounter encounter = encounterRepository.findById(order.getEncounterId())
                 .orElseThrow(() -> new BadRequestAlertException(
@@ -230,7 +231,8 @@ public class DiagnosticOrderTestResultReportService {
                 byOrderTest.entrySet().stream()
                         .map(entry -> buildOrderTestSection(
                                 orderTestMap.get(entry.getKey()),
-                                entry.getValue()
+                                entry.getValue(),
+                                timezone
                         ))
                         .toList();
 
@@ -245,7 +247,8 @@ public class DiagnosticOrderTestResultReportService {
 
     private LaboratoryOrderTestSectionDTO buildOrderTestSection(
             DiagnosticOrderTest orderTest,
-            List<DiagnosticOrderTestResult> results
+            List<DiagnosticOrderTestResult> results,
+            String timezone
     ) {
         DiagnosticTest test = diagnosticTestRepository.findById(orderTest.getTestId())
                 .orElseThrow(() -> new BadRequestAlertException(
@@ -263,7 +266,11 @@ public class DiagnosticOrderTestResultReportService {
                 .orElse(null);
 
         List<LaboratoryResultItemDTO> resultItems = results.stream()
-                .map(result -> buildResultItem(result, reportCommonService.getLovDisplayValue(categoryName)))
+                .map(result -> buildResultItem(
+                        result,
+                        reportCommonService.getLovDisplayValue(categoryName),
+                        timezone
+                ))
                 .toList();
 
         return new LaboratoryOrderTestSectionDTO(
@@ -276,7 +283,8 @@ public class DiagnosticOrderTestResultReportService {
 
     private LaboratoryResultItemDTO buildResultItem(
             DiagnosticOrderTestResult result,
-            String categoryName
+            String categoryName,
+            String timezone
     ) {
         DiagnosticTestProfile testProfile = diagnosticTestProfileRepository.findById(result.getProfileTestId())
                 .orElseThrow(() -> new BadRequestAlertException(
@@ -302,7 +310,7 @@ public class DiagnosticOrderTestResultReportService {
                         : result.getResultValueText();
 
         return new LaboratoryResultItemDTO(
-                result.getCreatedDate(),
+                reportCommonService.formatDateTime(result.getCreatedDate(), timezone),
                 normalRangeValue,
                 categoryName,
                 testProfile.getName(),
@@ -310,7 +318,7 @@ public class DiagnosticOrderTestResultReportService {
                 resultValue,
                 reportCommonService.getLovDisplayValue(String.valueOf(testProfile.getResultUnit())),
                 result.getMarker(),
-                result.getReviewDate(),
+                reportCommonService.formatDateTime(result.getReviewDate(), timezone),
                 reportCommonService.getDisplayUserName(result.getReviewBy())
         );
     }

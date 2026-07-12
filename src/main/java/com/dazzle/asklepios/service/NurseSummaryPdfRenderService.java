@@ -8,6 +8,9 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -24,15 +27,38 @@ public class NurseSummaryPdfRenderService {
 
         Context context = new Context();
         context.setVariable("report", dto);
+
+        boolean showHeadCircumference = false;
+
+        if (dto.patientInfo() != null &&
+                dto.patientInfo().dateOfBirth() != null) {
+
+            LocalDate dob = dto.patientInfo()
+                    .dateOfBirth()
+                    .toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+
+            long months = ChronoUnit.MONTHS.between(
+                    dob,
+                    LocalDate.now()
+            );
+
+            showHeadCircumference = months < 24;
+        }
+
+        context.setVariable("showHeadCircumference", showHeadCircumference);
         context.setVariable("logo", reportPdfCommonService.getLogoBase64());
         boolean isArabic = "ar".equalsIgnoreCase(lang);
 
         context.setVariable("lang", isArabic ? "ar" : "en");
         context.setVariable("dir", isArabic ? "rtl" : "ltr");
         context.setVariable("labels", buildNurseSummaryReportLabels(isArabic));
-        context.setVariable("reportCss", reportPdfCommonService.loadCss(
+        String primaryColor = reportPdfCommonService.getPrimaryColor();
+        String css = reportPdfCommonService.loadCss(
                 "templates/reports/styles/nurse-summary-report.css"
-        ));
+        ).replace("__PRIMARY_COLOR__", primaryColor);
+        context.setVariable("reportCss", css);
         String html = templateEngine.process("reports/nurse-summary-report", context);
 
         return reportPdfCommonService.renderPdfWithChromium(html);
@@ -54,7 +80,7 @@ public class NurseSummaryPdfRenderService {
 
         // 2. Encounter Information
         labels.put("encounterInformation", isArabic ? "2. معلومات الزيارة" : "2. Encounter Information");
-        labels.put("facility", isArabic ? "المؤسسة" : "Facility");
+        labels.put("facility", isArabic ? "المركز الطبي" : "Facility");
         labels.put("department", isArabic ? "القسم" : "Department");
         labels.put("encounterDate", isArabic ? "تاريخ الزيارة" : "Encounter Date");
         labels.put("encounterNumber", isArabic ? "رقم الزيارة" : "Encounter Number");
@@ -63,14 +89,14 @@ public class NurseSummaryPdfRenderService {
         labels.put("encounterReason", isArabic ? "سبب الزيارة" : "Encounter Reason");
 
         // 3. Active Allergies
-        labels.put("activeAllergies", isArabic ? "3. الحساسية النشطة" : "3. Active Allergies");
+        labels.put("activeAllergies", isArabic ? "3. الحساسية " : "3. Active Allergies");
         labels.put("allergenType", isArabic ? "نوع الحساسية" : "Allergen Type");
         labels.put("severity", isArabic ? "الدرجة" : "Severity");
         labels.put("allergen", isArabic ? "مسبب الحساسية" : "Allergen");
-        labels.put("noActiveAllergies", isArabic ? "لا توجد حساسية نشطة مسجلة." : "No active allergies recorded.");
+        labels.put("noActiveAllergies", isArabic ? "لا توجد حساسية  مسجلة." : "No active allergies recorded.");
 
         // 4. Active Warnings
-        labels.put("activeWarnings", isArabic ? "4. التحذيرات النشطة" : "4. Active Warnings");
+        labels.put("activeWarnings", isArabic ? "4. التحذيرات " : "4. Active Warnings");
         labels.put("warningType", isArabic ? "نوع التحذير" : "Warning Type");
         labels.put("warning", isArabic ? "التحذير" : "Warning");
         labels.put("actionTaken", isArabic ? "الإجراء المتخذ" : "Action Taken");

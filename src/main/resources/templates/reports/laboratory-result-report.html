@@ -226,14 +226,13 @@
                                     <span th:if="${item.marker == null}">—</span>
                                 </td>
 
-                                <td th:text="${item.resultDate != null ? #temporals.format(item.resultDate, 'dd/MM/yyyy HH:mm') : '—'}">
+                                <td th:text="${item.resultDate != null ? item.resultDate : '—'}">
                                     —
                                 </td>
 
-                                <td th:text="${item.reviewedDate != null ? #temporals.format(item.reviewedDate, 'dd/MM/yyyy HH:mm') : '—'}">
+                                <td th:text="${item.reviewedDate != null ? item.reviewedDate : '—'}">
                                     —
                                 </td>
-
                                 <td th:text="${item.reviewedBy != null and !#strings.isEmpty(item.reviewedBy) ? item.reviewedBy : '—'}">
                                     —
                                 </td>

@@ -8,6 +8,9 @@
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
 }
+:root {
+    --primary-color: __PRIMARY_COLOR__;
+}
 
 body {
     font-family: Arial, sans-serif;
@@ -30,7 +33,7 @@ body {
     align-items: flex-start;
     justify-content: space-between;
     width: 100%;
-    border-bottom: 2px solid #1e293b;
+    border-bottom: 2px solid var(--primary-color);
     padding-bottom: 16px;
     margin-bottom: 18px;
 }
@@ -38,7 +41,7 @@ body {
 .org-name {
     font-size: 18pt;
     font-weight: 900;
-    color: #001f3f;
+    color: var(--primary-color);
     line-height: 1.05;
     letter-spacing: 0.5px;
     text-transform: uppercase;
@@ -56,7 +59,7 @@ body {
 .doc-id {
     font-size: 6.5pt;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--primary-color);
 }
 
 .main-title-section {
@@ -68,7 +71,7 @@ body {
     font-size: 10pt;
     font-weight: 900;
     letter-spacing: 5px;
-    color: #001f3f;
+    color: var(--primary-color);
     text-transform: uppercase;
     margin-bottom: 8px;
 }
@@ -85,7 +88,7 @@ body {
     position: absolute;
     width: 32px;
     height: 100%;
-    background: #001f3f;
+    background: var(--primary-color);
     left: 50%;
     transform: translateX(-50%);
 }
@@ -94,7 +97,7 @@ body {
 
 .section-header {
     background: #f1f5f9;
-    border-left: 5px solid #001f3f;
+    border-left: 5px solid var(--primary-color);
     padding: 6px 14px;
     margin-bottom: 10px;
 }
@@ -102,7 +105,7 @@ body {
 .section-title {
     font-size: 7pt;
     font-weight: 900;
-    color: #001f3f;
+    color: var(--primary-color);
     letter-spacing: 0.8px;
     margin: 5px;
     text-transform: uppercase;
@@ -149,7 +152,7 @@ body {
     display: block;
     font-size: 7pt;
     font-weight: 800;
-    color: #1e293b;
+    color: #0f172a;
     text-transform: uppercase;
     line-height: 1.15;
 }
@@ -211,10 +214,10 @@ tr:last-child td { border-bottom: none; }
     letter-spacing: 0.5px;
     text-transform: uppercase;
     padding: 6px 16px;
-    border: 1.5px solid #2563eb;
+    border: 1.5px solid var(--primary-color);
     border-radius: 3px;
     background: #eff6ff;
-    color: #2563eb;
+    color: var(--primary-color);
 }
 
 .notes-box {
@@ -299,7 +302,7 @@ tr:last-child td { border-bottom: none; }
 .auth-name {
     font-size: 7pt;
     font-weight: 900;
-    color: #1e293b;
+    color: var(--primary-color);
     line-height: 1.2;
 }
 
@@ -353,7 +356,7 @@ body.rtl .doc-id {
 /* Section header border flip */
 body.rtl .section-header {
     border-left: none;
-    border-right: 5px solid #001f3f;
+    border-right: 5px solid var(--primary-color);
 }
 
 /* Patient grid borders flip */

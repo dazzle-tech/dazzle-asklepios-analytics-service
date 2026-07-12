@@ -7,7 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
-
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,12 +26,34 @@ public class VisitReportPdfRenderService {
         VisitReportDTO dto = visitReportService.getVisitReport(encounterId);
 
         boolean isArabic = "ar".equalsIgnoreCase(lang);
+        String primaryColor = reportPdfCommonService.getPrimaryColor();
 
         Context context = new Context();
         context.setVariable("report", dto);
+
+
+        boolean showHeadCircumference = false;
+
+        if (dto.patientInfo() != null &&
+                dto.patientInfo().dateOfBirth() != null) {
+
+            LocalDate dob = dto.patientInfo()
+                    .dateOfBirth()
+                    .toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+
+            long months = ChronoUnit.MONTHS.between(
+                    dob,
+                    LocalDate.now()
+            );
+
+            showHeadCircumference = months < 24;
+        }
+
+        context.setVariable("showHeadCircumference", showHeadCircumference);
         context.setVariable("generatedAtDisplay", reportPdfCommonService.generatedAtDisplay(timezone));
         context.setVariable("logo", reportPdfCommonService.getLogoBase64());
-
         context.setVariable("lang", isArabic ? "ar" : "en");
         context.setVariable("dir", isArabic ? "rtl" : "ltr");
         context.setVariable("isArabic", isArabic);
@@ -37,7 +61,7 @@ public class VisitReportPdfRenderService {
         context.setVariable("logo", reportPdfCommonService.getLogoBase64());
         String css = reportPdfCommonService.loadCss(
                 "templates/reports/styles/visit-report.css"
-        );
+        ).replace("__PRIMARY_COLOR__", primaryColor);
 
         context.setVariable("reportCss", css);
 
@@ -56,24 +80,24 @@ public class VisitReportPdfRenderService {
         labels.put("mrn", isArabic ? "رقم الملف" : "MRN");
         labels.put("gender", isArabic ? "الجنس" : "Gender");
         labels.put("dobAge", isArabic ? "تاريخ الميلاد / العمر" : "DOB / Age");
-        labels.put("facility", isArabic ? "المؤسسة" : "Facility");
+        labels.put("facility", isArabic ? "المركز الطبي" : "Facility");
         labels.put("department", isArabic ? "القسم" : "Department");
         labels.put("visitDate", isArabic ? "تاريخ الزيارة" : "Visit Date");
 
-        labels.put("activeAllergies", isArabic ? "2. الحساسية النشطة" : "2. Active Allergies");
+        labels.put("activeAllergies", isArabic ? "2. الحساسية " : "2. Active Allergies");
         labels.put("allergenType", isArabic ? "نوع الحساسية" : "Allergen Type");
         labels.put("allergen", isArabic ? "مسبب الحساسية" : "Allergen");
         labels.put("severity", isArabic ? "الدرجة" : "Severity");
         labels.put("noAllergies", isArabic ? "لا يوجد حساسية مسجلة." : "No active allergies recorded.");
 
-        labels.put("activeWarnings", isArabic ? "3. التحذيرات النشطة" : "3. Active Warnings");
+        labels.put("activeWarnings", isArabic ? "3. التحذيرات " : "3. Active Warnings");
         labels.put("warningType", isArabic ? "نوع التحذير" : "Warning Type");
         labels.put("warning", isArabic ? "التحذير" : "Warning");
         labels.put("noWarnings", isArabic ? "لا يوجد تحذيرات مسجلة." : "No active warnings recorded.");
 
         labels.put("clinicalVisit", isArabic ? "4. الزيارة السريرية" : "4. Clinical Visit");
-        labels.put("chiefComplaint", isArabic ? "الشكوى الرئيسية" : "Chief Complaint");
-        labels.put("primaryDiagnosis", isArabic ? "التشخيص الرئيسي" : "Primary Diagnosis");
+        labels.put("chiefComplaint", isArabic ? "الشكوى الطبية" : "Chief Complaint");
+        labels.put("primaryDiagnosis", isArabic ? "التشخيص " : "Primary Diagnosis");
         labels.put("plan", isArabic ? "الخطة" : "Plan");
 
         labels.put("observationsSummary", isArabic ? "5. ملخص الملاحظات" : "5. Observations Summary");
@@ -96,10 +120,12 @@ public class VisitReportPdfRenderService {
 
         labels.put("prescriptionMedications", isArabic ? "7. الأدوية الموصوفة" : "7. Prescription Medications");
         labels.put("medication", isArabic ? "الدواء" : "Medication");
+        labels.put("activeIngredient",isArabic ? "المادة الفعالة" : "Active Ingredient");
+
         labels.put("instructions", isArabic ? "التعليمات" : "Instructions");
         labels.put("duration", isArabic ? "المدة" : "Duration");
         labels.put("refill", isArabic ? "إعادة صرف" : "Refill");
-        labels.put("indication", isArabic ? "الدلالة" : "Indication");
+        labels.put("indication", isArabic ? "التشخيص" : "Indication");
         labels.put("yes", isArabic ? "نعم" : "Yes");
         labels.put("no", isArabic ? "لا" : "No");
         labels.put("days", isArabic ? "أيام" : "days");

@@ -37,9 +37,10 @@ public class PrescriptionPdfRenderService {
         context.setVariable("labels", buildPrescriptionReportLabels(isArabic));
 
         context.setVariable("logo",reportPdfCommonService.getLogoBase64());
+        String primaryColor = reportPdfCommonService.getPrimaryColor();
         String css = reportPdfCommonService.loadCss(
                 "templates/reports/styles/prescription-report.css"
-        );
+        ).replace("__PRIMARY_COLOR__", primaryColor);
 
         context.setVariable("reportCss", css);
         String html = templateEngine.process("reports/prescription-report", context);
@@ -98,6 +99,7 @@ public class PrescriptionPdfRenderService {
                         : "No warnings recorded.");
 
         // Medications
+        labels.put("activeIngredient",isArabic ? "المادة الفعالة" : "Active Ingredient");
         labels.put("medications", isArabic ? "5. الأدوية" : "5. Medications");
         labels.put("medicationName", isArabic ? "اسم الدواء" : "Medication Name");
         labels.put("instructions", isArabic ? "التعليمات" : "Instructions");
@@ -105,7 +107,7 @@ public class PrescriptionPdfRenderService {
         labels.put("refills", isArabic ? "إعادات الصرف" : "Refills");
         labels.put("administrationInstructions",
                 isArabic ? "تعليمات الإعطاء" : "Administration Instructions");
-        labels.put("indication", isArabic ? "الدلالة العلاجية" : "Indication");
+        labels.put("indication", isArabic ? "التشخيص العلاجي" : "Indication");
         labels.put("noMedications",
                 isArabic ? "لا توجد أدوية موصوفة حالياً."
                         : "No active prescription medications found.");

@@ -11,6 +11,7 @@ import com.dazzle.asklepios.domain.PatientPrescriptionMedication;
 import com.dazzle.asklepios.domain.PatientProcedure;
 import com.dazzle.asklepios.domain.PatientWarnings;
 import com.dazzle.asklepios.domain.PrescriptionInstruction;
+import com.dazzle.asklepios.domain.enumeration.DiagnosticOrderTestStatus;
 import com.dazzle.asklepios.repository.BodyMeasurementsRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderTestRepository;
@@ -84,7 +85,11 @@ public class VisitReportService {
                 nurseSummaryReportService.getNurseSummaryReport(encounterId);
 
         if (nurseSummary == null) {
-            return null;
+            LOG.warn("Nurse summary is null for encounterId={}", encounterId);
+            nurseSummary = new NurseSummaryReportDTO(
+                    null, null, null, null, null, null,
+            null, null, null, null, null, null
+            );
         }
 
         List<OrderedDiagnosticsDTO> diagnostics =
@@ -286,6 +291,7 @@ public class VisitReportService {
                 .findAllByPrescriptionHeaderIdInOrderByIdAsc(prescriptionIds)
                 .stream()
                 .map(m -> new PrescriptionMedicationDTO(
+                        m.getActiveIngredient().getName(),
                         m.getMedications() != null ? m.getMedications().getName() : null,
                         resolveInstruction(m),
                         m.getDuration(),
@@ -327,7 +333,7 @@ public class VisitReportService {
                 .toList();
 
         return diagnosticOrderTestRepository
-                .findByOrderIdInOrderByIdAsc(orderIds)
+                .findByOrderIdInAndStatusNotOrderByIdAsc(orderIds, DiagnosticOrderTestStatus.CANCELLED)
                 .stream()
                 .map(test -> {
                     DiagnosticOrder order = orderMap.get(test.getOrderId());

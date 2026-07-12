@@ -185,4 +185,11 @@ public class ReportPdfCommonService {
             );
         }
     }
+
+    public String getPrimaryColor() {
+        return repository.findByConfigKey(SystemConfigKey.PRIMARY_COLOR)
+                .map(config -> config.getConfigValue())
+                .filter(value -> value != null && !value.isBlank())
+                .orElse("#001f3f");
+    }
 }

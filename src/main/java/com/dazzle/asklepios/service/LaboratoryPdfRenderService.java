@@ -18,9 +18,9 @@ public class LaboratoryPdfRenderService {
     private final DiagnosticOrderTestResultReportService diagnosticOrderTestResultReportService;
     private final ReportPdfCommonService reportPdfCommonService;
 
-    public byte[] generateLaboratoryPdf(List<Long> resultIds, String lang) {
+    public byte[] generateLaboratoryPdf(List<Long> resultIds, String lang, String timezone) {
         LaboratoryResultReportDTO dto =
-                diagnosticOrderTestResultReportService.getLaboratoryResults(resultIds);
+                diagnosticOrderTestResultReportService.getLaboratoryResults(resultIds,timezone);
 
         boolean isArabic = "ar".equalsIgnoreCase(lang);
 
@@ -30,10 +30,10 @@ public class LaboratoryPdfRenderService {
         context.setVariable("lang", isArabic ? "ar" : "en");
         context.setVariable("dir", isArabic ? "rtl" : "ltr");
         context.setVariable("labels", buildLaboratoryResultReportLabels(isArabic));
-
+        String primaryColor = reportPdfCommonService.getPrimaryColor();
         String css = reportPdfCommonService.loadCss(
                 "templates/reports/styles/laboratory-result-report.css"
-        );
+        ).replace("__PRIMARY_COLOR__", primaryColor);
 
         context.setVariable("reportCss", css);
 
