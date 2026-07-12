@@ -5,6 +5,6 @@ import java.util.List;
 public record PatientContextDTO(
         Integer age,
         String sex,
-        List<ConditionDTO> known_conditions,
+        List<String> known_conditions,
         String clinical_context
 ) {}

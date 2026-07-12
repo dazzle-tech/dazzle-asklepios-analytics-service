@@ -119,15 +119,14 @@ public class LabInterpreterAiService {
     // =========================
     // ✅ PATIENT CONTEXT 👑
     // =========================
-
     private PatientContextDTO buildPatientContext(Patient patient) {
         return new PatientContextDTO(
                 calculateAgeInYears(patient),
                 patient.getSexAtBirth() != null
                         ? patient.getSexAtBirth().toString()
                         : "Unknown",
-                getPatientDiagnoses(patient.getId()),     // ✅ known_conditions
-                getClinicalContext(patient.getId())       // ✅ clinical_context
+                mapConditionsForAi(getPatientDiagnoses(patient.getId())),
+                getClinicalContext(patient.getId())
         );
     }
 
@@ -289,5 +288,17 @@ public class LabInterpreterAiService {
                         .toLocalDate(),
                 java.time.LocalDate.now()
         ).getYears();
+    }
+    private List<String> mapConditionsForAi(List<ConditionDTO> conditions) {
+
+        if (conditions == null || conditions.isEmpty()) {
+            return List.of();
+        }
+
+        return conditions.stream()
+                .map(c -> c.name())
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
     }
 }
