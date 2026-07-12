@@ -221,7 +221,7 @@ public class MedicationTestOrdersService {
         String medicationName = medication.getMedications() != null ? medication.getMedications().getName() : "";
         String instruction = resolveInstruction(medication);
         ActiveIngredients activeIngredient =
-                activeIngredientsRepository.findById(medication.getActiveIngredientId())
+                activeIngredientsRepository.findById(medication.getActiveIngredient().getId())
                         .orElse(null);
         String activeIngredientName = activeIngredient != null ? activeIngredient.getName() : null;
         return "Medication Name: " + medicationName + " | Active Ingredients: " + activeIngredientName + " - " + safe(instruction);

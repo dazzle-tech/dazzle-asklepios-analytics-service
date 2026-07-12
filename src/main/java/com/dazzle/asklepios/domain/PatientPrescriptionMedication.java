@@ -55,10 +55,6 @@ public class PatientPrescriptionMedication extends AbstractAuditingEntity<Long> 
     @Column(name = "instructions", columnDefinition = "text")
     private String instructions;
 
-    @NotNull(message = "Active Ingredient Can not be null")
-    @Column(name ="active_ingredient_id" ,nullable = false)
-    private long activeIngredientId;
-
     @Column(name = "dose")
     private Long dose;
 
