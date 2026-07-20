@@ -46,4 +46,4 @@ jobs:
 
       - name: Update Kubernetes Deployment with New Image
         run: |
-          kubectl set image deployment/asklepios-analytics asklepios-analytics=${{ secrets.DOCR_REGISTRY_URL }}/asklepios-analytics:ai.${{ github.sha }} -n ai-sandbox
+          kubectl set image deployment/asklepiosdemo-analytics asklepiosdemo-analytics=${{ secrets.DOCR_REGISTRY_URL }}/asklepios-analytics:ai.${{ github.sha }} -n asklepios-sandbox
