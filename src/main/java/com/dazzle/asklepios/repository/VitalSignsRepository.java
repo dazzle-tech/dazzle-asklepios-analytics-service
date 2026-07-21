@@ -11,4 +11,6 @@ public interface VitalSignsRepository extends JpaRepository<VitalSigns, Long> {
 
     Optional<VitalSigns> findFirstByEncounterIdAndIsActiveTrueOrderByCreatedDateDesc(Long encounterId);
 
+    Optional<VitalSigns> findFirstByPatient_IdAndIsActiveTrueOrderByCreatedDateDesc(Long patientId);
+
 }
