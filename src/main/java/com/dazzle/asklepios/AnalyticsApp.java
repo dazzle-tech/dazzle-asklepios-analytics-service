@@ -3,6 +3,7 @@ package com.dazzle.asklepios;
 import com.dazzle.asklepios.config.CRLFLogConverter;
 import com.dazzle.asklepios.config.Constants;
 import com.dazzle.asklepios.integration.ai.config.AiOcrParsingProperties;
+import com.dazzle.asklepios.integration.ai.config.AutoPopulationProperties;
 import com.dazzle.asklepios.integration.ai.config.MedicationTestOrdersValidationProperties;
 import jakarta.annotation.PostConstruct;
 import java.net.InetAddress;
@@ -25,7 +26,8 @@ import org.springframework.core.env.Environment;
 
 @EnableConfigurationProperties({
         AiOcrParsingProperties.class,
-        MedicationTestOrdersValidationProperties.class
+        MedicationTestOrdersValidationProperties.class,
+        AutoPopulationProperties.class
 })
 @EnableFeignClients
 @SpringBootApplication

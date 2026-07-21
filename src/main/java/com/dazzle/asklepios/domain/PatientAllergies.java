@@ -50,6 +50,9 @@ public class PatientAllergies extends AbstractAuditingEntity<Long> implements Se
     @JoinColumn(name = "allergen_id")
     private Allergens allergen;
 
+    @Column(name = "allergen_name")
+    private String allergenName;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "severity", nullable = false)
     private Severity severity;
