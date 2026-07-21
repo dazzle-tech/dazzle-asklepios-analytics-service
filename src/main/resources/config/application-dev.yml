@@ -14,14 +14,11 @@ management:
       probability: 1.0 # report 100% of traces
 service:
   asklepios-setup-service-url: http://localhost:8082
+  asklepios-gateway-service-url: http://localhost:8080
 
 ai:
-  ocr-parsing:
-    base-url: http://localhost:8080/api/ai/v1/ocr-parsing-service
-    timeout-seconds: 120
-
   medication-test-orders-validation:
-    base-url: http://localhost:8080/api/ai/v1/medication-test-orders
+    base-url: ${service.asklepios-gateway-service-url}/api/ai/v1/medication-test-orders
     timeout-seconds: 120
 
 spring:
@@ -36,9 +33,9 @@ spring:
       indent-output: true
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql://localhost:5433/ask
+    url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
-    password: qse123H
+    password: Iwid@123
     hikari:
       poolName: Hikari
       auto-commit: false
