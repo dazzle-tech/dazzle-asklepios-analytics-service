@@ -278,7 +278,6 @@ public class PatientAiContextBuilderService {
                             ? med.getActiveIngredient().getName()
                             : null;
 
-                    String instructions = med.getInstructions();
 
                     String startDate = med.getStartDate() != null
                             ? "Started: " + med.getStartDate()
@@ -286,7 +285,6 @@ public class PatientAiContextBuilderService {
 
                     return Stream.of(
                                     medicationName,
-                                    instructions,
                                     startDate
                             )
                             .filter(Objects::nonNull)
