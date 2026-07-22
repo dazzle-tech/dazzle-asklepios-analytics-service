@@ -53,9 +53,11 @@ public class CurrentMedication extends AbstractAuditingEntity<Long>
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
 
-    @Column(name = "active_ingredient_id", nullable = false)
-    private Long activeIngredientId;
-
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "active_ingredient_id", nullable = false)
+    private ActiveIngredients activeIngredient;
+    @Column(name = "instructions", columnDefinition = "text")
+    private String instructions;
     @Column(name = "dosage", precision = 10, scale = 3)
     private BigDecimal dosage;
 
