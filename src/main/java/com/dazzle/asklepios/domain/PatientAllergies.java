@@ -53,9 +53,9 @@ public class PatientAllergies extends AbstractAuditingEntity<Long> implements Se
     @Enumerated(EnumType.STRING)
     @Column(name = "severity", nullable = false)
     private Severity severity;
-
-    @Column(name = "medication_class_id")
-    private Long medicationClassId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "medication_class_id")
+    private MedicationCategoriesClass medicationClass;
 
     @Column(name = "criticality")
     private String criticality;

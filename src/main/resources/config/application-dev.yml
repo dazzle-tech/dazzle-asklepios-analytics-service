@@ -17,8 +17,17 @@ service:
   asklepios-gateway-service-url: http://localhost:8080
 
 ai:
+
   medication-test-orders-validation:
-    base-url: ${service.asklepios-gateway-service-url}/api/ai/v1/medication-test-orders
+    base-url: http://medication-test-orders-validation-service:8005
+    timeout-seconds: 120
+
+  clinical-summary:
+    base-url: http://clinical-summary-service:8003
+    timeout-seconds: 120
+
+  recommendations:
+    base-url: http://clinical-recommendations-service:8004
     timeout-seconds: 120
 
 spring:
