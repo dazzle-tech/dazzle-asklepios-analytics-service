@@ -7,10 +7,21 @@ springdoc:
   api-docs:
     enabled: false
 ---
+
 ai:
+
   medication-test-orders-validation:
-    base-url: http://localhost:8080/api/ai/v1/medication-test-orders
+    base-url: http://medication-test-orders-validation-service:8005
     timeout-seconds: 120
+
+  clinical-summary:
+    base-url: http://clinical-summary-service:8003
+    timeout-seconds: 120
+
+  recommendations:
+    base-url: http://clinical-recommendations-service:8004
+    timeout-seconds: 120
+
 
 feign:
   circuitbreaker:
