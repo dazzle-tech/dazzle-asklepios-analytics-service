@@ -21,7 +21,7 @@ ai:
     timeout-seconds: 120
 
   clinical-summary:
-    base-url: http://clinical-summary-service:8003
+    base-url: http://clinical-summary-service:8009
     timeout-seconds: 120
 
   recommendations:
