@@ -24,7 +24,6 @@ import com.dazzle.asklepios.repository.PatientProcedureRepository;
 import com.dazzle.asklepios.repository.PatientWarningRepository;
 import com.dazzle.asklepios.repository.PrescriptionInstructionRepository;
 import com.dazzle.asklepios.repository.PrescriptionMedicationRepository;
-import com.dazzle.asklepios.repository.ProcedureRepository;
 import com.dazzle.asklepios.service.dto.prescription.PrescriptionMedicationDTO;
 import com.dazzle.asklepios.service.dto.reports.NurseSummaryAllergyDTO;
 import com.dazzle.asklepios.service.dto.reports.NurseSummaryBodyMeasurementsDTO;
@@ -59,7 +58,6 @@ public class VisitReportService {
     private final ReportCommonService reportCommonService;
 
     private final PatientProcedureRepository patientProcedureRepository;
-    private final ProcedureRepository procedureRepository;
     private final PrescriptionMedicationRepository prescriptionMedicationRepository;
     private final PrescriptionInstructionRepository prescriptionInstructionRepository;
     private final PatientPrescriptionRepository patientPrescriptionRepository;
@@ -88,7 +86,7 @@ public class VisitReportService {
             LOG.warn("Nurse summary is null for encounterId={}", encounterId);
             nurseSummary = new NurseSummaryReportDTO(
                     null, null, null, null, null, null,
-            null, null, null, null, null, null
+                    null, null, null, null, null, null
             );
         }
 
@@ -174,16 +172,13 @@ public class VisitReportService {
     }
 
     private ProceduresDTO mapProcedure(PatientProcedure entity) {
-        return procedureRepository.findById(entity.getProcedureId())
-                .map(procedure -> {
-                    String categoryDisplay = lovLookupService.findDisplayValue(procedure.getCategoryType());
-                    return new ProceduresDTO(
-                            procedure.getName(),
-                            procedure.getCode(),
-                            categoryDisplay,
-                            entity.getNotes()
-                    );
-                })
+        return Optional.ofNullable(entity.getProcedure())
+                .map(procedure -> new ProceduresDTO(
+                        procedure.getName(),
+                        procedure.getCode(),
+                        lovLookupService.findDisplayValue(procedure.getCategoryType()),
+                        entity.getNotes()
+                ))
                 .orElse(new ProceduresDTO(null, null, null, entity.getNotes()));
     }
 

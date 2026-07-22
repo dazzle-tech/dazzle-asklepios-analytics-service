@@ -97,9 +97,7 @@ public class AutoPopulationService {
     }
 
     private Map<String, Object> formatMedication(CurrentMedication medication) {
-        String name = activeIngredientsRepository.findById(medication.getActiveIngredientId())
-                .map(ActiveIngredients::getName)
-                .orElse(null);
+        String name = medication.getActiveIngredient().getName();
 
         String dosage = medication.getDosage() != null
                 ? medication.getDosage().toPlainString() + (medication.getUnit() != null ? medication.getUnit().name() : "")
@@ -126,10 +124,8 @@ public class AutoPopulationService {
         if (patientAllergy.getAllergenName() != null) {
             return patientAllergy.getAllergenName();
         }
-        if (patientAllergy.getMedicationClassId() != null) {
-            return medicationCategoriesClassRepository.findById(patientAllergy.getMedicationClassId())
-                    .map(MedicationCategoriesClass::getName)
-                    .orElse(null);
+        if (patientAllergy.getMedicationClass().getId() != null) {
+            return patientAllergy.getMedicationClass().getName();
         }
         return null;
     }
