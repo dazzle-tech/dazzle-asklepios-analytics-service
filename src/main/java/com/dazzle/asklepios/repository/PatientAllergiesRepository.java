@@ -5,6 +5,7 @@ import com.dazzle.asklepios.domain.enumeration.PatientAllergyStatus;
 import io.micrometer.core.instrument.Tags;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
@@ -18,4 +19,9 @@ public interface PatientAllergiesRepository extends JpaRepository<PatientAllergi
     );
 
     List<PatientAllergies> findByPatientIdOrderByCreatedDateAsc(Long patientId);
+    @EntityGraph(attributePaths = {"allergen","medicationClass"})
+    List<PatientAllergies> findByPatientIdAndStatusNotOrderByCreatedDateAsc(
+            Long patientId,
+            PatientAllergyStatus status
+    );
 }
