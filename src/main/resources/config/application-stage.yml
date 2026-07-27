@@ -18,7 +18,7 @@ service:
   asklepios-setup-service-url:  http://asklepiosdemo-api-setup-service:8082
 
 gateway:
-  base-url: ${GATEWAY_BASE_URL:http://asklepiosdemoapi.nereuscloud.de}
+  base-url: ${GATEWAY_BASE_URL:https://asklepiosdemoapi.nereuscloud.de}
 
 ai:
   ocr-parsing:
