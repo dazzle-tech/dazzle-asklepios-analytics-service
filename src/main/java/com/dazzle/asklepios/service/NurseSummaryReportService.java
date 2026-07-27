@@ -222,7 +222,7 @@ public class NurseSummaryReportService {
                 freshEncounter.getEncounterDate(),
                 freshEncounter.getEncounterReason() != null ? freshEncounter.getEncounterReason().name() : null,
                 freshEncounter.getPriorityLevel() != null ? freshEncounter.getPriorityLevel().name() : null,
-                freshEncounter.getStatus() != null ? freshEncounter.getStatus().name() : null,
+                freshEncounter.getStatus() != null ? freshEncounter.getStatus() : null,
                 freshEncounter.getChiefComplaint(),
                 facilityName,
                 departmentName,

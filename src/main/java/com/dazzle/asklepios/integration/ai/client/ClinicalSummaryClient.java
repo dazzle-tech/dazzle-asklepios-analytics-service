@@ -13,6 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 )
 public interface ClinicalSummaryClient {
 
-    @PostMapping("api/v1/summarize")
+    @PostMapping("/summarize")
     SummaryResponseDTO summarize(SummaryRequestDTO request);
 }

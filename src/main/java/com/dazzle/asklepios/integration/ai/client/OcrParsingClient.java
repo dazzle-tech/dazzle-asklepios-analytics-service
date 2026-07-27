@@ -15,6 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 )
 public interface OcrParsingClient {
 
-    @PostMapping(value = "api/v1/extract-and-parse", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/extract-and-parse", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ExtractAndParseResponseDTO extractAndParse(@RequestPart("file") MultipartFile file);
 }
