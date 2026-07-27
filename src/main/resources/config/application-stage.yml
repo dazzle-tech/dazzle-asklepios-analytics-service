@@ -21,6 +21,10 @@ ai:
   ocr-parsing:
     base-url: http://ocr-parsing-service:8012/api/v1
     timeout-seconds: 120
+
+  patient-timeline:
+    base-url: http://patient-timeline-service:8001/api/v1
+    timeout-seconds: 360
 spring:
   devtools:
     restart:

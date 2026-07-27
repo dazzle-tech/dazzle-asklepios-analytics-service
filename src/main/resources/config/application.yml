@@ -20,6 +20,10 @@ ai:
     base-url: http://localhost:8080/api/ai/v1/medication-test-orders
     timeout-seconds: 120
 
+  patient-timeline:
+    base-url: http://localhost:8001/api/v1
+    timeout-seconds: 360
+
 feign:
   circuitbreaker:
     enabled: true
