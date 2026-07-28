@@ -32,7 +32,7 @@ import org.springframework.core.env.Environment;
         MedicationTestOrdersValidationProperties.class,
         AutoPopulationProperties.class,
         PatientTimelineProperties.class,
-        , AiClinicalSummaryProperties.class,
+         AiClinicalSummaryProperties.class,
         AiRecommendationsProperties.class
 })
 @EnableFeignClients

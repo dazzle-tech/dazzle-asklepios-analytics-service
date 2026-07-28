@@ -1,18 +1,15 @@
 package com.dazzle.asklepios.integration.ai.service;
 
-import com.dazzle.asklepios.domain.ActiveIngredients;
 import com.dazzle.asklepios.domain.CurrentMedication;
 import com.dazzle.asklepios.domain.DiagnosticOrder;
 import com.dazzle.asklepios.domain.DiagnosticOrderTest;
 import com.dazzle.asklepios.domain.DiagnosticOrderTestResult;
 import com.dazzle.asklepios.domain.DiagnosticTestProfile;
-import com.dazzle.asklepios.domain.MedicationCategoriesClass;
 import com.dazzle.asklepios.domain.Patient;
 import com.dazzle.asklepios.domain.PatientAllergies;
 import com.dazzle.asklepios.domain.PatientDiagnosis;
 import com.dazzle.asklepios.domain.PatientEncounter;
 import com.dazzle.asklepios.domain.PatientProcedure;
-import com.dazzle.asklepios.domain.Procedure;
 import com.dazzle.asklepios.domain.VitalSigns;
 import com.dazzle.asklepios.domain.enumeration.PatientHistoryStatus;
 import com.dazzle.asklepios.domain.enumeration.TestResultType;
@@ -28,19 +25,16 @@ import com.dazzle.asklepios.integration.ai.client.dto.timeline.ProcedureEntryDTO
 import com.dazzle.asklepios.integration.ai.client.dto.timeline.TimelineRequestDTO;
 import com.dazzle.asklepios.integration.ai.client.dto.timeline.TimelineResponseDTO;
 import com.dazzle.asklepios.integration.ai.client.dto.timeline.VitalEntryDTO;
-import com.dazzle.asklepios.repository.ActiveIngredientsRepository;
 import com.dazzle.asklepios.repository.CurrentMedicationRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderTestRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderTestResultRepository;
 import com.dazzle.asklepios.repository.DiagnosticTestProfileRepository;
-import com.dazzle.asklepios.repository.MedicationCategoriesClassRepository;
 import com.dazzle.asklepios.repository.PatientAllergiesRepository;
 import com.dazzle.asklepios.repository.PatientDiagnosisRepository;
 import com.dazzle.asklepios.repository.PatientEncounterRepository;
 import com.dazzle.asklepios.repository.PatientProcedureRepository;
 import com.dazzle.asklepios.repository.PatientRepository;
-import com.dazzle.asklepios.repository.ProcedureRepository;
 import com.dazzle.asklepios.repository.VitalSignsRepository;
 import com.dazzle.asklepios.service.LovLookupService;
 import com.dazzle.asklepios.web.rest.errors.NotFoundAlertException;
@@ -73,12 +67,9 @@ public class PatientTimelineIntegrationService {
     private final PatientEncounterRepository patientEncounterRepository;
     private final PatientDiagnosisRepository patientDiagnosisRepository;
     private final CurrentMedicationRepository currentMedicationRepository;
-    private final ActiveIngredientsRepository activeIngredientsRepository;
     private final PatientAllergiesRepository patientAllergiesRepository;
-    private final MedicationCategoriesClassRepository medicationCategoriesClassRepository;
     private final VitalSignsRepository vitalSignsRepository;
     private final PatientProcedureRepository patientProcedureRepository;
-    private final ProcedureRepository procedureRepository;
     private final DiagnosticOrderRepository diagnosticOrderRepository;
     private final DiagnosticOrderTestRepository diagnosticOrderTestRepository;
     private final DiagnosticOrderTestResultRepository diagnosticOrderTestResultRepository;
@@ -142,9 +133,7 @@ public class PatientTimelineIntegrationService {
     private List<MedicationEntryDTO> buildMedications(List<CurrentMedication> medications) {
         return medications.stream()
                 .map(m -> new MedicationEntryDTO(
-                        activeIngredientsRepository.findById(m.getActiveIngredientId())
-                                .map(ActiveIngredients::getName)
-                                .orElse("Unknown"),
+                        m.getActiveIngredient() != null ? m.getActiveIngredient().getName() : "Unknown",
                         m.getStartDate() != null
                                 ? Instant.ofEpochMilli(m.getStartDate().getTime())
                                         .atZone(ZoneId.systemDefault()).toLocalDate().toString()
@@ -244,9 +233,7 @@ public class PatientTimelineIntegrationService {
     private List<ProcedureEntryDTO> buildProcedures(List<PatientProcedure> procedures) {
         return procedures.stream()
                 .map(p -> new ProcedureEntryDTO(
-                        procedureRepository.findById(p.getProcedureId())
-                                .map(Procedure::getName)
-                                .orElse("Unknown"),
+                        p.getProcedure() != null ? p.getProcedure().getName() : "Unknown",
                         p.getScheduledDateTime() != null ? toDateString(p.getScheduledDateTime()) : "",
                         p.getStatus()
                 ))
@@ -272,10 +259,8 @@ public class PatientTimelineIntegrationService {
         if (allergy.getAllergenName() != null && !allergy.getAllergenName().isBlank()) {
             return allergy.getAllergenName();
         }
-        if (allergy.getMedicationClassId() != null) {
-            return medicationCategoriesClassRepository.findById(allergy.getMedicationClassId())
-                    .map(MedicationCategoriesClass::getName)
-                    .orElse(null);
+        if (allergy.getMedicationClass() != null) {
+            return allergy.getMedicationClass().getName();
         }
         return null;
     }
