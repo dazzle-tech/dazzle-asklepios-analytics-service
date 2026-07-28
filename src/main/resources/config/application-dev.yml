@@ -38,7 +38,7 @@ ai:
     timeout-seconds: 120
 
   lab-interpreter:
-    base-url: http://lab-interpreter-service:8010
+    base-url: http://localhost:8080/api/ai/v1/lab-interpretation
     timeout-seconds: 120
 spring:
   devtools:
@@ -52,7 +52,7 @@ spring:
       indent-output: true
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql://localhost:5433/ask
+    url: jdbc:postgresql://localhost:5433/postgres
     username: postgres
     password: qse123H
     hikari:

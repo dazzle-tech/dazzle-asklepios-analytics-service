@@ -17,4 +17,6 @@ public interface CurrentMedicationRepository extends JpaRepository<CurrentMedica
             Long patientId,
             PatientHistoryStatus status
     );
+
+    List<CurrentMedication> findByPatientId(Long patientId);
 }

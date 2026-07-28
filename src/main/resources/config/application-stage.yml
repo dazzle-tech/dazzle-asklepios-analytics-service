@@ -42,7 +42,7 @@ ai:
     timeout-seconds: 120
 
   lab-interpreter:
-    base-url: ${gateway.base-url}/api/v1/lab-interpreter
+    base-url: ${gateway.base-url}/api/ai/v1/lab-interpretation
     timeout-seconds: 120
 spring:
   devtools:
