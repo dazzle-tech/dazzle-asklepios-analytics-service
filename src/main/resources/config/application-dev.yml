@@ -17,10 +17,19 @@ service:
   asklepios-gateway-service-url: http://localhost:8080
 
 ai:
+
   medication-test-orders-validation:
-    base-url: ${service.asklepios-gateway-service-url}/api/ai/v1/medication-test-orders
+    base-url: http://medication-test-orders-validation-service:8005
     timeout-seconds: 120
 
+  clinical-summary:
+    base-url: http://clinical-summary-service:8003
+    timeout-seconds: 120
+
+  recommendations:
+    base-url: https://asklepiosdemo.nereuscloud.de/api/ai/v1/clinical-recommendations
+
+    timeout-seconds: 120
 spring:
   devtools:
     restart:
@@ -33,9 +42,9 @@ spring:
       indent-output: true
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql://localhost:5432/postgres
+    url: jdbc:postgresql://localhost:5433/ask
     username: postgres
-    password: Iwid@123
+    password: qse123H
     hikari:
       poolName: Hikari
       auto-commit: false
