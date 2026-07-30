@@ -1,5 +1,9 @@
 package com.dazzle.asklepios.integration.ai.client.dto.sepsis;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+
 public record SepsisCurrentLabsDTO(
         SepsisAnalysisObjectDTO Lactate,
         SepsisAnalysisObjectDTO WBC,

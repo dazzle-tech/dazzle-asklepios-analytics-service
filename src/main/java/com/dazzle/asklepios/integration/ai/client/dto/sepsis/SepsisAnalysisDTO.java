@@ -1,21 +1,12 @@
 package com.dazzle.asklepios.integration.ai.client.dto.sepsis;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.math.BigDecimal;
 import java.util.List;
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record SepsisAnalysisDTO(
-        String assessment_timestamp,
-        @JsonProperty("patient_id") String patientId,
-        String name,
-        Integer age,
-        String gender,
-        BigDecimal weight,
-        @JsonProperty("admission_reason") String admissionReason,
-        List<String> comorbidities,
-        String allergies,
-//        @JsonProperty("patient_snapshot") SepsisPatientSnapshotDTO patientSnapshot,
+        @JsonProperty("patient_snapshot") SepsisPatientSnapshotDTO patientSnapshot,
         @JsonProperty("status_summary") SepsisStatusSummaryDTO statusSummary,
         @JsonProperty("current_vitals") SepsisCurrentVitalsDTO currentVitals,
         @JsonProperty("current_labs") SepsisCurrentLabsDTO currentLabs,
