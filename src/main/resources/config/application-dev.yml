@@ -40,6 +40,10 @@ ai:
   lab-interpreter:
     base-url: http://localhost:8080/api/ai/v1/lab-interpretation
     timeout-seconds: 120
+
+  sepsis-early-detection:
+    base-url: http://localhost:8080/api/ai/v1/sepsis
+    timeout-seconds: 120
 spring:
   devtools:
     restart:
@@ -52,9 +56,9 @@ spring:
       indent-output: true
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql://localhost:5433/postgres
+    url: jdbc:postgresql://localhost:5432/test
     username: postgres
-    password: qse123H
+    password: 123456
     hikari:
       poolName: Hikari
       auto-commit: false

@@ -32,6 +32,10 @@ ai:
     base-url: http://lab-interpreter-service:8010
     timeout-seconds: 120
 
+  sepsis-early-detection:
+    base-url: http://sepsis-early-detection-service:8023
+    timeout-seconds: 120
+
 feign:
   circuitbreaker:
     enabled: true
