@@ -24,6 +24,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "patient_encounters")
@@ -101,7 +102,10 @@ public class PatientEncounter extends AbstractAuditingEntity<Long> implements Se
     @Column(name = "chief_complaint", columnDefinition = "text")
     private String chiefComplaint;
 
+    @Column(name = "discharge_at")
+    private LocalDateTime dischargeAt;
 
-
+    @Column(name = "history_of_present_illness")
+    private String historyOfPresentIllness;
 
 }
