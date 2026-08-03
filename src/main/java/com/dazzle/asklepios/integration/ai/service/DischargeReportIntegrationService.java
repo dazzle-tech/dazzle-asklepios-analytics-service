@@ -105,13 +105,23 @@ public class DischargeReportIntegrationService {
         return new ReportTemplateDTO(
                 "Standard Discharge Summary",
                 List.of(
-                        "Admission Diagnosis",
+                        "Chief Complaint",
+                        "History of Present Illness",
+                        "Past Medical History",
+                        "Allergies",
                         "Hospital Course",
+                        "Procedures Performed",
+                        "Laboratory and Imaging Findings",
                         "Discharge Diagnosis",
                         "Discharge Medications",
-                        "Follow-up"
+                        "Discharge Instructions and Follow-Up"
                 ),
-                List.of(),
+                List.of(
+                        "admission_date",
+                        "discharge_date",
+                        "primary_diagnosis",
+                        "discharge_medications"
+                ),
                 "standard"
         );
     }
@@ -480,7 +490,7 @@ public class DischargeReportIntegrationService {
 
     private Integer buildAge(java.util.Date dateOfBirth) {
         if (dateOfBirth == null) {
-            return null;
+            return 0;
         }
         LocalDate birthDate = dateOfBirth.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         return Period.between(birthDate, LocalDate.now()).getYears();
