@@ -15,5 +15,6 @@ public interface PatientDiagnosisRepository extends JpaRepository<PatientDiagnos
 
     List<PatientDiagnosis> findByEncounterIdOrderByCreatedDateAsc(Long encounterId);
     List<PatientDiagnosis> findByPatientId(Long patientId);
+    List<PatientDiagnosis> findByPatientIdOrderByCreatedDateAsc(Long patientId);
 
 }

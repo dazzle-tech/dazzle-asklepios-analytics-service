@@ -44,6 +44,10 @@ ai:
   lab-interpreter:
     base-url: ${gateway.base-url}/api/ai/v1/lab-interpretation
     timeout-seconds: 120
+
+  discharge-report:
+    base-url: ${gateway.base-url}/api/ai/v1/discharge-report-service
+    timeout-seconds: 360
 spring:
   devtools:
     restart:

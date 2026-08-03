@@ -32,6 +32,10 @@ ai:
     base-url: http://lab-interpreter-service:8010
     timeout-seconds: 120
 
+  discharge-report:
+    base-url: http://discharge-report-service:8005
+    timeout-seconds: 360
+
 feign:
   circuitbreaker:
     enabled: true

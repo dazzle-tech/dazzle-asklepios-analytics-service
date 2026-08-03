@@ -6,6 +6,7 @@ import com.dazzle.asklepios.integration.ai.config.AiClinicalSummaryProperties;
 import com.dazzle.asklepios.integration.ai.config.AiOcrParsingProperties;
 import com.dazzle.asklepios.integration.ai.config.AiRecommendationsProperties;
 import com.dazzle.asklepios.integration.ai.config.AutoPopulationProperties;
+import com.dazzle.asklepios.integration.ai.config.DischargeReportProperties;
 import com.dazzle.asklepios.integration.ai.config.MedicationTestOrdersValidationProperties;
 import jakarta.annotation.PostConstruct;
 import java.net.InetAddress;
@@ -31,7 +32,8 @@ import org.springframework.core.env.Environment;
         MedicationTestOrdersValidationProperties.class,
         AutoPopulationProperties.class
         , AiClinicalSummaryProperties.class,
-        AiRecommendationsProperties.class
+        AiRecommendationsProperties.class,
+        DischargeReportProperties.class
 })
 @EnableFeignClients
 @SpringBootApplication
