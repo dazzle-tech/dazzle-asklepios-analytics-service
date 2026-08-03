@@ -44,6 +44,10 @@ ai:
   lab-interpreter:
     base-url: ${gateway.base-url}/api/ai/v1/lab-interpretation
     timeout-seconds: 120
+
+  sepsis-early-detection:
+    base-url: ${gateway.base-url}/api/ai/v1/sepsis
+    timeout-seconds: 120
 spring:
   devtools:
     restart:
