@@ -22,10 +22,13 @@ import com.dazzle.asklepios.domain.enumeration.ProcStatus;
 import com.dazzle.asklepios.domain.enumeration.TestResultType;
 import com.dazzle.asklepios.domain.enumeration.TestType;
 import com.dazzle.asklepios.integration.ai.client.DischargeReportClient;
+import com.dazzle.asklepios.integration.ai.client.QualityDischargeReportClient;
 import com.dazzle.asklepios.integration.ai.client.dto.discharge.ClinicalDocumentationDTO;
 import com.dazzle.asklepios.integration.ai.client.dto.discharge.DischargeReportRequestDTO;
 import com.dazzle.asklepios.integration.ai.client.dto.discharge.DischargeReportResponseDTO;
 import com.dazzle.asklepios.integration.ai.client.dto.discharge.PatientRecordDTO;
+import com.dazzle.asklepios.integration.ai.client.dto.discharge.QualityDischargeReportRequestDTO;
+import com.dazzle.asklepios.integration.ai.client.dto.discharge.QualityDischargeReportResponseDTO;
 import com.dazzle.asklepios.integration.ai.client.dto.discharge.ReportTemplateDTO;
 import com.dazzle.asklepios.repository.ConsultationRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderRepository;
@@ -67,6 +70,7 @@ public class DischargeReportIntegrationService {
     private static final Logger LOG = LoggerFactory.getLogger(DischargeReportIntegrationService.class);
 
     private final DischargeReportClient dischargeReportClient;
+    private final QualityDischargeReportClient qualityDischargeReportClient;
     private final PatientEncounterRepository patientEncounterRepository;
     private final PatientDiagnosisRepository patientDiagnosisRepository;
     private final PatientAllergiesRepository patientAllergiesRepository;
@@ -97,8 +101,23 @@ public class DischargeReportIntegrationService {
                 true,
                 true
         );
-        LOG.debug("request={}", request);
         return dischargeReportClient.generateReport(request);
+    }
+
+    public QualityDischargeReportResponseDTO performQualityCheck(Long encounterId, String dischargeReportText) {
+        LOG.debug("[DISCHARGE_REPORT_QA] running quality check for encounterId={}", encounterId);
+
+        PatientEncounter encounter = patientEncounterRepository.findById(encounterId)
+                .orElseThrow(() -> new NotFoundAlertException("Encounter not found with id " + encounterId, "encounter", "notfound"));
+        Patient patient = encounter.getPatient();
+
+        QualityDischargeReportRequestDTO request = new QualityDischargeReportRequestDTO(
+                dischargeReportText,
+                buildPatientRecord(patient, encounter),
+                List.of(buildClinicalDocumentation(encounter)),
+                null
+        );
+        return qualityDischargeReportClient.performQA(request);
     }
 
     private ReportTemplateDTO buildReportTemplate() {

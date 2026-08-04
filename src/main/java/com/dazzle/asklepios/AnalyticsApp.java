@@ -8,6 +8,7 @@ import com.dazzle.asklepios.integration.ai.config.AiRecommendationsProperties;
 import com.dazzle.asklepios.integration.ai.config.AutoPopulationProperties;
 import com.dazzle.asklepios.integration.ai.config.DischargeReportProperties;
 import com.dazzle.asklepios.integration.ai.config.MedicationTestOrdersValidationProperties;
+import com.dazzle.asklepios.integration.ai.config.QualityDischargeReportProperties;
 import jakarta.annotation.PostConstruct;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -33,7 +34,8 @@ import org.springframework.core.env.Environment;
         AutoPopulationProperties.class
         , AiClinicalSummaryProperties.class,
         AiRecommendationsProperties.class,
-        DischargeReportProperties.class
+        DischargeReportProperties.class,
+        QualityDischargeReportProperties.class
 })
 @EnableFeignClients
 @SpringBootApplication

@@ -48,6 +48,10 @@ ai:
   discharge-report:
     base-url: ${gateway.base-url}/api/ai/v1/discharge-report-service
     timeout-seconds: 360
+
+  quality-discharge-report:
+    base-url: ${gateway.base-url}/api/ai/v1/quality-discharge-report-service
+    timeout-seconds: 360
 spring:
   devtools:
     restart:
