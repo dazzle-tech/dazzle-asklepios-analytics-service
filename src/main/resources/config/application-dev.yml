@@ -44,6 +44,10 @@ ai:
   discharge-report:
     base-url: http://localhost:8080/api/ai/v1/discharge-report-service
     timeout-seconds: 360
+
+  quality-discharge-report:
+    base-url: http://localhost:8080/api/ai/v1/quality-discharge-report-service
+    timeout-seconds: 360
 spring:
   devtools:
     restart:
