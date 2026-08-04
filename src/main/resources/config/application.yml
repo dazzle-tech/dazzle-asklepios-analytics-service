@@ -32,6 +32,10 @@ ai:
     base-url: http://lab-interpreter-service:8010
     timeout-seconds: 120
 
+  smart-discharge-planner:
+    base-url: http://smart-discharge-planner-service:8004
+    timeout-seconds: 120
+
 feign:
   circuitbreaker:
     enabled: true
