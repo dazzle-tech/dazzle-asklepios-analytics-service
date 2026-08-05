@@ -27,8 +27,7 @@ ai:
     timeout-seconds: 120
 
   recommendations:
-    base-url: https://asklepiosdemo.nereuscloud.de/api/ai/v1/clinical-recommendations
-
+    base-url: http://clinical-recommendations-service:8004
     timeout-seconds: 120
 spring:
   devtools:
