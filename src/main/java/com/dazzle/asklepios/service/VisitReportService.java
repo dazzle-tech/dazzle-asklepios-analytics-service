@@ -174,16 +174,13 @@ public class VisitReportService {
     }
 
     private ProceduresDTO mapProcedure(PatientProcedure entity) {
-        return procedureRepository.findById(entity.getProcedureId())
-                .map(procedure -> {
-                    String categoryDisplay = lovLookupService.findDisplayValue(procedure.getCategoryType());
-                    return new ProceduresDTO(
-                            procedure.getName(),
-                            procedure.getCode(),
-                            categoryDisplay,
-                            entity.getNotes()
-                    );
-                })
+        return Optional.ofNullable(entity.getProcedure())
+                .map(procedure -> new ProceduresDTO(
+                        procedure.getName(),
+                        procedure.getCode(),
+                        lovLookupService.findDisplayValue(procedure.getCategoryType()),
+                        entity.getNotes()
+                ))
                 .orElse(new ProceduresDTO(null, null, null, entity.getNotes()));
     }
 

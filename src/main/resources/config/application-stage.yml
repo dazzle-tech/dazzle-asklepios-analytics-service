@@ -16,19 +16,20 @@ management:
       probability: 1.0 # report 100% of traces
 service:
   asklepios-setup-service-url: http://asklepios-api-setup-service:8082
-
+gateway:
+  base-url: ${GATEWAY_BASE_URL:https://asklepiosdemoapi.nereuscloud.de}
 ai:
 
   medication-test-orders-validation:
-    base-url: http://medication-test-orders-validation-service:8005
+    base-url: ${gateway.base-url}/api/ai/v1/medication-test-orders
     timeout-seconds: 120
 
   clinical-summary:
-    base-url: http://clinical-summary-service:8003
+    base-url: ${gateway.base-url}/api/ai/v1/clinical-summary
     timeout-seconds: 120
 
   recommendations:
-    base-url: http://clinical-recommendations-service:8004
+    base-url: ${gateway.base-url}/api/ai/v1/clinical-recommendations
     timeout-seconds: 120
 spring:
   devtools:

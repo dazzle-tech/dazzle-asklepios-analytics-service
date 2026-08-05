@@ -2,6 +2,8 @@ package com.dazzle.asklepios;
 
 import com.dazzle.asklepios.config.CRLFLogConverter;
 import com.dazzle.asklepios.config.Constants;
+import com.dazzle.asklepios.integration.ai.config.AiClinicalSummaryProperties;
+import com.dazzle.asklepios.integration.ai.config.AiRecommendationsProperties;
 import com.dazzle.asklepios.integration.ai.config.MedicationTestOrdersValidationProperties;
 import jakarta.annotation.PostConstruct;
 import java.net.InetAddress;
@@ -24,6 +26,8 @@ import org.springframework.core.env.Environment;
 
 @EnableConfigurationProperties({
         MedicationTestOrdersValidationProperties.class
+        , AiClinicalSummaryProperties.class,
+        AiRecommendationsProperties.class
 })
 @EnableFeignClients
 @SpringBootApplication
