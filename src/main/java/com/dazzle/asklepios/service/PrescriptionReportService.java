@@ -4,7 +4,6 @@ import com.dazzle.asklepios.domain.ApLovValue;
 import com.dazzle.asklepios.domain.Department;
 import com.dazzle.asklepios.domain.Patient;
 import com.dazzle.asklepios.domain.PatientAllergies;
-import com.dazzle.asklepios.domain.PatientDiagnosis;
 import com.dazzle.asklepios.domain.PatientDocument;
 import com.dazzle.asklepios.domain.PatientEncounter;
 import com.dazzle.asklepios.domain.PatientInsurance;
@@ -12,6 +11,7 @@ import com.dazzle.asklepios.domain.PatientPrescription;
 import com.dazzle.asklepios.domain.PatientPrescriptionMedication;
 import com.dazzle.asklepios.domain.PatientWarnings;
 import com.dazzle.asklepios.domain.PrescriptionInstruction;
+import com.dazzle.asklepios.domain.enumeration.AllergenTypes;
 import com.dazzle.asklepios.repository.ApLovValueRepository;
 import com.dazzle.asklepios.repository.DepartmentsRepository;
 import com.dazzle.asklepios.repository.DiagnosisRepository;
@@ -60,34 +60,32 @@ public class PrescriptionReportService {
     private final PatientRepository patientRepository;
     private final PatientEncounterRepository encounterRepository;
     private final DepartmentsRepository departmentRepository;
-    private final DiagnosisRepository diagnosisRepository;
     private final PatientAllergyRepository patientAllergyRepository;
     private final PatientWarningRepository patientWarningRepository;
     private final PatientInsuranceRepository patientInsuranceRepository;
     private final PatientDocumentRepository patientDocumentRepository;
     private final ApLovValueRepository apLovValueRepository;
     private final PrescriptionInstructionRepository prescriptionInstructionRepository;
-
+    private final ReportCommonService reportCommonService;
     public PrescriptionReportService(
             PrescriptionRepository prescriptionRepository,
             PrescriptionMedicationRepository prescriptionMedicationRepository,
             PatientRepository patientRepository,
             PatientEncounterRepository encounterRepository,
             DepartmentsRepository departmentRepository,
-            DiagnosisRepository diagnosisRepository,
             PatientAllergyRepository patientAllergyRepository,
             PatientWarningRepository patientWarningRepository,
             PatientInsuranceRepository patientInsuranceRepository,
             PatientDocumentRepository patientDocumentRepository,
             ApLovValueRepository apLovValueRepository,
-            PrescriptionInstructionRepository prescriptionInstructionRepository
+            PrescriptionInstructionRepository prescriptionInstructionRepository, ReportCommonService reportCommonService
     ) {
         this.prescriptionRepository = prescriptionRepository;
         this.prescriptionMedicationRepository = prescriptionMedicationRepository;
         this.patientRepository = patientRepository;
         this.encounterRepository = encounterRepository;
         this.departmentRepository = departmentRepository;
-        this.diagnosisRepository = diagnosisRepository;
+        this.reportCommonService = reportCommonService;
         this.patientAllergyRepository = patientAllergyRepository;
         this.patientWarningRepository = patientWarningRepository;
         this.patientInsuranceRepository = patientInsuranceRepository;
@@ -260,7 +258,7 @@ public class PrescriptionReportService {
         List<PrescriptionAllergyDTO> allergyDTOS = allergies.stream()
                 .map(a -> new PrescriptionAllergyDTO(
                         a.getAllergenType(),
-                        a.getAllergen() != null ? a.getAllergen().getName() : null,
+                        resolveAllergyName(a),
                         a.getSeverity() != null ? a.getSeverity().name() : null
                 ))
                 .toList();
@@ -321,8 +319,9 @@ public class PrescriptionReportService {
         return new PrescriptionPrintDTO(
                 prescription.getPrescriptionNum(),
                 prescription.getCreatedDate(),
-                prescription.getUrgencyLevel() != null ? prescription.getUrgencyLevel().name() : null,
-                prescription.getCreatedBy(),
+
+                reportCommonService.getDisplayUserName(prescription.getCreatedBy()),
+                reportCommonService.getUserEmail(prescription.getCreatedBy()),
                 facilityName,
                 fromDepartment.getName(),
 
@@ -546,5 +545,22 @@ public class PrescriptionReportService {
             LOG.debug("[safeParse] failed to parse value={}", value, e);
             return null;
         }
+    }
+
+    private String resolveAllergyName(PatientAllergies allergy) {
+
+        if (allergy == null) {
+            return null;
+        }
+
+        if (allergy.getAllergenType() == AllergenTypes.MEDICATION) {
+            return allergy.getMedicationClass() != null
+                    ? allergy.getMedicationClass().getName()
+                    : null;
+        }
+
+        return allergy.getAllergen() != null
+                ? allergy.getAllergen().getName()
+                : null;
     }
 }

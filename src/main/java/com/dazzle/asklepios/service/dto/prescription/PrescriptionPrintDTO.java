@@ -11,8 +11,8 @@ import java.util.List;
 public record PrescriptionPrintDTO(
         Long prescriptionNumber,
         Instant prescriptionDateTime,
-        String urgency,
         String prescriberName,
+        String prescriberEmail,
         String facilityName,
         String fromDepartment,
         String patientName,

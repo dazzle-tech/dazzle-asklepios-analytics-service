@@ -85,10 +85,7 @@
         <span class="info-value" th:text="${report.encounterDepartment}">OPD</span>
       </div>
 
-      <div class="info-box">
-        <span class="info-label" th:text="${labels.urgency}">Urgency</span>
-        <span class="badge-urgent" th:text="${report.urgency}">URGENT</span>
-      </div>
+
 
       <div class="info-box">
         <span class="info-label" th:text="${labels.encounterId}">Encounter ID</span>
@@ -144,7 +141,9 @@
         <div class="diagnosis-right">
           <div class="diag-info-row">
             <span class="diag-label" th:text="${labels.entryDate} + ':'">Entry Date:</span>
-            <span class="diag-date" th:text="${diag.date}">_</span>
+            <span class="diag-date"
+                  th:text="${#temporals.format(diag.date, 'dd/MM/yyyy HH:mm')}">
+</span>
           </div>
         </div>
       </div>
@@ -283,7 +282,7 @@
             <div class="auth-name" th:text="${report.prescriberName}">Prescriber Name</div>
             <div class="auth-email"
                  th:if="${report.email != null and !#strings.isEmpty(report.email)}"
-                 th:text="'<' + ${report.email} + '>'">
+                 th:text="'<' + ${report.prescriberEmail} + '>'">
               &lt;email@example.com&gt;
             </div>
           </div>

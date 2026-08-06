@@ -11,6 +11,7 @@ import com.dazzle.asklepios.domain.PatientPrescriptionMedication;
 import com.dazzle.asklepios.domain.PatientProcedure;
 import com.dazzle.asklepios.domain.PatientWarnings;
 import com.dazzle.asklepios.domain.PrescriptionInstruction;
+import com.dazzle.asklepios.domain.enumeration.AllergenTypes;
 import com.dazzle.asklepios.domain.enumeration.DiagnosticOrderTestStatus;
 import com.dazzle.asklepios.repository.BodyMeasurementsRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderRepository;
@@ -115,7 +116,7 @@ public class VisitReportService {
         List<NurseSummaryAllergyDTO> allergyDTOS = allergies.stream()
                 .map(a -> new NurseSummaryAllergyDTO(
                         a.getAllergenType() != null ? a.getAllergenType() : null,
-                        a.getAllergen() != null ? a.getAllergen().getName() : null,
+                        resolveAllergyName(a),
                         a.getSeverity().name()
                 ))
                 .toList();
@@ -346,5 +347,21 @@ public class VisitReportService {
                     );
                 })
                 .toList();
+    }
+    private String resolveAllergyName(PatientAllergies allergy) {
+
+        if (allergy == null) {
+            return null;
+        }
+
+        if (allergy.getAllergenType() == AllergenTypes.MEDICATION) {
+            return allergy.getMedicationClass() != null
+                    ? allergy.getMedicationClass().getName()
+                    : null;
+        }
+
+        return allergy.getAllergen() != null
+                ? allergy.getAllergen().getName()
+                : null;
     }
 }

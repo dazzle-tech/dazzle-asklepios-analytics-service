@@ -3,6 +3,7 @@ package com.dazzle.asklepios.service;
 import com.dazzle.asklepios.domain.ApLovValue;
 import com.dazzle.asklepios.domain.Department;
 import com.dazzle.asklepios.domain.Patient;
+import com.dazzle.asklepios.domain.User;
 import com.dazzle.asklepios.repository.ApLovValueRepository;
 import com.dazzle.asklepios.repository.DepartmentsRepository;
 import com.dazzle.asklepios.repository.UserRepository;
@@ -22,6 +23,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.itextpdf.kernel.pdf.PdfName.User;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +50,16 @@ ReportCommonService {
                 })
                 .orElse(login);
     }
+    public String getUserEmail(String login) {
+        if (login == null || login.isBlank()) {
+            return "";
+        }
 
+        return userRepository.findByLogin(login)
+                .map(user -> user.getEmail() != null ? user.getEmail().trim() : "")
+                .filter(email -> !email.isBlank())
+                .orElse("");
+    }
     public String getLovDisplayValue(String lovValueId) {
         if (lovValueId == null || lovValueId.isBlank()) {
             return "";
