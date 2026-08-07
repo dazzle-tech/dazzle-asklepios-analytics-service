@@ -12,6 +12,7 @@ import com.dazzle.asklepios.domain.PatientPrescriptionMedication;
 import com.dazzle.asklepios.domain.PatientWarnings;
 import com.dazzle.asklepios.domain.PrescriptionInstruction;
 import com.dazzle.asklepios.domain.enumeration.AllergenTypes;
+import com.dazzle.asklepios.domain.enumeration.PrescriptionStatus;
 import com.dazzle.asklepios.repository.ApLovValueRepository;
 import com.dazzle.asklepios.repository.DepartmentsRepository;
 import com.dazzle.asklepios.repository.DiagnosisRepository;
@@ -206,7 +207,7 @@ public class PrescriptionReportService {
                 ));
 
         List<PatientPrescriptionMedication> medications =
-                Optional.ofNullable(prescriptionMedicationRepository.findAllByPrescriptionHeaderIdOrderByIdAsc(prescriptionId))
+                Optional.ofNullable(prescriptionMedicationRepository.findAllByPrescriptionHeaderIdAndStatusNotOrderByIdAsc(prescriptionId , PrescriptionStatus.CANCELLED))
                         .orElse(Collections.emptyList());
 
 

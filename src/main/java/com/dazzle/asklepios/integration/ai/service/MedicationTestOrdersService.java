@@ -12,6 +12,7 @@ import com.dazzle.asklepios.domain.PatientPrescriptionMedication;
 import com.dazzle.asklepios.domain.PrescriptionInstruction;
 import com.dazzle.asklepios.domain.enumeration.DiagnosisType;
 import com.dazzle.asklepios.domain.enumeration.PrescriptionInstructionsType;
+import com.dazzle.asklepios.domain.enumeration.PrescriptionStatus;
 import com.dazzle.asklepios.integration.ai.client.MedicationTestOrdersValidationClient;
 import com.dazzle.asklepios.integration.ai.client.dto.medvalidation.DiagnosisDTO;
 import com.dazzle.asklepios.integration.ai.client.dto.medvalidation.EncounterDTO;
@@ -102,7 +103,7 @@ public class MedicationTestOrdersService {
         );
 
         List<String> medications = prescriptionMedicationRepository
-                .findAllByPrescriptionHeaderIdOrderByIdAsc(request.prescriptionId())
+                .findAllByPrescriptionHeaderIdAndStatusNotOrderByIdAsc(request.prescriptionId(), PrescriptionStatus.CANCELLED)
                 .stream()
                 .map(this::formatMedication)
                 .toList();
