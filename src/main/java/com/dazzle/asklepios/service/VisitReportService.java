@@ -13,6 +13,7 @@ import com.dazzle.asklepios.domain.PatientWarnings;
 import com.dazzle.asklepios.domain.PrescriptionInstruction;
 import com.dazzle.asklepios.domain.enumeration.AllergenTypes;
 import com.dazzle.asklepios.domain.enumeration.DiagnosticOrderTestStatus;
+import com.dazzle.asklepios.domain.enumeration.PrescriptionStatus;
 import com.dazzle.asklepios.repository.BodyMeasurementsRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderTestRepository;
@@ -286,7 +287,7 @@ public class VisitReportService {
                 .toList();
 
         return prescriptionMedicationRepository
-                .findAllByPrescriptionHeaderIdInOrderByIdAsc(prescriptionIds)
+                .findAllByPrescriptionHeaderIdInAndStatusNotOrderByIdAsc(prescriptionIds , PrescriptionStatus.CANCELLED)
                 .stream()
                 .map(m -> new PrescriptionMedicationDTO(
                         m.getActiveIngredient().getName(),
