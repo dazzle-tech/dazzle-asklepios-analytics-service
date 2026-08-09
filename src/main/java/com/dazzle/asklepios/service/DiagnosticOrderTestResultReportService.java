@@ -286,6 +286,7 @@ public class DiagnosticOrderTestResultReportService {
             String categoryName,
             String timezone
     ) {
+
         DiagnosticTestProfile testProfile = diagnosticTestProfileRepository.findById(result.getProfileTestId())
                 .orElseThrow(() -> new BadRequestAlertException(
                         "notfound",
@@ -300,23 +301,41 @@ public class DiagnosticOrderTestResultReportService {
                         .orElse(result.getNormalRangeValue())
                         : result.getNormalRangeValue();
 
-        String resultValue =
-                testProfile.getResultType() == TestResultType.LOV
-                        ? apLovValueRepository.findById(String.valueOf(result.getResultValueText()))
-                        .map(ApLovValue::getLovDisplayVale)
-                        .orElse(result.getResultValueText())
-                        : result.getResultValueNumber() != null
-                        ? result.getResultValueNumber().toString()
-                        : result.getResultValueText();
+        String resultValue;
+
+        if (testProfile.getResultType() == TestResultType.LOV) {
+
+            resultValue = apLovValueRepository
+                    .findById(String.valueOf(result.getResultValueText()))
+                    .map(ApLovValue::getLovDisplayVale)
+                    .orElse(result.getResultValueText());
+
+        } else if (testProfile.getResultType() == TestResultType.TEXT) {
+
+            resultValue = result.getResultValueText();
+
+        } else {
+
+            resultValue =
+                    result.getResultValueNumber() != null
+                            ? result.getResultValueNumber().toString()
+                            : "";
+        }
+
+        String unit =
+                testProfile.getResultType() == TestResultType.NUMBER
+                        ? reportCommonService.getLovDisplayValue(
+                        String.valueOf(testProfile.getResultUnit())
+                )
+                        : null;
 
         return new LaboratoryResultItemDTO(
                 reportCommonService.formatDateTime(result.getCreatedDate(), timezone),
                 normalRangeValue,
                 categoryName,
                 testProfile.getName(),
-
                 resultValue,
-                reportCommonService.getLovDisplayValue(String.valueOf(testProfile.getResultUnit())),
+                unit,
                 result.getMarker(),
                 reportCommonService.formatDateTime(result.getReviewDate(), timezone),
                 reportCommonService.getDisplayUserName(result.getReviewBy())
