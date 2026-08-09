@@ -1,12 +1,10 @@
 package com.dazzle.asklepios.service.dto;
 
-import jakarta.persistence.Column;
-import jakarta.validation.constraints.NotNull;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 
 public record DiagnosticOrderTestSampleLabelDTO(
+        Long sampleId,
         Long orderTestId,
         String patientName,
         String facilityName,
@@ -17,4 +15,5 @@ public record DiagnosticOrderTestSampleLabelDTO(
         String sampleUnit,
         Instant expiryDate,
         String sourceOfSample
-) {}
+) {
+}

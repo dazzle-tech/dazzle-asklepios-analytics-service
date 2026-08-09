@@ -119,13 +119,13 @@ body {
     position: absolute;
     right: 7mm;
     bottom: 5mm;
-    width: 38mm;
+    width: 50mm;
     text-align: center;
 }
 
 .barcode {
-    width: 38mm;
-    height: 10mm;
+    width: 50mm;
+    height: 14mm;
     object-fit: fill;
     display: block;
 }

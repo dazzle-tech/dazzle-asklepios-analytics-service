@@ -144,6 +144,7 @@ public class DiagnosticOrderTestCollectedSampleService {
         );
 
         return new DiagnosticOrderTestSampleLabelDTO(
+                sample.getId(),
                 orderTest.getId(),
                 patientName,
                 facilityName,

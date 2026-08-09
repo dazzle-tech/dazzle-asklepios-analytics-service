@@ -31,22 +31,40 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
     private static final DateTimeFormatter DATE_TIME_FORMAT =
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-    public byte[] generateSampleLabelPdf(Long orderTestId, String lang, Integer copies) {
+    public byte[] generateSampleLabelPdf(
+            Long orderTestId,
+            String lang,
+            Integer copies
+    ) {
         DiagnosticOrderTestSampleLabelDTO dto =
                 sampleService.getSampleLabel(orderTestId);
 
-        return renderSampleLabels(List.of(dto), lang, copies);
+        return renderSampleLabels(
+                List.of(dto),
+                lang,
+                copies
+        );
     }
 
-    public byte[] generateAllSampleLabelsPdf(Long orderTestId, String lang, Integer copies) {
+    public byte[] generateAllSampleLabelsPdf(
+            Long orderTestId,
+            String lang,
+            Integer copies
+    ) {
         List<DiagnosticOrderTestSampleLabelDTO> sampleLabels =
                 sampleService.getSampleLabelsByOrderTestId(orderTestId);
 
         if (sampleLabels.isEmpty()) {
-            return reportPdfCommonService.renderEmptyPdf("No collected samples found");
+            return reportPdfCommonService.renderEmptyPdf(
+                    "No collected samples found"
+            );
         }
 
-        return renderSampleLabels(sampleLabels, lang, copies);
+        return renderSampleLabels(
+                sampleLabels,
+                lang,
+                copies
+        );
     }
 
     private byte[] renderSampleLabels(
@@ -62,32 +80,62 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
         context.setVariable("labelsList", sampleLabels);
         context.setVariable("copies", safeCopies);
 
-        context.setVariable("today", DATE_FORMAT.format(LocalDate.now()));
+        context.setVariable(
+                "today",
+                DATE_FORMAT.format(LocalDate.now())
+        );
 
-        context.setVariable("lang", isArabic ? "ar" : "en");
-        context.setVariable("dir", isArabic ? "rtl" : "ltr");
-        context.setVariable("labels", buildSampleLabelLabels(isArabic));
+        context.setVariable(
+                "lang",
+                isArabic ? "ar" : "en"
+        );
 
-        context.setVariable("reportCss", reportPdfCommonService.loadCss(
-                "templates/reports/styles/sample-label.css"
-        ));
+        context.setVariable(
+                "dir",
+                isArabic ? "rtl" : "ltr"
+        );
+
+        context.setVariable(
+                "labels",
+                buildSampleLabelLabels(isArabic)
+        );
+
+        context.setVariable(
+                "reportCss",
+                reportPdfCommonService.loadCss(
+                        "templates/reports/styles/sample-label.css"
+                )
+        );
 
         context.setVariable("service", this);
 
-        String html = templateEngine.process("reports/sample-label", context);
+        String html = templateEngine.process(
+                "reports/sample-label",
+                context
+        );
 
         return reportPdfCommonService.renderPdfWithChromium(html);
     }
 
-    public String formatSampleDateTime(DiagnosticOrderTestSampleLabelDTO dto) {
+    public String formatSampleDateTime(
+            DiagnosticOrderTestSampleLabelDTO dto
+    ) {
         return dto.sampleDateTime() != null
-                ? DATE_TIME_FORMAT.format(dto.sampleDateTime().atZone(ZoneId.systemDefault()))
+                ? DATE_TIME_FORMAT.format(
+                dto.sampleDateTime()
+                        .atZone(ZoneId.systemDefault())
+        )
                 : "—";
     }
 
-    public String formatExpiryDate(DiagnosticOrderTestSampleLabelDTO dto) {
+    public String formatExpiryDate(
+            DiagnosticOrderTestSampleLabelDTO dto
+    ) {
         return dto.expiryDate() != null
-                ? DATE_TIME_FORMAT.format(dto.expiryDate().atZone(ZoneId.systemDefault()))
+                ? DATE_TIME_FORMAT.format(
+                dto.expiryDate()
+                        .atZone(ZoneId.systemDefault())
+        )
                 : "";
     }
 
@@ -96,45 +144,97 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
             return "—";
         }
 
-        return value.stripTrailingZeros().toPlainString();
+        return value
+                .stripTrailingZeros()
+                .toPlainString();
     }
 
-    public String buildQrImage(DiagnosticOrderTestSampleLabelDTO dto) {
+    public String buildQrImage(
+            DiagnosticOrderTestSampleLabelDTO dto
+    ) {
         String sampleDateTime = formatSampleDateTime(dto);
         String qrValue = buildQrValue(dto, sampleDateTime);
 
-        return generateQrBase64(qrValue, 220, 220);
+        return generateQrBase64(
+                qrValue,
+                220,
+                220
+        );
     }
 
-    public String buildBarcodeImage(DiagnosticOrderTestSampleLabelDTO dto) {
-        return generateCode128BarcodeBase64(dto.mrn(), 520, 110);
+    /**
+     * Barcode contains ORDER TEST ID instead of MRN.
+     */
+    public String buildBarcodeImage(
+            DiagnosticOrderTestSampleLabelDTO dto
+    ) {
+        String barcodeValue = ";ORDER_ID:" + nullSafe(dto.orderTestId().toString());
+
+        return generateCode128BarcodeBase64(
+                barcodeValue,
+                1000,
+                200
+        );
     }
 
-    private String buildQrValue(DiagnosticOrderTestSampleLabelDTO dto, String sampleDateTime) {
-        return "MRN:" + nullSafe(dto.mrn())
-                + ";NAME:" + nullSafe(dto.patientName())
-                + ";TEST:" + nullSafe(dto.testName())
-                + ";SAMPLE_DT:" + nullSafe(sampleDateTime)
-                + ";SOURCE:" + nullSafe(dto.sourceOfSample())
-                + ";EXPIRY:" + formatExpiryDate(dto)
-                + ";QTY:" + formatQuantity(dto.sampleQuantity()) + " " + nullSafe(dto.sampleUnit());
+    private String buildQrValue(
+            DiagnosticOrderTestSampleLabelDTO dto,
+            String sampleDateTime
+    ) {
+        return   ";ORDER_ID:" + nullSafe(dto.orderTestId().toString())
+            ;
     }
 
     private String nullSafe(String value) {
-        return value == null || value.isBlank() ? "—" : value;
+        return value == null || value.isBlank()
+                ? "—"
+                : value;
     }
 
-    private Map<String, String> buildSampleLabelLabels(boolean isArabic) {
+    private Map<String, String> buildSampleLabelLabels(
+            boolean isArabic
+    ) {
         Map<String, String> labels = new HashMap<>();
 
-        labels.put("sampleLabel", isArabic ? "ملصق العينة" : "Sample Label");
-        labels.put("patient", isArabic ? "المريض" : "Patient");
-        labels.put("mrn", isArabic ? "رقم الملف" : "MRN");
-        labels.put("sample", isArabic ? "تاريخ العينة" : "Sample");
-        labels.put("expiry", isArabic ? "تاريخ الانتهاء" : "Expiry");
-        labels.put("source", isArabic ? "مصدر العينة" : "Source");
-        labels.put("test", isArabic ? "الفحص" : "Test");
-        labels.put("amount", isArabic ? "الكمية" : "Amount");
+        labels.put(
+                "sampleLabel",
+                isArabic ? "ملصق العينة" : "Sample Label"
+        );
+
+        labels.put(
+                "patient",
+                isArabic ? "المريض" : "Patient"
+        );
+
+        labels.put(
+                "mrn",
+                isArabic ? "رقم الملف" : "MRN"
+        );
+
+        labels.put(
+                "sample",
+                isArabic ? "تاريخ العينة" : "Sample"
+        );
+
+        labels.put(
+                "expiry",
+                isArabic ? "تاريخ الانتهاء" : "Expiry"
+        );
+
+        labels.put(
+                "source",
+                isArabic ? "مصدر العينة" : "Source"
+        );
+
+        labels.put(
+                "test",
+                isArabic ? "الفحص" : "Test"
+        );
+
+        labels.put(
+                "amount",
+                isArabic ? "الكمية" : "Amount"
+        );
 
         return labels;
     }
