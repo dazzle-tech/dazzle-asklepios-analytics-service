@@ -1,6 +1,5 @@
-
 @page {
-    size: 120mm 55mm;
+    size: 60mm 35mm;
     margin: 0;
 }
 
@@ -14,28 +13,26 @@ html,
 body {
     margin: 0;
     padding: 0;
+    width: 60mm;
+    height: 35mm;
     font-family: Arial, sans-serif;
     color: #111827;
 }
 
-body {
-    width: 120mm;
-    height: 55mm;
-}
-
 .label {
-    width: 120mm;
-    height: 55mm;
-    padding: 4mm 5mm;
+    width: 60mm;
+    height: 35mm;
+    padding: 2mm 2.5mm;
     position: relative;
-    background: #ffffff;
+    background: #fff;
     overflow: hidden;
 }
 
+/* Header */
 .header {
     display: table;
     width: 100%;
-    margin-bottom: 2mm;
+    margin-bottom: 1mm;
 }
 
 .header-left,
@@ -45,20 +42,22 @@ body {
 }
 
 .header-left {
-    width: 58%;
+    width: 52%;
 }
 
 .header-right {
-    width: 42%;
+    width: 48%;
     text-align: right;
 }
 
 .title {
-    font-size: 15pt;
+    font-size: 10pt;
     font-weight: 700;
-    line-height: 1.1;
-    margin-top: 1mm;
+    line-height: 1;
+    margin-top: 0;
 }
+
+/* Right Section */
 
 .right-block {
     display: inline-table;
@@ -76,36 +75,38 @@ body {
 }
 
 .date {
-    font-size: 8.5pt;
+    font-size: 6pt;
     font-weight: 700;
     line-height: 1.1;
-    margin-bottom: 2mm;
+    margin-bottom: 0.5mm;
     white-space: nowrap;
 }
 
 .facility {
-    font-size: 8pt;
-    line-height: 1.15;
-    max-width: 32mm;
+    font-size: 5.5pt;
+    line-height: 1.1;
+    max-width: 18mm;
     word-break: break-word;
 }
 
 .qr {
-    width: 12mm;
-    height: 12mm;
+    width: 9mm;
+    height: 9mm;
     object-fit: contain;
     display: block;
 }
 
+/* Content */
+
 .content {
-    width: 62mm;
-    margin-top: 1mm;
+    width: 32mm;
+    margin-top: 0.5mm;
 }
 
 .row {
-    font-size: 8.5pt;
+    font-size: 5.5pt;
     line-height: 1.2;
-    margin-bottom: 0.6mm;
+    margin-bottom: 0.4mm;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -115,27 +116,31 @@ body {
     font-weight: 700;
 }
 
+/* Barcode */
+
 .barcode-box {
     position: absolute;
-    right: 7mm;
-    bottom: 5mm;
-    width: 50mm;
+    right: 2mm;
+    bottom: 1.5mm;
+    width: 26mm;
     text-align: center;
 }
 
 .barcode {
-    width: 50mm;
-    height: 14mm;
+    width: 26mm;
+    height: 11mm;
     object-fit: fill;
     display: block;
 }
 
 .barcode-text {
-    font-size: 7pt;
+    font-size: 5pt;
     font-weight: 700;
-    letter-spacing: 0.4px;
-    margin-top: 0.8mm;
+    margin-top: 0.3mm;
+    letter-spacing: 0.2px;
 }
+
+/* Multiple Labels */
 
 .label-wrapper {
     margin-bottom: 3mm;
@@ -145,16 +150,15 @@ body {
     margin-bottom: 0;
 }
 
-html,
-body {
-    height: auto;
-}
+/* LTR */
 
 body.ltr {
     direction: ltr;
     text-align: left;
     font-family: Arial, sans-serif;
 }
+
+/* RTL */
 
 body.rtl {
     direction: rtl;
@@ -166,14 +170,25 @@ body.rtl .header {
     direction: rtl;
 }
 
+body.rtl .header-left {
+    width: 48%;
+    text-align: right;
+}
+
 body.rtl .header-right {
+    width: 52%;
     text-align: left;
 }
 
 body.rtl .right-text {
     text-align: left;
+    padding-left: 2mm;
     padding-right: 0;
-    padding-left: 3mm;
+}
+
+body.rtl .content {
+    margin-right: 0;
+    margin-left: auto;
 }
 
 body.rtl .row {
@@ -182,8 +197,8 @@ body.rtl .row {
 }
 
 body.rtl .barcode-box {
+    left: 2mm;
     right: auto;
-    left: 7mm;
 }
 
 body.rtl .title,
@@ -192,6 +207,10 @@ body.rtl .label-text {
     text-transform: none;
 }
 
+/* Mixed Arabic / English Text */
+
+/* Mixed Arabic / English Text */
+.row span,
 .barcode-text,
 .date,
 .facility {
