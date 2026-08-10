@@ -91,14 +91,14 @@ public class NurseSummaryReportService {
                 .orElse(null);
 
 
-            observation = new NurseSummaryObservationDTO(
-                    observation.reasonOfVisit(),
-                    observation.functionalStatus(),
-                    patient.getPatientConditions(),
-                    observation.cognitiveCheck(),
-                    buildDiagnosis(encounterId),
-                    null
-            );
+        observation = new NurseSummaryObservationDTO(
+                observation != null ? observation.reasonOfVisit() : null,
+                observation != null ? observation.functionalStatus() : null,
+                patient != null ? patient.getPatientConditions() : null,
+                observation != null ? observation.cognitiveCheck() : null,
+                buildDiagnosis(encounterId),
+                null
+        );
 
 
         NurseSummaryVitalSignsDTO vitalSigns = vitalSignsRepository
