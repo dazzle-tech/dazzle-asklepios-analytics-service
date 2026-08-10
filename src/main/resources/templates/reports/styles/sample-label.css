@@ -29,6 +29,7 @@ body {
 }
 
 /* Header */
+
 .header {
     display: table;
     width: 100%;
@@ -122,13 +123,13 @@ body {
     position: absolute;
     right: 2mm;
     bottom: 1.5mm;
-    width: 26mm;
+    width: 28mm;
     text-align: center;
 }
 
 .barcode {
-    width: 26mm;
-    height: 11mm;
+    width: 28mm;
+    height: 12mm;
     object-fit: fill;
     display: block;
 }
@@ -187,18 +188,24 @@ body.rtl .right-text {
 }
 
 body.rtl .content {
-    margin-right: 0;
+    width: 34mm;
     margin-left: auto;
-}
-
-body.rtl .row {
-    direction: rtl;
-    text-align: right;
+    margin-right: 0;
 }
 
 body.rtl .barcode-box {
     left: 2mm;
     right: auto;
+    width: 24mm;
+}
+
+body.rtl .barcode {
+    width: 24mm;
+}
+
+body.rtl .row {
+    direction: rtl;
+    text-align: right;
 }
 
 body.rtl .title,
@@ -207,12 +214,16 @@ body.rtl .label-text {
     text-transform: none;
 }
 
-/* Mixed Arabic / English Text */
+/* Mixed Arabic / English */
 
-/* Mixed Arabic / English Text */
 .row span,
-.barcode-text,
 .date,
-.facility {
+.facility,
+.barcode-text {
     unicode-bidi: plaintext;
+}
+
+body.rtl .row span:last-child {
+    direction: ltr;
+    unicode-bidi: embed;
 }
