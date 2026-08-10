@@ -153,7 +153,7 @@ public class PatientService {
                 .map(a -> a.getAllergen() != null ? a.getAllergen().getName() : null)
                 .filter(Objects::nonNull)
                 .collect(Collectors.joining(", "));
-        String bloodGroup = " ";
+        String bloodGroup = patient.getBloodGroup();
         LocalDateTime admission = LocalDateTime.now();
         Facility facility = facilityRepository.getById(
                 SecurityUtils.getCurrentUserFacility()

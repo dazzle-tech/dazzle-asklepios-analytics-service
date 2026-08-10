@@ -163,6 +163,9 @@ public class Patient extends AbstractAuditingEntity<Long> implements Serializabl
     @Column(name = "is_completed_patient", nullable = false)
     private Boolean isCompletedPatient;
 
+    @Column(name = "blood_group", length = 20)
+    private String bloodGroup;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "security_access_level")
     private SecurityLevel securityAccessLevel;

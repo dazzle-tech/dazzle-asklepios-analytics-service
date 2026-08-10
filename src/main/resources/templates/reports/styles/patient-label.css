@@ -114,15 +114,16 @@ html, body {
     position: absolute;
     right: 5mm;
     bottom: 4mm;
-    width: 32mm;
+    width:55mm;
     text-align: center;
 }
 
 .barcode {
-    width: 32mm;
-    height: 8mm;
+    width: 55mm;
+    height: 12mm;
     object-fit: fill;
     display: block;
+
 }
 
 .barcode-text {

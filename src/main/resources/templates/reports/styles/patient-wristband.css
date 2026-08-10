@@ -123,12 +123,12 @@ body {
     position: absolute;
     right: 7mm;
     bottom: 5mm;
-    width: 38mm;
+    width: 50mm;
     text-align: center;
 }
 
 .barcode {
-    width: 38mm;
+    width: 50mm;
     height: 10mm;
     object-fit: fill;
     display: block;
