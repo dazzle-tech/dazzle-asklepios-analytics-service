@@ -11,6 +11,7 @@ import com.dazzle.asklepios.domain.PatientObservationsComplaints;
 import com.dazzle.asklepios.domain.PatientServiceAndProduct;
 import com.dazzle.asklepios.domain.PatientWarnings;
 import com.dazzle.asklepios.domain.VitalSigns;
+import com.dazzle.asklepios.domain.enumeration.AllergenTypes;
 import com.dazzle.asklepios.domain.enumeration.DiagnosisType;
 import com.dazzle.asklepios.domain.enumeration.EncounterVaccinationStatus;
 import com.dazzle.asklepios.domain.enumeration.PatientAllergyStatus;
@@ -89,30 +90,16 @@ public class NurseSummaryReportService {
                 .map(this::mapObservation)
                 .orElse(null);
 
-        String primaryDiagnosis = patientDiagnosisRepository
-                .findByEncounterIdAndType(encounterId, DiagnosisType.PRIMARY)
-                .map(diag -> diag.getDiagnosis().getIcdShortDescription())
-                .orElse("Not Found");
 
-        if (observation != null) {
             observation = new NurseSummaryObservationDTO(
                     observation.reasonOfVisit(),
                     observation.functionalStatus(),
-                    observation.patientConditions(),
+                    patient.getPatientConditions(),
                     observation.cognitiveCheck(),
-                    primaryDiagnosis,
+                    buildDiagnosis(encounterId),
                     null
             );
-        } else {
-            observation = new NurseSummaryObservationDTO(
-                    null,
-                    null,
-                    null,
-                    null,
-                    primaryDiagnosis,
-                    null
-            );
-        }
+
 
         NurseSummaryVitalSignsDTO vitalSigns = vitalSignsRepository
                 .findFirstByEncounterIdAndIsActiveTrueOrderByCreatedDateDesc(encounterId)
@@ -287,7 +274,7 @@ public class NurseSummaryReportService {
     private NurseSummaryAllergyDTO mapAllergy(PatientAllergies entity) {
         return new NurseSummaryAllergyDTO(
                 entity.getAllergenType(),
-                entity.getAllergen() != null ? entity.getAllergen().getName() : null,
+                resolveAllergyName(entity),
                 entity.getSeverity() != null ? entity.getSeverity().name() : null
 
         );
@@ -358,8 +345,33 @@ public class NurseSummaryReportService {
                 safe(last)
         ).trim();
     }
-
+    String buildDiagnosis(Long encounterId) {
+        return patientDiagnosisRepository
+                .findByEncounterIdAndType(encounterId, DiagnosisType.PRIMARY)
+                .map(patientDiagnosis -> patientDiagnosis.getDiagnosis() != null
+                        ? patientDiagnosis.getDiagnosis().getIcdShortDescription()
+                        : null
+                )
+                .filter(value -> value != null && !value.isBlank())
+                .orElse("General assessment");
+    }
     private String safe(String value) {
         return value == null ? "" : value;
+    }
+    private String resolveAllergyName(PatientAllergies allergy) {
+
+        if (allergy == null) {
+            return null;
+        }
+
+        if (allergy.getAllergenType() == AllergenTypes.MEDICATION) {
+            return allergy.getMedicationClass() != null
+                    ? allergy.getMedicationClass().getName()
+                    : null;
+        }
+
+        return allergy.getAllergen() != null
+                ? allergy.getAllergen().getName()
+                : null;
     }
 }
