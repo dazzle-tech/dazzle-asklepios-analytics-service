@@ -166,21 +166,7 @@ public class Patient extends AbstractAuditingEntity<Long> implements Serializabl
     @Column(name = "blood_group", length = 20)
     private String bloodGroup;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "security_access_level")
-    private SecurityLevel securityAccessLevel;
 
-    @AssertTrue(message = "When patient is not unknown, firstName, lastName, sexAtBirth, dateOfBirth, primaryMobileNumber and email are required")
-    public boolean isValidWhenNotUnknown() {
-        if (Boolean.TRUE.equals(isUnknown)) {
-            return true;
-        }
-
-        return firstName != null
-                && lastName != null
-                && sexAtBirth != null
-                && dateOfBirth != null
-                && primaryMobileNumber != null
-                && email != null;
-    }
+    @Column(name = "patient_conditions", columnDefinition = "text")
+    private String patientConditions;
 }

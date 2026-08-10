@@ -4,7 +4,7 @@ import java.util.List;
 
 public record LaboratoryOrderSectionDTO(
         Long orderId,
-        Long orderNumber,
+        String orderNumber,
         String encounterNumber,
         String fromDepartment,
 

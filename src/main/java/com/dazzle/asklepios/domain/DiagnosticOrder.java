@@ -63,7 +63,7 @@ public class DiagnosticOrder extends AbstractAuditingEntity implements Serializa
     private DiagnosticStatus status=DiagnosticStatus.NEW;
 
     @Column(name = "order_number", nullable = false)
-    private Long orderNumber;
+    private String orderNumber;
 
     @NotNull
     @Column(name = "save_draft")
