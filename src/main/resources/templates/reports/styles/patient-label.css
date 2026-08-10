@@ -1,5 +1,5 @@
 @page {
-    size: 100mm 45mm;
+    size: 60mm 35mm;
     margin: 0;
 }
 
@@ -9,28 +9,31 @@
     print-color-adjust: exact;
 }
 
-html, body {
+html,
+body {
     margin: 0;
     padding: 0;
-    width: 100mm;
-    height: 45mm;
-    font-family: Arial, "Tahoma", sans-serif;
+    width: 60mm;
+    height: 35mm;
+    font-family: Arial, Tahoma, sans-serif;
     color: #111827;
 }
 
 .label {
-    width: 100mm;
-    height: 45mm;
-    padding: 3.5mm 4mm;
+    width: 60mm;
+    height: 35mm;
+    padding: 2mm 2.5mm;
     position: relative;
-    background: #ffffff;
+    background: #fff;
     overflow: hidden;
 }
+
+/* Header */
 
 .header {
     display: table;
     width: 100%;
-    margin-bottom: 1.5mm;
+    margin-bottom: 1mm;
 }
 
 .header-left,
@@ -40,20 +43,22 @@ html, body {
 }
 
 .header-left {
-    width: 58%;
+    width: 52%;
 }
 
 .header-right {
-    width: 42%;
+    width: 48%;
     text-align: right;
 }
 
 .title {
-    font-size: 13pt;
+    font-size: 10pt;
     font-weight: 700;
-    line-height: 1.1;
-    margin-top: 0.5mm;
+    line-height: 1;
+    margin-top: 0;
 }
+
+/* Right Section */
 
 .right-block {
     display: inline-table;
@@ -71,36 +76,38 @@ html, body {
 }
 
 .label-date {
-    font-size: 7.5pt;
+    font-size: 6pt;
     font-weight: 700;
     line-height: 1.1;
-    margin-bottom: 1.2mm;
+    margin-bottom: 0.5mm;
     white-space: nowrap;
 }
 
 .facility {
-    font-size: 7pt;
-    line-height: 1.15;
-    max-width: 26mm;
+    font-size: 6pt;
+    line-height: 1.1;
+    max-width: 18mm;
     word-break: break-word;
 }
 
 .qr {
-    width: 10mm;
-    height: 10mm;
+    width: 9mm;
+    height: 9mm;
     object-fit: contain;
     display: block;
 }
 
+/* Content */
+
 .content {
-    width: 58mm;
+    width: 32mm;
     margin-top: 0.5mm;
 }
 
 .row {
-    font-size: 8.5pt;
-    line-height: 1.35;
-    margin-bottom: 0.5mm;
+    font-size: 6pt;
+    line-height: 1.4;
+    margin-bottom: 0.4mm;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -110,28 +117,32 @@ html, body {
     font-weight: 700;
 }
 
+/* Barcode */
+
 .barcode-box {
     position: absolute;
-    right: 5mm;
-    bottom: 4mm;
-    width:55mm;
+    right: 2mm;
+    bottom: 1.5mm;
+    width: 28mm;
     text-align: center;
 }
 
 .barcode {
-    width: 55mm;
+    width: 28mm;
     height: 12mm;
     object-fit: fill;
     display: block;
-
 }
 
 .barcode-text {
-    font-size: 6.5pt;
+    font-size: 5pt;
     font-weight: 700;
-    letter-spacing: 0.4px;
-    margin-top: 0.5mm;
+    margin-top: 0.3mm;
+    letter-spacing: 0.2px;
 }
+
+/* Multiple Labels */
+
 .label-wrapper {
     margin-bottom: 3mm;
 }
@@ -140,11 +151,15 @@ html, body {
     margin-bottom: 0;
 }
 
+/* LTR */
+
 body.ltr {
     direction: ltr;
     text-align: left;
     font-family: Arial, Tahoma, sans-serif;
 }
+
+/* RTL */
 
 body.rtl {
     direction: rtl;
@@ -156,24 +171,36 @@ body.rtl .header {
     direction: rtl;
 }
 
+body.rtl .header-left {
+    width: 48%;
+    text-align: right;
+}
+
 body.rtl .header-right {
+    width: 52%;
     text-align: left;
 }
 
 body.rtl .right-text {
     text-align: left;
-    padding-right: 0;
     padding-left: 2mm;
+    padding-right: 0;
+}
+
+body.rtl .content {
+    width: 34mm;
+    margin-left: auto;
+    margin-right: 0;
+}
+
+body.rtl .barcode-box {
+    left: 2mm;
+    right: auto;
 }
 
 body.rtl .row {
     direction: rtl;
     text-align: right;
-}
-
-body.rtl .barcode-box {
-    right: auto;
-    left: 5mm;
 }
 
 body.rtl .title,
@@ -182,7 +209,16 @@ body.rtl .label-text {
     text-transform: none;
 }
 
-.barcode-text,
-.label-date {
+/* Arabic + English Mixed Content */
+
+.row span,
+.label-date,
+.facility,
+.barcode-text {
     unicode-bidi: plaintext;
+}
+
+body.rtl .row span:last-child {
+    direction: ltr;
+    unicode-bidi: embed;
 }
