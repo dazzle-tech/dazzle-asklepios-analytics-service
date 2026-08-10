@@ -168,7 +168,11 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
     public String buildBarcodeImage(
             DiagnosticOrderTestSampleLabelDTO dto
     ) {
-        String barcodeValue = ";ORDER_ID:" + nullSafe(dto.orderTestId().toString());
+        String barcodeValue =
+                "SAMPLE_ID:" + nullSafe(dto.sampleId().toString())+
+                ";MRN:" + nullSafe(dto.mrn()) +
+                ";ORDER_ID:" + nullSafe(dto.orderTestId().toString())
+                ;
 
         return generateCode128BarcodeBase64(
                 barcodeValue,
@@ -181,8 +185,10 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
             DiagnosticOrderTestSampleLabelDTO dto,
             String sampleDateTime
     ) {
-        return   ";ORDER_ID:" + nullSafe(dto.orderTestId().toString())
-            ;
+        return    "SAMPLE_ID:" + nullSafe(dto.sampleId().toString())+
+                ";MRN:" + nullSafe(dto.mrn()) +
+                ";ORDER_ID:" + nullSafe(dto.orderTestId().toString())
+                ;
     }
 
     private String nullSafe(String value) {

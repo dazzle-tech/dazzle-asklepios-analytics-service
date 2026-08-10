@@ -101,7 +101,7 @@
              th:if="${service.buildBarcodeImage(label) != null and !#strings.isEmpty(service.buildBarcodeImage(label))}"
              th:src="'data:image/png;base64,' + ${service.buildBarcodeImage(label)}" />
 
-        <div class="barcode-text" th:text="${label.mrn} ?: ''"></div>
+        <div class="barcode-text" th:text="${label.sampleId} ?: ''"></div>
       </div>
 
     </div>
