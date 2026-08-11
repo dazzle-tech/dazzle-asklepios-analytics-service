@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 public record PrescriptionPrintDTO(
-        Long prescriptionNumber,
+        String prescriptionNumber,
         Instant prescriptionDateTime,
         String prescriberName,
         String prescriberEmail,

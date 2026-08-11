@@ -45,7 +45,7 @@ public class PatientPrescription extends AbstractAuditingEntity<Long> implements
     private Long encounterId;
 
     @Column(name = "prescription_num", nullable = false, insertable = false, updatable = false)
-    private Long prescriptionNum;
+    private String prescriptionNum;
 
     @Column(name = "prescription_date", nullable = false)
     private LocalDate prescriptionDate;
