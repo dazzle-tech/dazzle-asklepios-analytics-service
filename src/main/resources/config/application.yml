@@ -11,7 +11,7 @@ springdoc:
 ai:
 
   medication-test-orders-validation:
-    base-url: http://medication-test-orders-validation-service:8005
+    base-url: http://medication-test-orders-validation-service:8006
     timeout-seconds: 120
 
   clinical-summary:
