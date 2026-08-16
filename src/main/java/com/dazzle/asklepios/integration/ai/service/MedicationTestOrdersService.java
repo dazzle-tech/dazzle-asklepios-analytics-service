@@ -166,12 +166,12 @@ public class MedicationTestOrdersService {
     }
 
     private String buildFullName(Patient patient) {
-        return List.of(
+        return java.util.stream.Stream.of(
                         patient.getFirstName(),
                         patient.getSecondName(),
                         patient.getThirdName(),
                         patient.getLastName()
-                ).stream()
+                )
                 .filter(v -> v != null && !v.isBlank())
                 .collect(Collectors.joining(" "));
     }
