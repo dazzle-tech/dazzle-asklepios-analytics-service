@@ -1,7 +1,9 @@
 package com.dazzle.asklepios.web.rest;
 
+import com.dazzle.asklepios.domain.PatientEncounter;
 import com.dazzle.asklepios.service.VisitReportPdfRenderService;
 import com.dazzle.asklepios.service.VisitReportService;
+import com.dazzle.asklepios.service.dto.PatientEncounterReportDTO;
 import com.dazzle.asklepios.service.dto.reports.VisitReportDTO;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -11,6 +13,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/analytics")
@@ -69,4 +73,16 @@ public class VisitReportController {
 
         return ResponseEntity.ok().headers(headers).body(pdf);
     }
+
+
+    @GetMapping("/patient-encounters")
+    public ResponseEntity<List<PatientEncounterReportDTO>>
+    getPatientEncounters() {
+
+        return ResponseEntity.ok(
+                visitReportService.getAllEncounter()
+        );
+    }
+
+
 }

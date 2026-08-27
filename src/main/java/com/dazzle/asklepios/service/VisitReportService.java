@@ -27,6 +27,8 @@ import com.dazzle.asklepios.repository.PatientWarningRepository;
 import com.dazzle.asklepios.repository.PrescriptionInstructionRepository;
 import com.dazzle.asklepios.repository.PrescriptionMedicationRepository;
 import com.dazzle.asklepios.repository.ProcedureRepository;
+import com.dazzle.asklepios.service.dto.PatientEncounterReportDTO;
+import com.dazzle.asklepios.service.dto.PatientEncounterReportRequest;
 import com.dazzle.asklepios.service.dto.prescription.PrescriptionMedicationDTO;
 import com.dazzle.asklepios.service.dto.reports.NurseSummaryAllergyDTO;
 import com.dazzle.asklepios.service.dto.reports.NurseSummaryBodyMeasurementsDTO;
@@ -38,12 +40,16 @@ import com.dazzle.asklepios.service.dto.reports.VisitReportDTO;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.InputStream;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -364,5 +370,32 @@ public class VisitReportService {
         return allergy.getAllergen() != null
                 ? allergy.getAllergen().getName()
                 : null;
+    }
+
+
+
+    public List<PatientEncounterReportDTO> getAllEncounter() {
+
+        return patientEncounterRepository
+                .findAll()
+                .stream()
+                .map(encounter ->
+                        new PatientEncounterReportDTO(
+
+                                String.valueOf(encounter.getEncounterReason()),
+                                String.valueOf(encounter.getStatus())
+                        )
+                )
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<PatientEncounterReportDTO> getPatientEncounterReport(
+            PatientEncounterReportRequest request
+    ) {
+        return patientEncounterRepository.getPatientEncounterReport(
+                request.departmentId(),
+                request.status()
+        );
     }
 }

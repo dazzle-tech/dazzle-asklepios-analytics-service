@@ -50,8 +50,9 @@ public class PatientEncounter extends AbstractAuditingEntity<Long> implements Se
     private Long facilityId;
 
     @NotNull
-    @Column(name = "department_id", nullable = false)
-    private Long departmentId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "department_id", nullable = false)
+    private Department department;
 
     @Column(name = "practitioner_id")
     private Long practitionerId;
