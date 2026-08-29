@@ -6,6 +6,7 @@ import com.dazzle.asklepios.domain.DiagnosticOrder;
 import com.dazzle.asklepios.domain.DiagnosticOrderTest;
 import com.dazzle.asklepios.domain.DiagnosticOrderTestCollectedSample;
 import com.dazzle.asklepios.domain.DiagnosticTest;
+import com.dazzle.asklepios.domain.Facility;
 import com.dazzle.asklepios.domain.Patient;
 import com.dazzle.asklepios.repository.ApLovValueRepository;
 import com.dazzle.asklepios.repository.DepartmentsRepository;
@@ -14,6 +15,7 @@ import com.dazzle.asklepios.repository.DiagnosticOrderTestCollectedSampleReposit
 import com.dazzle.asklepios.repository.DiagnosticOrderTestRepository;
 import com.dazzle.asklepios.repository.DiagnosticTestRepository;
 import com.dazzle.asklepios.repository.PatientRepository;
+import com.dazzle.asklepios.service.dto.DiagnosticOrderSampleLabelDTO;
 import com.dazzle.asklepios.service.dto.DiagnosticOrderTestSampleLabelDTO;
 import com.dazzle.asklepios.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional
@@ -172,5 +175,109 @@ public class DiagnosticOrderTestCollectedSampleService {
         return samples.stream()
                 .map(sample -> buildSampleLabelDto(orderTest, sample))
                 .toList();
+    }
+
+    public DiagnosticOrderSampleLabelDTO getOrderSampleLabel(
+            Long orderId
+    ) {
+
+        LOG.debug(
+                "[SampleLabelService] GET_ORDER_SAMPLE_LABEL - start. orderId={}",
+                orderId
+        );
+
+        if (orderId == null) {
+            throw new BadRequestAlertException(
+                    "invalid_order",
+                    "diagnostic_orders",
+                    "OrderId cannot be null"
+            );
+        }
+
+        DiagnosticOrder order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new BadRequestAlertException(
+                        "notfound",
+                        "diagnostic_orders",
+                        "Order not found with id " + orderId
+                ));
+
+        Patient patient = patientRepository.findById(order.getPatientId())
+                .orElseThrow(() -> new BadRequestAlertException(
+                        "notfound",
+                        "patients",
+                        "Patient not found with id " + order.getPatientId()
+                ));
+
+        List<DiagnosticOrderTest> orderTests =
+                orderTestRepository.findByOrderIdOrderByIdAsc(orderId);
+
+        String facilityName = null;
+
+        if (!orderTests.isEmpty()
+                && orderTests.getFirst().getReceivedDepartmentId() != null) {
+
+            facilityName = departmentRepository
+                    .findById(orderTests.getFirst().getReceivedDepartmentId())
+                    .map(Department::getFacility)
+                    .map(Facility::getName)
+                    .orElse(null);
+        }
+
+        String patientName =
+                (
+                        (patient.getFirstName() != null
+                                ? patient.getFirstName()
+                                : "")
+                                + " "
+                                + (patient.getLastName() != null
+                                ? patient.getLastName()
+                                : "")
+                ).trim();
+
+        List<Long> testIds = orderTests.stream()
+                .filter(orderTest ->
+                        sampleRepository.existsByOrderTestId(orderTest.getId())
+                )
+                .map(DiagnosticOrderTest::getTestId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        List<String> collectedTests = diagnosticTestRepository
+                .findAllById(testIds)
+                .stream()
+                .map(this::getDisplayTestName)
+                .filter(name -> name != null && !name.isBlank())
+                .distinct()
+                .toList();
+
+        DiagnosticOrderSampleLabelDTO dto =
+                new DiagnosticOrderSampleLabelDTO(
+                        orderId,
+                        patientName,
+                        patient.getMedicalRecordNumber(),
+                        facilityName,
+                        collectedTests
+                );
+
+        LOG.debug(
+                "[SampleLabelService] GET_ORDER_SAMPLE_LABEL - completed. orderId={} testsCount={}",
+                orderId,
+                collectedTests.size()
+        );
+
+        return dto;
+    }
+    private String getDisplayTestName(
+            DiagnosticTest diagnosticTest
+    ) {
+
+        if (diagnosticTest.getShortName() != null
+                && !diagnosticTest.getShortName().isBlank()) {
+
+            return diagnosticTest.getShortName();
+        }
+
+        return "";
     }
 }

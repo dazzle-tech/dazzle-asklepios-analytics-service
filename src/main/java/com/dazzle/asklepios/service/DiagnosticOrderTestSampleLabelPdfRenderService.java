@@ -1,5 +1,6 @@
 package com.dazzle.asklepios.service;
 
+import com.dazzle.asklepios.service.dto.DiagnosticOrderSampleLabelDTO;
 import com.dazzle.asklepios.service.dto.DiagnosticOrderTestSampleLabelDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -64,6 +65,81 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
                 sampleLabels,
                 lang,
                 copies
+        );
+    }
+    public byte[] generateOrderSampleLabelPdf(
+            Long orderId,
+            String lang,
+            Integer copies
+    ) {
+
+        int safeCopies = copies == null || copies < 1 ? 1 : copies;
+        boolean isArabic = "ar".equalsIgnoreCase(lang);
+
+        DiagnosticOrderSampleLabelDTO label =
+                sampleService.getOrderSampleLabel(orderId);
+
+        Context context = new Context();
+
+        context.setVariable(
+                "label",
+                label
+        );
+
+        context.setVariable(
+                "copies",
+                safeCopies
+        );
+
+        context.setVariable(
+                "today",
+                DATE_FORMAT.format(LocalDate.now())
+        );
+
+        context.setVariable(
+                "lang",
+                isArabic ? "ar" : "en"
+        );
+
+        context.setVariable(
+                "dir",
+                isArabic ? "rtl" : "ltr"
+        );
+
+        context.setVariable(
+                "labels",
+                buildOrderSampleLabelLabels(isArabic)
+        );
+
+        context.setVariable(
+                "reportCss",
+                reportPdfCommonService.loadCss(
+                        "templates/reports/styles/order-sample-label.css"
+                )
+        );
+
+        context.setVariable(
+                "service",
+                this
+        );
+
+        String html = templateEngine.process(
+                "reports/order-sample-label",
+                context
+        );
+
+        return reportPdfCommonService.renderPdfWithChromium(
+                html
+        );
+    }
+    public String buildOrderBarcodeImage(
+            DiagnosticOrderSampleLabelDTO dto
+    ) {
+
+        return generateCode128BarcodeBase64(
+                nullSafe(String.valueOf(dto.orderId())),
+                1000,
+                200
         );
     }
 
@@ -236,6 +312,28 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
         labels.put(
                 "amount",
                 isArabic ? "الكمية" : "Amount"
+        );
+
+        return labels;
+    }
+    private Map<String, String> buildOrderSampleLabelLabels(
+            boolean isArabic
+    ) {
+
+        Map<String, String> labels = new HashMap<>();
+
+        labels.put(
+                "sampleLabels",
+                isArabic ? "ملصقات العينات" : "Sample Labels"
+        );
+
+        labels.put(
+                "orderNumber",
+                isArabic ? "رقم الطلب" : "Order No"
+        );
+        labels.put(
+                "mrn",
+                isArabic ? "رقم الملف" : "MRN"
         );
 
         return labels;

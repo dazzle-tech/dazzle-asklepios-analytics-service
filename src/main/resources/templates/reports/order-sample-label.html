@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:attr="lang=${lang}, dir=${dir}">
+
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${labels.sampleLabels}">
+        Sample Labels
+    </title>
+
+    <style th:utext="${reportCss}"></style>
+</head>
+
+<body th:class="${dir}">
+
+<div th:each="copy : ${#numbers.sequence(1, copies)}"
+     class="label-wrapper">
+
+    <div class="label">
+
+        <div class="header">
+            <div class="title"
+                 th:text="${labels.sampleLabels}">
+                Sample Labels
+            </div>
+            <div class="facility-name"
+                 th:if="${label.facilityName != null and !#strings.isEmpty(label.facilityName)}"
+                 th:text="${label.facilityName}">
+            </div>
+
+
+
+            <div class="mrn"
+                 th:if="${label.mrn != null and !#strings.isEmpty(label.mrn)}">
+
+                <span th:text="${labels.mrn}">
+                    MRN
+                </span>
+
+                :
+
+                <span th:text="${label.mrn}">
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="barcode-box">
+
+            <img class="barcode"
+                 th:if="${service.buildOrderBarcodeImage(label) != null}"
+                 th:src="'data:image/png;base64,' + ${service.buildOrderBarcodeImage(label)}"/>
+
+            <div class="barcode-text"
+                 th:text="${label.orderId}">
+            </div>
+
+        </div>
+
+        <div class="tests-list"
+             dir="auto"
+             th:text="${#strings.listJoin(label.collectedTestShortNames, ', ')}">
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>
