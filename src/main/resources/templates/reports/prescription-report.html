@@ -248,8 +248,13 @@
             <td class="med-name" th:text="${med.activeIngredient}">Active Ingredient</td>
             <td class="med-name" th:text="${med.medicationName}">Medication</td>
             <td class="med-instructions" th:text="${med.instructions}">Instructions</td>
-            <td th:text="${med.duration}">Duration</td>
-            <td class="text-center" th:text="${med.numberOfRefills}">0</td>
+              <td>
+                  <span th:text="${med.duration}">Duration</span>
+                  <span th:if="${med.durationType != null and !#strings.isEmpty(med.durationType)}"
+                        th:text="' ' + ${med.durationType}">
+                  </span>
+              </td>
+              <td class="text-center" th:text="${med.numberOfRefills}">0</td>
             <td class="text-muted" th:text="${med.administrationInstructions}">Admin instruction</td>
             <td class="text-muted" th:text="${med.indicationIcd}">Indication</td>
           </tr>

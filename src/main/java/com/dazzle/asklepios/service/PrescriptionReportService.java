@@ -296,6 +296,8 @@ public class PrescriptionReportService {
 
                             m.getDuration(),
 
+                            resolveLovDisplayValue(m.getDurationType()),
+
                             m.getNumberOfRefills() != null
                                     && m.getNumberOfRefills() > 0,
 

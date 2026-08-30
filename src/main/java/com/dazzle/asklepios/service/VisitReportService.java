@@ -294,6 +294,7 @@ public class VisitReportService {
                         m.getMedications() != null ? m.getMedications().getName() : null,
                         resolveInstruction(m),
                         m.getDuration(),
+                        m.getDurationType(),
                         m.getNumberOfRefills() != null && m.getNumberOfRefills() > 0,
                         m.getNumberOfRefills(),
                         reportCommonService.getLovDisplayValues(m.getAdministrationInstructions()),
