@@ -15,5 +15,4 @@ public interface DiagnosticOrderRepository extends JpaRepository<DiagnosticOrder
 
     List<DiagnosticOrder> findByPatientId(Long patientId);
     List<DiagnosticOrder> findByPatientIdOrderByCreatedDateDesc(Long patientId);
-    List<DiagnosticOrder> findByPatientId(Long patientId);
 }

@@ -46,7 +46,7 @@ ai:
     timeout-seconds: 120
 
   patient-timeline:
-    base-url: http://patient-timeline-service:8001/api/v1
+    base-url: ${gateway.base-url}/api/ai/v1/patient-timeline-service 
     timeout-seconds: 360
 spring:
   devtools:

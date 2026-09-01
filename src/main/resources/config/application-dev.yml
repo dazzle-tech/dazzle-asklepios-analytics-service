@@ -21,21 +21,18 @@ ai:
     base-url: http://ocr-parsing-service:8012
     timeout-seconds: 120
 
-  auto-population:
-    base-url: http://auto-population-service:8010
-    timeout-seconds: 500
-
   medication-test-orders-validation:
     base-url: http://medication-test-orders-validation-service:8006
     timeout-seconds: 120
 
   auto-population:
-    base-url: http://localhost:8010/api/v1
+    base-url: http://auto-population-service:8010
     timeout-seconds: 500
 
   patient-timeline:
-    base-url: http://localhost:8001/api/v1
+    base-url: http://patient-timeline-service:8001
     timeout-seconds: 360
+
   clinical-summary:
     base-url: http://clinical-summary-service:8003
     timeout-seconds: 120
