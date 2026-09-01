@@ -12,6 +12,7 @@ public interface DiagnosticOrderTestResultRepository
         extends JpaRepository<DiagnosticOrderTestResult, Long>,
         JpaSpecificationExecutor<DiagnosticOrderTestResult> {
 
+    List<DiagnosticOrderTestResult> findByOrderTestIdIn(List<Long> orderTestIds);
     List<DiagnosticOrderTestResult> findByOrderTestIdInOrderByCreatedDateDesc(List<Long> orderTestIds);
 
     List<DiagnosticOrderTestResult> findByOrderTestIdInAndApprovedDateBetweenAndProcessingStatus(

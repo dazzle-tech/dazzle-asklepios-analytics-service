@@ -12,6 +12,8 @@ public interface PatientProcedureRepository
         extends JpaRepository<PatientProcedure, Long> {
     @EntityGraph(attributePaths = "procedure")
     List <PatientProcedure> findByEncounterIdAndStatusNotOrderByCreatedDateAsc(Long encounterId ,String status);
+
+    List<PatientProcedure> findByPatient_IdOrderByCreatedDateAsc(Long patientId);
     @EntityGraph(attributePaths = "procedure")
     List<PatientProcedure> findByPatientIdOrderByScheduledDateTimeDesc(Long patientId);
 }

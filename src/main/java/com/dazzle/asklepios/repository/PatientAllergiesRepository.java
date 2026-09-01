@@ -18,6 +18,7 @@ public interface PatientAllergiesRepository extends JpaRepository<PatientAllergi
             PatientAllergyStatus status
     );
 
+    List<PatientAllergies> findByPatientIdOrderByCreatedDateAsc(Long patientId);
     @EntityGraph(attributePaths = {"allergen","medicationClass"})
     List<PatientAllergies> findByPatientIdAndStatusNotOrderByCreatedDateAsc(
             Long patientId,

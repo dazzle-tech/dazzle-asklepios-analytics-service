@@ -14,6 +14,6 @@ public interface DiagnosticOrderTestRepository extends JpaRepository<DiagnosticO
             List<Long> orderIds,
             DiagnosticOrderTestStatus status
     );
-    List<DiagnosticOrderTest> findByOrderIdIn(List<Long> orderIds);
 
+    List<DiagnosticOrderTest> findByOrderIdIn(List<Long> orderIds);
 }
