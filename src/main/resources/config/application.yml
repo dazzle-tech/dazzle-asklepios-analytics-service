@@ -9,7 +9,7 @@ springdoc:
 ---
 ai:
   ocr-parsing:
-    base-url: http://ocr-parsing-service:8012
+    base-url: localhost:8080/api/ai/v1/ocr-parsing-service
     timeout-seconds: 120
 
   auto-population:

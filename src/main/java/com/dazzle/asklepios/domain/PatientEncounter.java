@@ -95,9 +95,8 @@ public class PatientEncounter extends AbstractAuditingEntity<Long> implements Se
     private LocalDate encounterDate;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)
-    private EncounterStatus status;
+    private String status;
 
     @Column(name = "chief_complaint", columnDefinition = "text")
     private String chiefComplaint;

@@ -141,8 +141,8 @@ body {
 }
 
 .section-header.blue   { border-left-color: var(--primary-color); }
-.section-header.green  { border-left-color: #27ae60; }
-.section-header.teal   { border-left-color: #16a085; }
+.section-header.green  { border-left-color: var(--primary-color); }
+.section-header.teal   { border-left-color: var(--primary-color); }
 
 /* ─── PATIENT GRID ─── */
 .patient-grid {
@@ -431,11 +431,11 @@ body.rtl .section-header.blue {
 }
 
 body.rtl .section-header.green {
-    border-right-color: #27ae60;
+    border-right-color: var(--primary-color);
 }
 
 body.rtl .section-header.teal {
-    border-right-color: #16a085;
+    border-right-color: var(--primary-color);
 }
 
 /* Patient grid borders flip */
