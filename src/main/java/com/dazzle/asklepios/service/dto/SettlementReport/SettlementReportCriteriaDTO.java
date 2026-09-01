@@ -6,7 +6,9 @@ public record SettlementReportCriteriaDTO(
         Long insuranceCompanyId,
         LocalDate settlementDateFrom,
         LocalDate settlementDateTo,
-        String encounterType
+        String encounterType,
+        String insuranceCompanyName
+
 ) {
 }
 
