@@ -30,7 +30,7 @@ ai:
     timeout-seconds: 500
 
   medication-test-orders-validation:
-    base-url: ${gateway.base-url}/api/ai/v1/medication-test-orders
+    base-url: ${gateway.base-url}/api/ai/v1/medication-test-orders-validation
     timeout-seconds: 120
 
   clinical-summary:
