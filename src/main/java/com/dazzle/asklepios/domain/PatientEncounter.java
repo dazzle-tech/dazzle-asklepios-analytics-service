@@ -101,7 +101,11 @@ public class PatientEncounter extends AbstractAuditingEntity<Long> implements Se
     @Column(name = "chief_complaint", columnDefinition = "text")
     private String chiefComplaint;
 
+    @Column(name = "history_of_present_illness")
+    private String historyOfPresentIllness;
 
+    @Column(name = "physical_examination_summery")
+    private String physicalExaminationSummery;
 
 
 }
