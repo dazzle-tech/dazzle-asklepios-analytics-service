@@ -96,10 +96,48 @@
         </div>
     </section>
 
-    <!-- 2. ACTIVE ALLERGIES -->
+    <!-- 2. CLINICAL VISIT -->
     <section class="report-section">
         <div class="section-header blue">
-            <h2 class="section-title" th:text="${labels.activeAllergies}">2. Active Allergies</h2>
+            <h2 class="section-title" th:text="${labels.clinicalVisit}">2. Clinical Visit</h2>
+        </div>
+
+        <div class="table-container">
+            <table class="kv-table">
+                <tbody>
+                <tr>
+                    <td th:text="${labels.chiefComplaint}">Chief Complaint</td>
+                    <td th:text="${report.encounterInfo?.chiefComplaint}">—</td>
+                </tr>
+                <tr>
+                    <td th:text="${labels.primaryDiagnosis}">Primary Diagnosis</td>
+                    <td th:text="${report.observation?.primaryDiagnosis}">—</td>
+                </tr>
+                <tr>
+                    <td th:text="${labels.plan}">Plan</td>
+                    <td th:text="${report?.plan}">—</td>
+                </tr>
+                <tr>
+                    <td th:text="${labels.historyOfPresentIllness}">History of Present Illness</td>
+                    <td th:text="${report.encounterInfo?.historyOfPresentIllness}">—</td>
+                </tr>
+                <tr>
+                    <td th:text="${labels.physicalExaminationSummery}">Physical Examination Summary</td>
+                    <td th:text="${report.encounterInfo?.physicalExaminationSummery}">—</td>
+                </tr>
+                <tr>
+                    <td th:text="${labels.assessment}">Assessment</td>
+                    <td th:text="${report?.assessment}">—</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 3. ACTIVE ALLERGIES -->
+    <section class="report-section">
+        <div class="section-header blue">
+            <h2 class="section-title" th:text="${labels.activeAllergies}">3. Active Allergies</h2>
         </div>
 
         <div th:if="${report.allergies != null and !#lists.isEmpty(report.allergies)}" class="table-container">
@@ -128,10 +166,10 @@
         </div>
     </section>
 
-    <!-- 3. ACTIVE WARNINGS -->
+    <!-- 4. ACTIVE WARNINGS -->
     <section class="report-section">
         <div class="section-header blue">
-            <h2 class="section-title" th:text="${labels.activeWarnings}">3. Active Warnings</h2>
+            <h2 class="section-title" th:text="${labels.activeWarnings}">4. Active Warnings</h2>
         </div>
 
         <div th:if="${report.warnings != null and !#lists.isEmpty(report.warnings)}" class="table-container">
@@ -160,31 +198,7 @@
         </div>
     </section>
 
-    <!-- 4. CLINICAL VISIT -->
-    <section class="report-section">
-        <div class="section-header blue">
-            <h2 class="section-title" th:text="${labels.clinicalVisit}">4. Clinical Visit</h2>
-        </div>
 
-        <div class="table-container">
-            <table class="kv-table">
-                <tbody>
-                <tr>
-                    <td th:text="${labels.chiefComplaint}">Chief Complaint</td>
-                    <td th:text="${report.encounterInfo?.chiefComplaint}">—</td>
-                </tr>
-                <tr>
-                    <td th:text="${labels.primaryDiagnosis}">Primary Diagnosis</td>
-                    <td th:text="${report.observation?.primaryDiagnosis}">—</td>
-                </tr>
-                <tr>
-                    <td th:text="${labels.plan}">Plan</td>
-                    <td th:text="${report?.plan}">—</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
 
     <!-- 5. OBSERVATIONS SUMMARY -->
     <div class="no-page-break">

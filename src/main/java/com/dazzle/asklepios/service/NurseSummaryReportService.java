@@ -213,7 +213,9 @@ public class NurseSummaryReportService {
                 freshEncounter.getChiefComplaint(),
                 facilityName,
                 departmentName,
-                freshEncounter.getCreatedDate()
+                freshEncounter.getCreatedDate(),
+                freshEncounter.getHistoryOfPresentIllness(),
+                freshEncounter.getPhysicalExaminationSummery()
         );
 
 
