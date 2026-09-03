@@ -84,21 +84,24 @@ public class VisitReportPdfRenderService {
         labels.put("department", isArabic ? "القسم" : "Department");
         labels.put("visitDate", isArabic ? "تاريخ الزيارة" : "Visit Date");
 
-        labels.put("activeAllergies", isArabic ? "2. الحساسية " : "2. Active Allergies");
+        labels.put("activeAllergies", isArabic ? "3. الحساسية " : "3. Active Allergies");
         labels.put("allergenType", isArabic ? "نوع الحساسية" : "Allergen Type");
         labels.put("allergen", isArabic ? "مسبب الحساسية" : "Allergen");
         labels.put("severity", isArabic ? "الدرجة" : "Severity");
         labels.put("noAllergies", isArabic ? "لا يوجد حساسية مسجلة." : "No active allergies recorded.");
 
-        labels.put("activeWarnings", isArabic ? "3. التحذيرات " : "3. Active Warnings");
+        labels.put("activeWarnings", isArabic ? "4. التحذيرات " : "4. Active Warnings");
         labels.put("warningType", isArabic ? "نوع التحذير" : "Warning Type");
         labels.put("warning", isArabic ? "التحذير" : "Warning");
         labels.put("noWarnings", isArabic ? "لا يوجد تحذيرات مسجلة." : "No active warnings recorded.");
 
-        labels.put("clinicalVisit", isArabic ? "4. الزيارة السريرية" : "4. Clinical Visit");
+        labels.put("clinicalVisit", isArabic ? "2. الزيارة السريرية" : "2. Clinical Visit");
         labels.put("chiefComplaint", isArabic ? "الشكوى الطبية" : "Chief Complaint");
         labels.put("primaryDiagnosis", isArabic ? "التشخيص " : "Primary Diagnosis");
         labels.put("plan", isArabic ? "الخطة" : "Plan");
+        labels.put("historyOfPresentIllness", isArabic ? "تاريخ المرض الحالي" : "History of Present Illness");
+        labels.put("physicalExaminationSummery", isArabic ? "ملخص الفحص السريري" : "Physical Examination Summary");
+        labels.put("assessment", isArabic ? "التقييم" : "Assessment");
 
         labels.put("observationsSummary", isArabic ? "5. ملخص الملاحظات" : "5. Observations Summary");
         labels.put("bloodPressure", isArabic ? "ضغط الدم" : "Blood Pressure");
