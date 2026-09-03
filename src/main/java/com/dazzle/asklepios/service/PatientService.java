@@ -6,14 +6,12 @@ import com.dazzle.asklepios.domain.Facility;
 import com.dazzle.asklepios.domain.Patient;
 import com.dazzle.asklepios.domain.PatientAllergies;
 import com.dazzle.asklepios.domain.PatientDocument;
-import com.dazzle.asklepios.domain.PatientInsurance;
 import com.dazzle.asklepios.domain.PatientPreferredHealthProfessional;
 import com.dazzle.asklepios.domain.Practitioner;
 import com.dazzle.asklepios.repository.AddressRepository;
 import com.dazzle.asklepios.repository.FacilityRepository;
 import com.dazzle.asklepios.repository.PatientAllergyRepository;
 import com.dazzle.asklepios.repository.PatientDocumentRepository;
-import com.dazzle.asklepios.repository.PatientInsuranceRepository;
 import com.dazzle.asklepios.repository.PatientPreferredHealthProfessionalRepository;
 import com.dazzle.asklepios.repository.PatientRepository;
 import com.dazzle.asklepios.repository.PractitionersRepository;
@@ -53,10 +51,9 @@ public class PatientService {
     private final PatientPreferredHealthProfessionalRepository patientPreferredHealthProfessionalRepository;
     private final PatientDocumentRepository patientDocumentRepository;
     private final AddressRepository addressRepository;
-    private final PatientInsuranceRepository patientInsuranceRepository;
 
     public PatientService(
-            PatientRepository patientRepository, FacilityRepository facilityRepository, PatientAllergyRepository patientAllergyRepository, PractitionersRepository practitionersRepository, PatientPreferredHealthProfessionalRepository patientPreferredHealthProfessionalRepository, PatientDocumentRepository patientDocumentRepository, AddressRepository addressRepository, PatientInsuranceRepository patientInsuranceRepository
+            PatientRepository patientRepository, FacilityRepository facilityRepository, PatientAllergyRepository patientAllergyRepository, PractitionersRepository practitionersRepository, PatientPreferredHealthProfessionalRepository patientPreferredHealthProfessionalRepository, PatientDocumentRepository patientDocumentRepository, AddressRepository addressRepository
 
     ) {
         this.patientRepository = patientRepository;
@@ -66,7 +63,6 @@ public class PatientService {
         this.patientPreferredHealthProfessionalRepository = patientPreferredHealthProfessionalRepository;
         this.patientDocumentRepository = patientDocumentRepository;
         this.addressRepository = addressRepository;
-        this.patientInsuranceRepository = patientInsuranceRepository;
     }
 
     private String calculateAge(Date dateOfBirth) {
@@ -246,21 +242,8 @@ public class PatientService {
                 .collect(Collectors.joining(" / "));
         /* ===================== 4. Insurance ===================== */
 
-        String insuranceProvider = null;
-        String policyNumber = null;
 
-        PatientInsurance insurance = patientInsuranceRepository
-                .findFirstByPatientIdAndIsPrimaryTrue(patientId)
-                .orElse(null);
 
-        if (insurance != null) {
-            policyNumber = String.valueOf(insurance.getPolicyNumber());
-
-            // 🔥 FIX: بدل ID → اسم الـ Payor
-            if (insurance.getPayor() != null) {
-                insuranceProvider = insurance.getPayor().getName(); // تأكد من field
-            }
-        }
 
         /* ===================== 5. Preferred Doctor ===================== */
 
@@ -313,8 +296,6 @@ public class PatientService {
                 relationship,
                 patient.getEmergencyContactPhone(),
                 patient.getCreatedDate(),
-                insuranceProvider,
-                policyNumber,
                 preferredDoctor
         );
     }

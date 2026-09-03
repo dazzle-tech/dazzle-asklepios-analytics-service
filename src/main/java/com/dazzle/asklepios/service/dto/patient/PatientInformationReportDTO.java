@@ -26,8 +26,6 @@ public record PatientInformationReportDTO(
         String emergencyPhone,
 
         Instant registrationDate,
-        String insuranceProvider,
-        String policyNumber,
 
         String preferredHealthProfessional
 

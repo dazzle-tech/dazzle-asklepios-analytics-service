@@ -171,28 +171,19 @@
 
     <section class="report-section">
         <div class="section-header blue">
-            <h2 class="section-title" th:text="${labels.insurance}">
-                5. Insurance
+            <h2 class="section-title" th:text="${labels.preferredDoctor}">
+                5. Preferred Doctor
             </h2>
-        </div>
-
         <div class="patient-grid">
-            <div class="grid-row grid-3">
-                <div class="info-box">
-                    <span class="info-label" th:text="${labels.provider}">Provider</span>
-                    <span class="info-value" th:text="${report.insuranceProvider ?: '-'}">—</span>
-                </div>
+            <div class="grid-row grid-1">
 
-                <div class="info-box">
-                    <span class="info-label" th:text="${labels.policy}">Policy</span>
-                    <span class="info-value" th:text="${report.policyNumber ?: '-'}">—</span>
-                </div>
 
                 <div class="info-box no-border">
                     <span class="info-label" th:text="${labels.preferredDoctor}">Preferred Doctor</span>
                     <span class="info-value" th:text="${report.preferredHealthProfessional ?: '-'}">—</span>
                 </div>
             </div>
+        </div>
         </div>
     </section>
 
