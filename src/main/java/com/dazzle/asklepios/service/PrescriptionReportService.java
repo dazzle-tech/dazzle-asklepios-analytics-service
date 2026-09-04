@@ -272,14 +272,24 @@ public class PrescriptionReportService {
                                 + m.getIndicationIcd().getIcdShortDescription();
                     }
 
+                    String medicationName = null;
+
+                    if (m.getOtherMedicationName() != null
+                            && !m.getOtherMedicationName().trim().isEmpty()) {
+
+                        medicationName = m.getOtherMedicationName().trim();
+
+                    } else if (m.getMedications() != null) {
+
+                        medicationName = m.getMedications().getName();
+                    }
+
                     return new PrescriptionMedicationDTO(
                             m.getActiveIngredient() != null
                                     ? m.getActiveIngredient().getName()
                                     : null,
 
-                            m.getMedications() != null
-                                    ? m.getMedications().getName()
-                                    : null,
+                            medicationName,
 
                             resolveInstruction(m),
 
@@ -292,7 +302,9 @@ public class PrescriptionReportService {
 
                             m.getNumberOfRefills(),
 
-                            resolveLovDisplayValues(m.getAdministrationInstructions()),
+                            resolveLovDisplayValues(
+                                    m.getAdministrationInstructions()
+                            ),
 
                             m.getAllowedSubstitute(),
 
