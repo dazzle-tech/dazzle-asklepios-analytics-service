@@ -54,8 +54,9 @@ public class PatientEncounter extends AbstractAuditingEntity<Long> implements Se
     @JoinColumn(name = "department_id", nullable = false)
     private Department department;
 
-    @Column(name = "practitioner_id")
-    private Long practitionerId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "practitioner_id")
+    private Practitioner practitioner;
 
     //TODO: this column to be deleted when the change appointment
     @Column(name = "appointment_id")

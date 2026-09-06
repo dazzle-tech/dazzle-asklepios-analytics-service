@@ -1,5 +1,6 @@
 package com.dazzle.asklepios.service;
 
+import com.dazzle.asklepios.domain.PatientEncounter;
 import com.dazzle.asklepios.domain.Practitioner;
 import com.dazzle.asklepios.domain.enumeration.DiagnosisType;
 import com.dazzle.asklepios.repository.PatientDiagnosisRepository;
@@ -59,19 +60,16 @@ public class SickLeaveReportService {
         String physicianFullName = null;
         String physicianSpecialty = null;
 
-        Long practitionerId = patientEncounterRepository.findById(encounterId)
-                .map(com.dazzle.asklepios.domain.PatientEncounter::getPractitionerId)
+        Practitioner practitioner = patientEncounterRepository.findById(encounterId)
+                .map(PatientEncounter::getPractitioner)
                 .orElse(null);
 
-        if (practitionerId != null) {
-            Practitioner practitioner = practitionersRepository.findById(practitionerId).orElse(null);
             if (practitioner != null) {
                 physicianFullName = practitioner.getFirstName() + " " + practitioner.getLastName();
                 physicianSpecialty = practitioner.getSpecialty() != null
                         ? practitioner.getSpecialty()
                         : null;
             }
-        }
 
         // Append current authenticated user's full name (if available) to attending physician info
         java.util.Optional<String> currentUser = SecurityUtils.getCurrentUserLogin();

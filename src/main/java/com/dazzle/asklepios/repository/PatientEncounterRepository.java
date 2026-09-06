@@ -12,26 +12,36 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface PatientEncounterRepository extends JpaRepository<PatientEncounter, Long> , JpaSpecificationExecutor<PatientEncounter> {
+
     @Query("""
-    select new com.dazzle.asklepios.service.dto.PatientEncounterReportDTO(
-        d.name,
-        pe.status
-    )
-    from PatientEncounter pe
-    join pe.department d
-    where
-        (:departmentId is null or d.id = :departmentId)
-    and
-        (:status is null or pe.status = :status)
-    order by pe.createdDate desc
+    SELECT COUNT(DISTINCT e.patient.id)
+    FROM PatientEncounter e
+    WHERE e.encounterDate >= :start
+      AND e.encounterDate < :end
+""")
+    Long countDistinctPatientsForDay(
+            @Param("start") LocalDate start,
+            @Param("end") LocalDate end
+    );
+
+    @Query("""
+    SELECT pe
+    FROM PatientEncounter pe
+    JOIN FETCH pe.patient p
+    LEFT JOIN FETCH pe.practitioner pr
+    LEFT JOIN FETCH pe.department d
+    WHERE pe.encounterDate >= :visitDate
+      AND pe.encounterDate < :nextDate
+    ORDER BY pe.encounterDate ASC
     """)
-    List<PatientEncounterReportDTO> getPatientEncounterReport(
-            @Param("departmentId") Long departmentId,
-            @Param("status") String status
+    List<PatientEncounter> findDailyPatientVisits(
+            @Param("visitDate") LocalDate visitDate,
+            @Param("nextDate") LocalDate nextDate
     );
 }
