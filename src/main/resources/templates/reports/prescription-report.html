@@ -89,24 +89,24 @@
 
       <div class="info-box">
         <span class="info-label" th:text="${labels.encounterId}">Encounter ID</span>
-        <span class="info-value" th:text="'#' + ${report.encounterId}">#123</span>
+        <span class="info-value" th:text="'#' + ${report.encounterId}">_</span>
       </div>
 
       <div class="info-box no-border">
         <span class="info-label" th:text="${labels.encounterDate}">Encounter Date</span>
-        <span class="info-value" th:text="${report.encounterDateTime}">2026-03-25</span>
+        <span class="info-value" th:text="${report.encounterDateTime}">_</span>
       </div>
     </div>
 
     <div class="patient-grid grid-4">
       <div class="info-box">
         <span class="info-label" th:text="${labels.phone}">Phone</span>
-        <span class="info-value" th:text="${report.phoneNumber}">059...</span>
+        <span class="info-value" th:text="${report.phoneNumber}">...</span>
       </div>
 
       <div class="info-box">
         <span class="info-label" th:text="${labels.email}">Email</span>
-        <span class="info-value" th:text="${report.email}">email@x.com</span>
+        <span class="info-value" th:text="${report.email}">_</span>
       </div>
 
 
@@ -120,7 +120,49 @@
       </div>
     </div>
   </section>
+  <section class="report-section">
+    <div class="section-header">
+      <h2 class="section-title" th:text="${labels.medications}">Medications</h2>
+    </div>
 
+    <div th:if="${report.medications != null and !#lists.isEmpty(report.medications)}" class="table-container">
+      <table class="medication-table">
+        <thead>
+        <tr>
+          <th th:text="${labels.activeIngredient}">Active Ingredient</th>
+          <th th:text="${labels.medicationName}">Medication Name</th>
+          <th th:text="${labels.instructions}">Instructions</th>
+          <th th:text="${labels.duration}">Duration</th>
+          <th class="text-center" th:text="${labels.refills}">Refills</th>
+          <th th:text="${labels.administrationInstructions}">Administration Instructions</th>
+          <th th:text="${labels.indication}">Indication</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="med : ${report.medications}">
+          <td class="med-name" th:text="${med.activeIngredient}">Active Ingredient</td>
+          <td class="med-name" th:text="${med.medicationName}">Medication</td>
+          <td class="med-instructions" th:text="${med.instructions}">Instructions</td>
+          <td>
+            <span th:text="${med.duration}">Duration</span>
+            <span th:if="${med.durationType != null and !#strings.isEmpty(med.durationType)}"
+                  th:text="' ' + ${med.durationType}">
+                  </span>
+          </td>
+          <td class="text-center" th:text="${med.numberOfRefills}">0</td>
+          <td class="text-muted" th:text="${med.administrationInstructions}">Admin instruction</td>
+          <td class="text-muted" th:text="${med.indicationIcd}">Indication</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="empty-message"
+         th:if="${report.medications == null or #lists.isEmpty(report.medications)}"
+         th:text="${labels.noMedications}">
+      No active prescription medications found.
+    </div>
+  </section>
   <section class="report-section">
     <div class="section-header">
       <h2 class="section-title" th:text="${labels.clinicalObservationsDiagnoses}">
@@ -145,14 +187,10 @@
       </div>
     </div>
 
-    <div class="empty-message"
-         th:if="${report.diagnoses == null or #lists.isEmpty(report.diagnoses)}"
-         th:text="${labels.noDiagnoses}">
-      No clinical diagnoses recorded for this encounter.
-    </div>
+
   </section>
 
-  <section class="report-section">
+  <section class="report-section" th:if="${report.allergies != null and !#lists.isEmpty(report.allergies)}">
     <div class="section-header">
       <h2 class="section-title" th:text="${labels.allergies}">Allergies</h2>
     </div>
@@ -187,83 +225,9 @@
     </div>
   </section>
 
-  <section class="report-section">
-    <div class="section-header">
-      <h2 class="section-title" th:text="${labels.warnings}">Warnings</h2>
-    </div>
 
-    <div th:if="${report.warnings != null and !#lists.isEmpty(report.warnings)}" class="table-container">
-      <table>
-        <thead>
-        <tr>
-          <th th:text="${labels.warningType}">Warning Type</th>
-          <th th:text="${labels.warning}">Warning</th>
-          <th class="text-center" th:text="${labels.severity}">Severity</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="warning : ${report.warnings}">
-          <td class="text-muted" th:text="${warning.type}">Type</td>
-          <td th:text="${warning.warning}">Warning text</td>
-          <td class="text-center">
-            <span class="badge-severe" th:text="${warning.severity}">Severe</span>
-          </td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
+  <div >
 
-    <div class="empty-message"
-         th:if="${report.warnings == null or #lists.isEmpty(report.warnings)}"
-         th:text="${labels.noWarnings}">
-      No warnings recorded.
-    </div>
-  </section>
-
-  <div class="no-page-break">
-    <section class="report-section">
-      <div class="section-header">
-        <h2 class="section-title" th:text="${labels.medications}">Medications</h2>
-      </div>
-
-      <div th:if="${report.medications != null and !#lists.isEmpty(report.medications)}" class="table-container">
-        <table class="medication-table">
-          <thead>
-          <tr>
-            <th th:text="${labels.activeIngredient}">Active Ingredient</th>
-            <th th:text="${labels.medicationName}">Medication Name</th>
-            <th th:text="${labels.instructions}">Instructions</th>
-            <th th:text="${labels.duration}">Duration</th>
-            <th class="text-center" th:text="${labels.refills}">Refills</th>
-            <th th:text="${labels.administrationInstructions}">Administration Instructions</th>
-            <th th:text="${labels.indication}">Indication</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr th:each="med : ${report.medications}">
-            <td class="med-name" th:text="${med.activeIngredient}">Active Ingredient</td>
-            <td class="med-name" th:text="${med.medicationName}">Medication</td>
-            <td class="med-instructions" th:text="${med.instructions}">Instructions</td>
-              <td>
-                  <span th:text="${med.duration}">Duration</span>
-                  <span th:if="${med.durationType != null and !#strings.isEmpty(med.durationType)}"
-                        th:text="' ' + ${med.durationType}">
-                  </span>
-              </td>
-              <td class="text-center" th:text="${med.numberOfRefills}">0</td>
-            <td class="text-muted" th:text="${med.administrationInstructions}">Admin instruction</td>
-            <td class="text-muted" th:text="${med.indicationIcd}">Indication</td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="empty-message"
-           th:if="${report.medications == null or #lists.isEmpty(report.medications)}"
-           th:text="${labels.noMedications}">
-        No active prescription medications found.
-      </div>
-    </section>
 
     <div class="footer">
       <div class="footer-left">

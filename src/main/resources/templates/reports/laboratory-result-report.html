@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      th:attr="lang=${lang}, dir=${dir}">
+<html th:attr="lang=${lang}, dir=${dir}"
+      xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title th:text="${labels.laboratoryResult}">Laboratory Result Report</title>
@@ -13,7 +13,7 @@
     <div class="header">
         <div class="logo-box">
             <img class="report-logo"
-                 th:src="'data:image/png;base64,' + ${logo}" />
+                 th:src="'data:image/png;base64,' + ${logo}"/>
         </div>
 
         <div style="text-align:center; flex:1;">
@@ -109,7 +109,7 @@
             <p th:text="${labels.notAvailable}">—</p>
         </div>
 
-        <div th:each="order, orderStat : ${report.orders}" class="order-wrapper">
+        <div class="order-wrapper" th:each="order, orderStat : ${report.orders}">
 
             <div class="order-block">
                 <div class="patient-grid grid-4 order-summary">
@@ -138,7 +138,7 @@
                     </div>
                 </div>
 
-                <div th:each="orderTest : ${order.orderTests}" class="order-test-block">
+                <div class="order-test-block" th:each="orderTest : ${order.orderTests}">
 
                     <div class="section-header sub-section-header">
                         <h3 class="section-title">
@@ -164,10 +164,8 @@
                                 <th th:text="${labels.result}">Result</th>
                                 <th th:text="${labels.unit}">Unit</th>
                                 <th th:text="${labels.normalRange}">Normal Range</th>
-                                <th th:text="${labels.marker}">Marker</th>
                                 <th th:text="${labels.resultDate}">Result Date</th>
-                                <th th:text="${labels.reviewedDate}">Reviewed Date</th>
-                                <th th:text="${labels.reviewedBy}">Reviewed By</th>
+
                             </tr>
                             </thead>
 
@@ -185,8 +183,19 @@
                                     </small>
                                 </td>
 
-                                <td th:text="${item.result != null and !#strings.isEmpty(item.result) ? item.result : '—'}">
-                                    13.5
+                                <td>
+                                    <span th:text="${item.result != null and !#strings.isEmpty(item.result) ? item.result : '—'}"></span>
+
+                                    <span th:if="${item.marker != null}"
+                                          th:switch="${item.marker.name()}">
+
+        <span th:case="'ABNORMAL_MARKER'"> ⚠</span>
+        <span th:case="'UPPER_LIMIT'"> ↑</span>
+        <span th:case="'LOWER_LIMIT'"> ↓</span>
+        <span th:case="'CRITICAL_UPPER'"> ⚠ ↑</span>
+        <span th:case="'CRITICAL_LOWER'"> ⚠ ↓</span>
+
+    </span>
                                 </td>
 
                                 <td th:text="${item.unit != null and !#strings.isEmpty(item.unit) ? item.unit : '—'}">
@@ -197,45 +206,12 @@
                                     12 - 16
                                 </td>
 
-                                <td class="marker-cell">
-                                    <span th:if="${item.marker != null and item.marker.name() == 'ABNORMAL_MARKER'}"
-                                          class="marker-group">⚠</span>
-
-                                    <span th:if="${item.marker != null and item.marker.name() == 'UPPER_LIMIT'}"
-                                          class="marker-group">↑</span>
-
-                                    <span th:if="${item.marker != null and item.marker.name() == 'LOWER_LIMIT'}"
-                                          class="marker-group">↓</span>
-
-                                    <span th:if="${item.marker != null and item.marker.name() == 'CRITICAL_UPPER'}"
-                                          class="marker-group">⚠ ↑</span>
-
-                                    <span th:if="${item.marker != null and item.marker.name() == 'CRITICAL_LOWER'}"
-                                          class="marker-group">⚠ ↓</span>
-
-                                    <span th:if="${item.marker != null
-                                                  and item.marker.name() != 'ABNORMAL_MARKER'
-                                                  and item.marker.name() != 'UPPER_LIMIT'
-                                                  and item.marker.name() != 'LOWER_LIMIT'
-                                                  and item.marker.name() != 'CRITICAL_UPPER'
-                                                  and item.marker.name() != 'CRITICAL_LOWER'}"
-                                          th:text="${item.marker}">
-                                        NORMAL
-                                    </span>
-
-                                    <span th:if="${item.marker == null}">—</span>
-                                </td>
 
                                 <td th:text="${item.resultDate != null ? item.resultDate : '—'}">
                                     —
                                 </td>
 
-                                <td th:text="${item.reviewedDate != null ? item.reviewedDate : '—'}">
-                                    —
-                                </td>
-                                <td th:text="${item.reviewedBy != null and !#strings.isEmpty(item.reviewedBy) ? item.reviewedBy : '—'}">
-                                    —
-                                </td>
+
                             </tr>
 
                             <tr th:if="${orderTest.results == null or #lists.isEmpty(orderTest.results)}">
