@@ -1,5 +1,6 @@
 package com.dazzle.asklepios.service;
 
+import com.dazzle.asklepios.domain.Department;
 import com.dazzle.asklepios.domain.DiagnosticOrder;
 import com.dazzle.asklepios.domain.DiagnosticTest;
 import com.dazzle.asklepios.domain.EncounterAssessment;
@@ -11,6 +12,7 @@ import com.dazzle.asklepios.domain.PatientPrescription;
 import com.dazzle.asklepios.domain.PatientPrescriptionMedication;
 import com.dazzle.asklepios.domain.PatientProcedure;
 import com.dazzle.asklepios.domain.PatientWarnings;
+import com.dazzle.asklepios.domain.Practitioner;
 import com.dazzle.asklepios.domain.PrescriptionInstruction;
 import com.dazzle.asklepios.domain.enumeration.AllergenTypes;
 import com.dazzle.asklepios.domain.enumeration.DiagnosticOrderTestStatus;
@@ -26,9 +28,11 @@ import com.dazzle.asklepios.repository.PatientEncounterRepository;
 import com.dazzle.asklepios.repository.PatientPrescriptionRepository;
 import com.dazzle.asklepios.repository.PatientProcedureRepository;
 import com.dazzle.asklepios.repository.PatientWarningRepository;
+import com.dazzle.asklepios.repository.PractitionersRepository;
 import com.dazzle.asklepios.repository.PrescriptionInstructionRepository;
 import com.dazzle.asklepios.repository.PrescriptionMedicationRepository;
 import com.dazzle.asklepios.repository.ProcedureRepository;
+import com.dazzle.asklepios.service.dto.PatientEncounterReportDTO;
 import com.dazzle.asklepios.service.dto.prescription.PrescriptionMedicationDTO;
 import com.dazzle.asklepios.service.dto.reports.NurseSummaryAllergyDTO;
 import com.dazzle.asklepios.service.dto.reports.NurseSummaryBodyMeasurementsDTO;
@@ -37,6 +41,8 @@ import com.dazzle.asklepios.service.dto.reports.NurseSummaryWarningDTO;
 import com.dazzle.asklepios.service.dto.reports.OrderedDiagnosticsDTO;
 import com.dazzle.asklepios.service.dto.reports.ProceduresDTO;
 import com.dazzle.asklepios.service.dto.reports.VisitReportDTO;
+import com.dazzle.asklepios.service.dto.reports.dailyPatientVisit.DailyPatientVisitDTO;
+import com.dazzle.asklepios.web.rest.vm.report.totalDailyFootfall.TotalDailyFootfallResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +50,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -75,7 +82,10 @@ public class VisitReportService {
     private final BodyMeasurementsRepository bodyMeasurementsRepository;
     private final PatientEncounterRepository patientEncounterRepository;
     private final EncounterPlanRepository encounterPlanRepository;
+    private final PractitionersRepository practitionersRepository;
+
     private final EncounterAssessmentRepository encounterAssessmentRepository;
+
 
     public VisitReportDTO getVisitReport(Long encounterId) {
         PatientEncounter encounter = patientEncounterRepository.findById(encounterId).orElse(null);
@@ -93,7 +103,7 @@ public class VisitReportService {
             LOG.warn("Nurse summary is null for encounterId={}", encounterId);
             nurseSummary = new NurseSummaryReportDTO(
                     null, null, null, null, null, null,
-            null, null, null, null, null, null
+                    null, null, null, null, null, null
             );
         }
 
@@ -295,7 +305,7 @@ public class VisitReportService {
                 .toList();
 
         return prescriptionMedicationRepository
-                .findAllByPrescriptionHeaderIdInAndStatusNotOrderByIdAsc(prescriptionIds , PrescriptionStatus.CANCELLED)
+                .findAllByPrescriptionHeaderIdInAndStatusNotOrderByIdAsc(prescriptionIds, PrescriptionStatus.CANCELLED)
                 .stream()
                 .map(m -> new PrescriptionMedicationDTO(
                         m.getActiveIngredient().getName(),
@@ -358,6 +368,7 @@ public class VisitReportService {
                 })
                 .toList();
     }
+
     private String resolveAllergyName(PatientAllergies allergy) {
 
         if (allergy == null) {
@@ -374,4 +385,51 @@ public class VisitReportService {
                 ? allergy.getAllergen().getName()
                 : null;
     }
+
+
+    public List<PatientEncounterReportDTO> getAllEncounter() {
+
+        return patientEncounterRepository
+                .findAll()
+                .stream()
+                .map(encounter ->
+                        new PatientEncounterReportDTO(
+
+                                String.valueOf(encounter.getEncounterReason()),
+                                String.valueOf(encounter.getStatus())
+                        )
+                )
+                .toList();
+    }
+
+
+    public List<DailyPatientVisitDTO> getDailyPatientVisits(LocalDate visitDate) {
+
+        LocalDate nextDate = visitDate.plusDays(1);
+
+        return patientEncounterRepository
+                .findDailyPatientVisits(visitDate, nextDate)
+                .stream()
+                .map(this::toDailyPatientVisitDTO)
+                .toList();
+    }
+
+    private DailyPatientVisitDTO toDailyPatientVisitDTO(PatientEncounter encounter) {
+
+        Patient patient = encounter.getPatient();
+        Practitioner practitioner = encounter.getPractitioner() ;
+        Department department = encounter.getDepartment();
+
+        return new DailyPatientVisitDTO(
+                patient.getFirstName(),
+                patient.getLastName(),
+                patient.getMedicalRecordNumber(),
+                encounter.getEncounterNumber(),
+                encounter.getEncounterDate(),
+                department != null ? department.getName() : null,
+                practitioner != null ? practitioner.getFirstName() : null,
+                practitioner != null ? practitioner.getLastName() : null
+        );
+    }
+
 }

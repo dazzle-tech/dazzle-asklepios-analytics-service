@@ -124,6 +124,7 @@ dependencies {
     testImplementation platform("org.testcontainers:testcontainers-bom:1.20.4")
     testRuntimeOnly platform("org.testcontainers:testcontainers-bom:1.20.4")
     implementation platform("software.amazon.awssdk:bom:2.25.40")
+    implementation "com.stimulsoft:stimulsoft-reports-report:2026.3.1"
 
     compileOnly "org.projectlombok:lombok"
     annotationProcessor "org.projectlombok:lombok"
