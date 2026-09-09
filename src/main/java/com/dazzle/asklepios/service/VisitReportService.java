@@ -391,38 +391,6 @@ public class VisitReportService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
-    public TotalDailyFootfallResponse getTotalDailyFootfall(LocalDate startDate, LocalDate endDate) {
-
-        if (startDate.isAfter(endDate)) {
-            throw new IllegalArgumentException(
-                    "Start date must be before or equal to end date"
-            );
-        }
-
-        Long value = patientEncounterRepository
-                .countDistinctPatientsForDay(startDate, endDate);
-
-        TotalDailyFootfallResponse response =
-                new TotalDailyFootfallResponse();
-
-        response.setCode("TOTAL_DAILY_FOOTFALL");
-        response.setName("Total Daily Footfall");
-        response.setDefinition(
-                "Unique patients attending PHC per day (all departments)"
-        );
-        response.setUnit("#");
-        response.setFrequency("Daily");
-        response.setTarget("TBD ramp");
-        response.setBenchmark("Internal baseline");
-        response.setOwner("COO");
-
-        response.setStartDate(startDate);
-        response.setEndDate(endDate);
-        response.setValue(value);
-
-        return response;
-    }
 
     public List<DailyPatientVisitDTO> getDailyPatientVisits(LocalDate visitDate) {
 

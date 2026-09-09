@@ -4,6 +4,7 @@ import com.dazzle.asklepios.domain.enumeration.EncounterPriority;
 import com.dazzle.asklepios.domain.enumeration.EncounterReason;
 import com.dazzle.asklepios.domain.enumeration.EncounterStatus;
 import com.dazzle.asklepios.domain.enumeration.EncounterType;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -23,6 +24,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.time.LocalDate;
 
 @Entity
@@ -58,9 +60,12 @@ public class PatientEncounter extends AbstractAuditingEntity<Long> implements Se
     @JoinColumn(name = "practitioner_id")
     private Practitioner practitioner;
 
-    //TODO: this column to be deleted when the change appointment
-    @Column(name = "appointment_id")
-    private String appointmentId;
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "appointment_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private Appointment appointment;
+
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -103,7 +108,8 @@ public class PatientEncounter extends AbstractAuditingEntity<Long> implements Se
     @Column(name = "chief_complaint", columnDefinition = "text")
     private String chiefComplaint;
 
-
+    @Column(name = "started_date")
+    private Instant startedDate;
 
 
 }

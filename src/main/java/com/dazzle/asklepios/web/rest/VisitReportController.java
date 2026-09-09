@@ -93,14 +93,6 @@ public class VisitReportController {
         );
     }
 
-    @GetMapping("/total-daily-footfall")
-    public ResponseEntity<TotalDailyFootfallResponse> getTotalDailyFootfall(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
-        LOG.debug("[VisitReport] request total daily footfall from {} to {}", startDate, endDate);
-        return ResponseEntity.ok(
-                visitReportService.getTotalDailyFootfall(startDate, endDate)
-        );
-    }
-
     @GetMapping("/daily-visits")
     public ResponseEntity<List<DailyPatientVisitDTO>> getDailyPatientVisits(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
       LOG.debug("[VisitReport] request daily patient visits for date {}", date);
