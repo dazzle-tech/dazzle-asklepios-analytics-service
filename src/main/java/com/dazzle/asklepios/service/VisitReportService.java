@@ -3,6 +3,7 @@ package com.dazzle.asklepios.service;
 import com.dazzle.asklepios.domain.Department;
 import com.dazzle.asklepios.domain.DiagnosticOrder;
 import com.dazzle.asklepios.domain.DiagnosticTest;
+import com.dazzle.asklepios.domain.EncounterAssessment;
 import com.dazzle.asklepios.domain.EncounterPlan;
 import com.dazzle.asklepios.domain.Patient;
 import com.dazzle.asklepios.domain.PatientAllergies;
@@ -20,6 +21,7 @@ import com.dazzle.asklepios.repository.BodyMeasurementsRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderTestRepository;
 import com.dazzle.asklepios.repository.DiagnosticTestRepository;
+import com.dazzle.asklepios.repository.EncounterAssessmentRepository;
 import com.dazzle.asklepios.repository.EncounterPlanRepository;
 import com.dazzle.asklepios.repository.PatientAllergyRepository;
 import com.dazzle.asklepios.repository.PatientEncounterRepository;
@@ -81,6 +83,9 @@ public class VisitReportService {
     private final PatientEncounterRepository patientEncounterRepository;
     private final EncounterPlanRepository encounterPlanRepository;
     private final PractitionersRepository practitionersRepository;
+
+    private final EncounterAssessmentRepository encounterAssessmentRepository;
+
 
     public VisitReportDTO getVisitReport(Long encounterId) {
         PatientEncounter encounter = patientEncounterRepository.findById(encounterId).orElse(null);
@@ -165,6 +170,10 @@ public class VisitReportService {
                 .map(EncounterPlan::getTreatmentPlan)
                 .orElse(null);
 
+        String assessment = encounterAssessmentRepository.findFirstByEncounterIdOrderByCreatedDateDesc(encounterId)
+                .map(EncounterAssessment::getAssessment)
+                .orElse(null);
+
         return new VisitReportDTO(
                 nurseSummary.patientInfo(),
                 nurseSummary.encounterInfo(),
@@ -178,6 +187,7 @@ public class VisitReportService {
                 medicationDTOS,
                 procedures,
                 plan,
+                assessment,
                 null,
                 Instant.now()
         );
@@ -302,6 +312,7 @@ public class VisitReportService {
                         m.getMedications() != null ? m.getMedications().getName() : null,
                         resolveInstruction(m),
                         m.getDuration(),
+                        m.getDurationType(),
                         m.getNumberOfRefills() != null && m.getNumberOfRefills() > 0,
                         m.getNumberOfRefills(),
                         reportCommonService.getLovDisplayValues(m.getAdministrationInstructions()),

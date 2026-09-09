@@ -44,6 +44,9 @@ public class PatientPrescriptionMedication extends AbstractAuditingEntity<Long> 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private BrandMedication medications;
 
+    @Column(name = "other_medication_name", length = 255)
+    private String otherMedicationName;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name ="active_ingredient_id" ,nullable = false)
     private ActiveIngredients activeIngredient;

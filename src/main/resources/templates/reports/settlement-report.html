@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:lang="${lang}"
+      th:dir="${dir}">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${labels.settlementReport}">
+        Settlement Report
+    </title>
+
+    <style th:utext="${reportCss}"></style>
+</head>
+
+<body th:class="${isArabic ? 'rtl' : 'ltr'}">
+
+<div class="container">
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <div class="logo-box">
+            <img class="report-logo"
+                 th:src="'data:image/png;base64,' + ${logo}" />
+        </div>
+
+        <div class="header-center">
+            <h1 th:text="${labels.settlementReport}">
+                SETTLEMENT REPORT
+            </h1>
+
+            <span th:text="${generatedAtDisplay}">
+                Generated Date
+            </span>
+        </div>
+
+    </div>
+
+    <!-- FILTER SECTION -->
+
+    <section class="report-section">
+
+        <div class="section-header">
+            <h2 th:text="${labels.reportCriteria}">
+                Report Criteria
+            </h2>
+        </div>
+
+        <div class="criteria-grid">
+
+            <div class="criteria-card">
+                <div class="label"
+                     th:text="${labels.insuranceCompany}">
+                    Insurance Company
+                </div>
+
+                <div class="value"
+                     th:text="${report.criteria.insuranceCompanyName}">
+                    --
+                </div>
+            </div>
+
+            <div class="criteria-card">
+                <div class="label"
+                     th:text="${labels.encounterType}">
+                </div>
+
+                <div class="value"
+                     th:text="${report.criteria.encounterType}">
+                </div>
+            </div>
+
+            <div class="criteria-card">
+                <div class="label"
+                     th:text="${labels.dateFrom}">
+                </div>
+
+                <div class="value"
+                     th:text="${report.criteria.settlementDateFrom}">
+                </div>
+            </div>
+
+            <div class="criteria-card">
+                <div class="label"
+                     th:text="${labels.dateTo}">
+                </div>
+
+                <div class="value"
+                     th:text="${report.criteria.settlementDateTo}">
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- SUMMARY -->
+
+    <section class="report-section">
+
+        <div class="section-header">
+            <h2 th:text="${labels.summary}">
+                Summary
+            </h2>
+        </div>
+
+        <div class="summary-grid">
+
+            <div class="summary-card">
+                <span class="summary-label"
+                      th:text="${labels.totalRecords}">
+                </span>
+
+                <span class="summary-value"
+                      th:text="${report.summary.totalSettlements}">
+                </span>
+            </div>
+
+            <div class="summary-card">
+                <span class="summary-label"
+                      th:text="${labels.totalBilled}">
+                </span>
+
+                <span class="summary-value"
+                      th:text="${report.summary.totalBilledAmount}">
+                </span>
+            </div>
+
+            <div class="summary-card">
+                <span class="summary-label"
+                      th:text="${labels.totalApproved}">
+                </span>
+
+                <span class="summary-value"
+                      th:text="${report.summary.totalApprovedAmount}">
+                </span>
+            </div>
+
+            <div class="summary-card">
+                <span class="summary-label"
+                      th:text="${labels.totalPaid}">
+                </span>
+
+                <span class="summary-value"
+                      th:text="${report.summary.totalPaidAmount}">
+                </span>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- MAIN TABLE -->
+
+    <section class="report-section">
+
+        <div class="section-header">
+            <h2 th:text="${labels.settlementDetails}">
+                Settlement Details
+            </h2>
+        </div>
+
+        <div th:if="${report.settlements != null and !#lists.isEmpty(report.settlements)}">
+
+            <table class="settlement-table">
+
+                <thead>
+
+                <tr>
+                    <th th:text="${labels.patientName}"></th>
+                    <th th:text="${labels.patientId}"></th>
+                    <th th:text="${labels.invoiceNumber}"></th>
+                    <th th:text="${labels.settlementNo}"></th>
+                    <th th:text="${labels.settlementDate}"></th>
+                    <th th:text="${labels.insuranceCompany}"></th>
+                    <th th:text="${labels.claimNo}"></th>
+                    <th th:text="${labels.claimDate}"></th>
+                    <th th:text="${labels.billedAmount}"></th>
+                    <th th:text="${labels.approvedAmount}"></th>
+                    <th th:text="${labels.rejectedAmount}"></th>
+                    <th th:text="${labels.patientShare}"></th>
+                    <th th:text="${labels.insuranceAmount}"></th>
+                    <th th:text="${labels.paidAmount}"></th>
+                    <th th:text="${labels.outstandingAmount}"></th>
+                    <th th:text="${labels.status}"></th>
+                </tr>
+
+                </thead>
+
+                <tbody>
+
+                <tr th:each="row : ${report.settlements}">
+
+                    <td th:text="${row.patientName}"></td>
+                    <td th:text="${row.patientId}"></td>
+                    <td th:text="${row.invoiceNumber}"></td>
+                    <td th:text="${row.settlementNumber}"></td>
+                    <td th:text="${row.settlementDate}"></td>
+                    <td th:text="${row.insuranceCompany}"></td>
+                    <td th:text="${row.claimNumber}"></td>
+                    <td th:text="${row.claimDate}"></td>
+
+                    <td class="amount"
+                        th:text="${row.billedAmount}">
+                    </td>
+
+                    <td class="amount approved"
+                        th:text="${row.approvedAmount}">
+                    </td>
+
+                    <td class="amount rejected"
+                        th:text="${row.rejectedAmount}">
+                    </td>
+
+                    <td class="amount"
+                        th:text="${row.patientShare}">
+                    </td>
+
+                    <td class="amount"
+                        th:text="${row.insuranceAmount}">
+                    </td>
+
+                    <td class="amount paid"
+                        th:text="${row.paidAmount}">
+                    </td>
+
+                    <td class="amount outstanding"
+                        th:text="${row.outstandingAmount}">
+                    </td>
+
+                    <td>
+
+                        <span class="status-badge"
+                              th:text="${row.settlementStatus}">
+                        </span>
+
+                    </td>
+
+                </tr>
+
+                </tbody>
+
+                <!-- FOOT TOTALS -->
+
+                <tfoot>
+
+                <tr class="total-row">
+
+                    <td colspan="8"
+                        th:text="${labels.grandTotal}">
+                    </td>
+
+                    <td th:text="${report.summary.totalBilledAmount}"></td>
+                    <td th:text="${report.summary.totalApprovedAmount}"></td>
+                    <td th:text="${report.summary.totalRejectedAmount}"></td>
+                    <td th:text="${report.summary.totalPatientShare}"></td>
+                    <td th:text="${report.summary.totalInsuranceAmount}"></td>
+                    <td th:text="${report.summary.totalPaidAmount}"></td>
+                    <td th:text="${report.summary.totalOutstandingAmount}"></td>
+
+                    <td></td>
+
+                </tr>
+
+                </tfoot>
+
+            </table>
+
+        </div>
+
+        <div class="empty-message"
+             th:if="${report.settlements == null or #lists.isEmpty(report.settlements)}">
+
+            No Settlement Found
+
+        </div>
+
+    </section>
+
+</div>
+
+</body>
+</html>

@@ -24,8 +24,6 @@ public record PrescriptionPrintDTO(
         Gender gender,
         String phoneNumber,
         String email,
-        String insurance,
-
         String encounterId,
         LocalDate encounterDateTime,
         EncounterReason encounterReason,

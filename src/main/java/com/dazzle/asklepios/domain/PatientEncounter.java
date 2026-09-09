@@ -110,6 +110,12 @@ public class PatientEncounter extends AbstractAuditingEntity<Long> implements Se
 
     @Column(name = "started_date")
     private Instant startedDate;
+    @Column(name = "history_of_present_illness")
+    private String historyOfPresentIllness;
+
+    @Column(name = "physical_examination_summery")
+    private String physicalExaminationSummery;
+
 
 
 }
