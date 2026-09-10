@@ -6,7 +6,6 @@ import com.dazzle.asklepios.domain.Patient;
 import com.dazzle.asklepios.domain.PatientAllergies;
 import com.dazzle.asklepios.domain.PatientDocument;
 import com.dazzle.asklepios.domain.PatientEncounter;
-import com.dazzle.asklepios.domain.PatientInsurance;
 import com.dazzle.asklepios.domain.PatientPrescription;
 import com.dazzle.asklepios.domain.PatientPrescriptionMedication;
 import com.dazzle.asklepios.domain.PatientWarnings;
@@ -15,11 +14,9 @@ import com.dazzle.asklepios.domain.enumeration.AllergenTypes;
 import com.dazzle.asklepios.domain.enumeration.PrescriptionStatus;
 import com.dazzle.asklepios.repository.ApLovValueRepository;
 import com.dazzle.asklepios.repository.DepartmentsRepository;
-import com.dazzle.asklepios.repository.DiagnosisRepository;
 import com.dazzle.asklepios.repository.PatientAllergyRepository;
 import com.dazzle.asklepios.repository.PatientDocumentRepository;
 import com.dazzle.asklepios.repository.PatientEncounterRepository;
-import com.dazzle.asklepios.repository.PatientInsuranceRepository;
 import com.dazzle.asklepios.repository.PatientRepository;
 import com.dazzle.asklepios.repository.PatientWarningRepository;
 import com.dazzle.asklepios.repository.PrescriptionInstructionRepository;
@@ -63,11 +60,11 @@ public class PrescriptionReportService {
     private final DepartmentsRepository departmentRepository;
     private final PatientAllergyRepository patientAllergyRepository;
     private final PatientWarningRepository patientWarningRepository;
-    private final PatientInsuranceRepository patientInsuranceRepository;
     private final PatientDocumentRepository patientDocumentRepository;
     private final ApLovValueRepository apLovValueRepository;
     private final PrescriptionInstructionRepository prescriptionInstructionRepository;
     private final ReportCommonService reportCommonService;
+
     public PrescriptionReportService(
             PrescriptionRepository prescriptionRepository,
             PrescriptionMedicationRepository prescriptionMedicationRepository,
@@ -76,7 +73,6 @@ public class PrescriptionReportService {
             DepartmentsRepository departmentRepository,
             PatientAllergyRepository patientAllergyRepository,
             PatientWarningRepository patientWarningRepository,
-            PatientInsuranceRepository patientInsuranceRepository,
             PatientDocumentRepository patientDocumentRepository,
             ApLovValueRepository apLovValueRepository,
             PrescriptionInstructionRepository prescriptionInstructionRepository, ReportCommonService reportCommonService
@@ -89,7 +85,6 @@ public class PrescriptionReportService {
         this.reportCommonService = reportCommonService;
         this.patientAllergyRepository = patientAllergyRepository;
         this.patientWarningRepository = patientWarningRepository;
-        this.patientInsuranceRepository = patientInsuranceRepository;
         this.patientDocumentRepository = patientDocumentRepository;
         this.apLovValueRepository = apLovValueRepository;
         this.prescriptionInstructionRepository = prescriptionInstructionRepository;
@@ -207,7 +202,7 @@ public class PrescriptionReportService {
                 ));
 
         List<PatientPrescriptionMedication> medications =
-                Optional.ofNullable(prescriptionMedicationRepository.findAllByPrescriptionHeaderIdAndStatusNotOrderByIdAsc(prescriptionId , PrescriptionStatus.CANCELLED))
+                Optional.ofNullable(prescriptionMedicationRepository.findAllByPrescriptionHeaderIdAndStatusNotOrderByIdAsc(prescriptionId, PrescriptionStatus.CANCELLED))
                         .orElse(Collections.emptyList());
 
 
@@ -219,12 +214,6 @@ public class PrescriptionReportService {
                 Optional.ofNullable(patientWarningRepository.findAllByPatientId(patient.getId()))
                         .orElse(Collections.emptyList());
 
-        PatientInsurance insuranceEntity = patientInsuranceRepository
-                .findTopByPatient_IdOrderByIdDesc(patient.getId());
-
-        String insuranceName = insuranceEntity != null && insuranceEntity.getPayor() != null
-                ? insuranceEntity.getPayor().getName()
-                : null;
 
         String patientName = ((patient.getFirstName() == null ? "" : patient.getFirstName()) + " " +
                 (patient.getLastName() == null ? "" : patient.getLastName())).trim();
@@ -283,25 +272,39 @@ public class PrescriptionReportService {
                                 + m.getIndicationIcd().getIcdShortDescription();
                     }
 
+                    String medicationName = null;
+
+                    if (m.getOtherMedicationName() != null
+                            && !m.getOtherMedicationName().trim().isEmpty()) {
+
+                        medicationName = m.getOtherMedicationName().trim();
+
+                    } else if (m.getMedications() != null) {
+
+                        medicationName = m.getMedications().getName();
+                    }
+
                     return new PrescriptionMedicationDTO(
                             m.getActiveIngredient() != null
                                     ? m.getActiveIngredient().getName()
                                     : null,
 
-                            m.getMedications() != null
-                                    ? m.getMedications().getName()
-                                    : null,
+                            medicationName,
 
                             resolveInstruction(m),
 
                             m.getDuration(),
+
+                            resolveLovDisplayValue(m.getDurationType()),
 
                             m.getNumberOfRefills() != null
                                     && m.getNumberOfRefills() > 0,
 
                             m.getNumberOfRefills(),
 
-                            resolveLovDisplayValues(m.getAdministrationInstructions()),
+                            resolveLovDisplayValues(
+                                    m.getAdministrationInstructions()
+                            ),
 
                             m.getAllowedSubstitute(),
 
@@ -335,8 +338,6 @@ public class PrescriptionReportService {
                 patient.getSexAtBirth(),
                 patient.getPrimaryMobileNumber(),
                 patient.getEmail(),
-                insuranceName,
-
                 encounter.getEncounterNumber(),
                 encounter.getEncounterDate(),
                 encounter.getEncounterReason(),

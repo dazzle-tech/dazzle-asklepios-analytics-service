@@ -99,4 +99,39 @@ public class DiagnosticOrderTestCollectedSampleController {
                 .header("Content-Type", "application/pdf")
                 .body(pdf);
     }
+    @GetMapping("/diagnostic-orders/{orderId}/order-sample-label/pdf")
+    public ResponseEntity<byte[]> generateOrderSampleLabelPdf(
+            @PathVariable Long orderId,
+            @RequestParam(defaultValue = "1") Integer copies,
+            @RequestParam(defaultValue = "en") String lang
+    ) {
+
+        LOG.debug(
+                "[OrderSampleLabel] GENERATE_ORDER_SAMPLE_LABEL_PDF - request received. orderId={} lang={} copies={}",
+                orderId,
+                lang,
+                copies
+        );
+
+        byte[] pdf =
+                diagnosticOrderTestSampleLabelPdfRenderService.generateOrderSampleLabelPdf(
+                        orderId,
+                        lang,
+                        copies
+                );
+
+        LOG.debug(
+                "[OrderSampleLabel] GENERATE_ORDER_SAMPLE_LABEL_PDF - completed. orderId={}",
+                orderId
+        );
+
+        return ResponseEntity.ok()
+                .header(
+                        "Content-Disposition",
+                        "inline; filename=order-sample-label-" + orderId + ".pdf"
+                )
+                .header("Content-Type", "application/pdf")
+                .body(pdf);
+    }
+
 }

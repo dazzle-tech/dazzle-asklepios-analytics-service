@@ -3,18 +3,20 @@ package com.dazzle.asklepios.web.rest;
 import com.dazzle.asklepios.service.SickLeaveReportPdfRenderService;
 import com.dazzle.asklepios.service.SickLeaveReportService;
 import com.dazzle.asklepios.service.dto.reports.SickLeaveReportDTO;
+import com.dazzle.asklepios.service.dto.sick_leave_report.SickLeaveReportRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
-import com.dazzle.asklepios.service.dto.sick_leave_report.SickLeaveReportRequestDTO;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/analytics")
@@ -25,7 +27,6 @@ public class SickLeaveReportController {
 
     private final SickLeaveReportService sickLeaveReportService;
     private final SickLeaveReportPdfRenderService sickLeaveReportPdfRenderService;
-
 
 
     @PostMapping("/sick-leave-report/{encounterId}")
@@ -52,7 +53,7 @@ public class SickLeaveReportController {
     public ResponseEntity<byte[]> postSickLeaveReportPdf(
             @PathVariable Long encounterId,
             @RequestParam(required = false) String timezone,
-            @RequestParam  (defaultValue = "en") String lang,
+            @RequestParam(defaultValue = "en") String lang,
             @RequestBody SickLeaveReportRequestDTO request
     ) {
         LOG.debug(
@@ -71,7 +72,7 @@ public class SickLeaveReportController {
                 request.notes()
         );
 
-        byte[] pdf = sickLeaveReportPdfRenderService.generateSickLeaveReportPdf(dto, timezone ,lang);
+        byte[] pdf = sickLeaveReportPdfRenderService.generateSickLeaveReportPdf(dto, timezone, lang);
 
         LOG.debug(
                 "[REST][SICK_LEAVE_PDF][POST] completed. encounterId={} timezone={} notes={} size={}",

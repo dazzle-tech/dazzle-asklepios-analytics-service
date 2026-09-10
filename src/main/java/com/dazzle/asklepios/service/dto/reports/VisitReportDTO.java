@@ -22,6 +22,7 @@ public record VisitReportDTO(
         List<PrescriptionMedicationDTO> medications,
         List<ProceduresDTO> procedures,
         String plan,
+        String assessment,
         String physicianFullName,
 
         Instant generatedAt

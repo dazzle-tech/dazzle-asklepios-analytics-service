@@ -14,4 +14,5 @@ public interface DiagnosticOrderTestCollectedSampleRepository
     Optional<DiagnosticOrderTestCollectedSample>
     findTopByOrderTestIdOrderByCreatedDateDescIdDesc(Long orderTestId);
     List<DiagnosticOrderTestCollectedSample> findAllByOrderTestIdOrderByCreatedDateDescIdDesc(Long orderTestId);
+    boolean existsByOrderTestId(Long orderTestId);
 }

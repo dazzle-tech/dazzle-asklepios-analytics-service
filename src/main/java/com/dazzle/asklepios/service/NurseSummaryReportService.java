@@ -200,8 +200,8 @@ public class NurseSummaryReportService {
                 ));
 
 
-        String facilityName = reportCommonService.getFacilityNameFromDepartment(freshEncounter.getDepartmentId());
-        String departmentName = reportCommonService.getDepartmentName(freshEncounter.getDepartmentId());
+        String facilityName = reportCommonService.getFacilityNameFromDepartment(freshEncounter.getDepartment().getId());
+        String departmentName = reportCommonService.getDepartmentName(freshEncounter.getDepartment().getId());
 
         return new NurseSummaryEncounterInfoDTO(
                 freshEncounter.getId(),
@@ -213,7 +213,9 @@ public class NurseSummaryReportService {
                 freshEncounter.getChiefComplaint(),
                 facilityName,
                 departmentName,
-                freshEncounter.getCreatedDate()
+                freshEncounter.getCreatedDate(),
+                freshEncounter.getHistoryOfPresentIllness(),
+                freshEncounter.getPhysicalExaminationSummery()
         );
 
 

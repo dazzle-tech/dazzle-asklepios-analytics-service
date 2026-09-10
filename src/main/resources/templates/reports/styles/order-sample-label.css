@@ -1,0 +1,100 @@
+@page {
+    size: 60mm 35mm;
+    margin: 0;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 60mm;
+    height: 35mm;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #fff;
+}
+
+.label-wrapper {
+    page-break-after: always;
+}
+
+.label {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 2mm;
+    overflow: hidden;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 1mm;
+}
+
+.facility-name {
+    font-size: 7px;
+    font-weight: 500;
+    line-height: 1;
+    text-align: center;
+    margin-bottom: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.title {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 2px;
+}
+
+.mrn {
+    font-size: 7px;
+    font-weight: 600;
+    line-height: 1;
+    text-align: center;
+    margin-top: 1px;
+}
+
+.barcode-box {
+    text-align: center;
+    margin-top: 1mm;
+}
+
+.barcode {
+    width: 100%;
+    height: 13mm;
+    object-fit: contain;
+}
+
+.barcode-text {
+    font-size: 6px;
+    font-weight: 500;
+    line-height: 1;
+    margin-top: 0;
+}
+
+.tests-list {
+    margin-top: 1mm;
+    text-align: center;
+    font-size: 9px;
+    font-weight: 600;
+    line-height: 1.15;
+    word-break: break-word;
+    white-space: normal;
+}
+
+.rtl {
+    direction: rtl;
+}
+
+.ltr {
+    direction: ltr;
+}

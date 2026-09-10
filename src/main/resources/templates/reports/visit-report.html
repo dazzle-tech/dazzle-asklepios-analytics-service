@@ -96,13 +96,58 @@
         </div>
     </section>
 
-    <!-- 2. ACTIVE ALLERGIES -->
+    <!-- 2. CLINICAL VISIT -->
     <section class="report-section">
         <div class="section-header blue">
-            <h2 class="section-title" th:text="${labels.activeAllergies}">2. Active Allergies</h2>
+            <h2 class="section-title" th:text="${labels.clinicalVisit}">2. Clinical Visit</h2>
         </div>
 
-        <div th:if="${report.allergies != null and !#lists.isEmpty(report.allergies)}" class="table-container">
+        <div class="table-container">
+            <table class="kv-table">
+                <tbody>
+                <tr th:if="${report.encounterInfo?.chiefComplaint != null and !#strings.isEmpty(report.encounterInfo?.chiefComplaint)}">
+                    <td th:text="${labels.chiefComplaint}">Chief Complaint</td>
+                    <td th:text="${report.encounterInfo?.chiefComplaint}">—</td>
+                </tr>
+                <tr th:if="${report.encounterInfo?.historyOfPresentIllness != null and !#strings.isEmpty(report.encounterInfo?.historyOfPresentIllness)}">
+                    <td th:text="${labels.historyOfPresentIllness}">History of Present Illness</td>
+                    <td th:text="${report.encounterInfo?.historyOfPresentIllness}">—</td>
+                </tr>
+                <tr th:if="${report.encounterInfo?.physicalExaminationSummery != null and !#strings.isEmpty(report.encounterInfo?.physicalExaminationSummery)}">
+                    <td th:text="${labels.physicalExaminationSummery}">Physical Examination Summary</td>
+                    <td th:text="${report.encounterInfo?.physicalExaminationSummery}">—</td>
+                </tr>
+                <tr th:if="${report.observation?.primaryDiagnosis != null and !#strings.isEmpty(report.observation?.primaryDiagnosis)}">
+                    <td th:text="${labels.primaryDiagnosis}">Primary Diagnosis</td>
+                    <td th:text="${report.observation?.primaryDiagnosis}">—</td>
+                </tr>
+                <tr th:if="${report?.assessment != null and !#strings.isEmpty(report?.assessment)}">
+                    <td th:text="${labels.assessment}">Assessment</td>
+                    <td th:text="${report?.assessment}">—</td>
+                </tr>
+                <tr th:if="${report?.plan != null and !#strings.isEmpty(report?.plan)}">
+                    <td th:text="${labels.plan}">Plan</td>
+                    <td th:text="${report?.plan}">—</td>
+                </tr>
+
+
+
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 3. ACTIVE ALLERGIES -->
+    <section class="report-section"
+             th:if="${report.allergies != null and !#lists.isEmpty(report.allergies)}">
+
+        <div class="section-header blue">
+            <h2 class="section-title" th:text="${labels.activeAllergies}">
+                3. Active Allergies
+            </h2>
+        </div>
+
+        <div class="table-container">
             <table>
                 <thead>
                 <tr>
@@ -115,23 +160,20 @@
                 <tr th:each="a : ${report.allergies}">
                     <td class="text-muted" th:text="${a.type}">—</td>
                     <td th:text="${a.allergen}">—</td>
-                    <td><span class="badge-red" th:text="${a.severity}">—</span></td>
+                    <td>
+                        <span class="badge-red" th:text="${a.severity}">—</span>
+                    </td>
                 </tr>
                 </tbody>
             </table>
         </div>
 
-        <div class="empty-message"
-             th:if="${report.allergies == null or #lists.isEmpty(report.allergies)}"
-             th:text="${labels.noAllergies}">
-            No active allergies recorded.
-        </div>
     </section>
 
-    <!-- 3. ACTIVE WARNINGS -->
-    <section class="report-section">
+    <!-- 4. ACTIVE WARNINGS -->
+    <section class="report-section" th:if="${report.warnings != null and !#lists.isEmpty(report.warnings)}">
         <div class="section-header blue">
-            <h2 class="section-title" th:text="${labels.activeWarnings}">3. Active Warnings</h2>
+            <h2 class="section-title" th:text="${labels.activeWarnings}">4. Active Warnings</h2>
         </div>
 
         <div th:if="${report.warnings != null and !#lists.isEmpty(report.warnings)}" class="table-container">
@@ -160,35 +202,11 @@
         </div>
     </section>
 
-    <!-- 4. CLINICAL VISIT -->
-    <section class="report-section">
-        <div class="section-header blue">
-            <h2 class="section-title" th:text="${labels.clinicalVisit}">4. Clinical Visit</h2>
-        </div>
 
-        <div class="table-container">
-            <table class="kv-table">
-                <tbody>
-                <tr>
-                    <td th:text="${labels.chiefComplaint}">Chief Complaint</td>
-                    <td th:text="${report.encounterInfo?.chiefComplaint}">—</td>
-                </tr>
-                <tr>
-                    <td th:text="${labels.primaryDiagnosis}">Primary Diagnosis</td>
-                    <td th:text="${report.observation?.primaryDiagnosis}">—</td>
-                </tr>
-                <tr>
-                    <td th:text="${labels.plan}">Plan</td>
-                    <td th:text="${report?.plan}">—</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
 
     <!-- 5. OBSERVATIONS SUMMARY -->
-    <div class="no-page-break">
-        <section class="report-section">
+
+        <section class="report-section" th:if="${report.vitalSigns != null or report.bodyMeasurements != null}">
             <div class="section-header blue">
                 <h2 class="section-title" th:text="${labels.observationsSummary}">5. Observations Summary</h2>
             </div>
@@ -272,7 +290,7 @@
         </section>
 
         <!-- 6. ORDERED DIAGNOSTICS -->
-        <section class="report-section">
+        <section class="report-section" th:if="${report.diagnostics != null and !#lists.isEmpty(report.diagnostics)}">
             <div class="section-header blue">
                 <h2 class="section-title" th:text="${labels.orderedDiagnostics}">6. Ordered Diagnostics</h2>
             </div>
@@ -304,7 +322,7 @@
         </section>
 
         <!-- 7. PRESCRIPTION MEDICATIONS -->
-        <section class="report-section">
+        <section class="report-section" th:if="${report.medications != null and !#lists.isEmpty(report.medications)}">
             <div class="section-header blue">
                 <h2 class="section-title" th:text="${labels.prescriptionMedications}">7. Prescription Medications</h2>
             </div>
@@ -346,7 +364,7 @@
         </section>
 
         <!-- 8. PROCEDURES -->
-        <section class="report-section">
+        <section class="report-section" th:if="${report.procedures != null and !#lists.isEmpty(report.procedures)}">
             <div class="section-header blue">
                 <h2 class="section-title" th:text="${labels.procedures}">8. Procedures</h2>
             </div>
@@ -399,6 +417,6 @@
         </div>
 
     </div>
-</div>
+
 </body>
 </html>

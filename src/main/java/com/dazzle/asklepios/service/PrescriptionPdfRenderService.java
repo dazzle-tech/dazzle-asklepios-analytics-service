@@ -75,14 +75,14 @@ public class PrescriptionPdfRenderService {
 
         // Diagnoses
         labels.put("clinicalObservationsDiagnoses",
-                isArabic ? "2. الملاحظات السريرية والتشخيصات" : "2. Clinical Observations & Diagnoses");
+                isArabic ? "3. الملاحظات السريرية والتشخيصات" : "3. Clinical Observations & Diagnoses");
         labels.put("entryDate", isArabic ? "تاريخ الإدخال" : "Entry Date");
         labels.put("noDiagnoses",
                 isArabic ? "لا توجد تشخيصات سريرية مسجلة لهذه الزيارة."
                         : "No clinical diagnoses recorded for this encounter.");
 
         // Allergies
-        labels.put("allergies", isArabic ? "3. الحساسية" : "3. Allergies");
+        labels.put("allergies", isArabic ? "4. الحساسية" : "4. Allergies");
         labels.put("allergyType", isArabic ? "نوع الحساسية" : "Allergy Type");
         labels.put("allergen", isArabic ? "مسبب الحساسية" : "Allergen");
         labels.put("severity", isArabic ? "الدرجة" : "Severity");
@@ -90,17 +90,10 @@ public class PrescriptionPdfRenderService {
                 isArabic ? "لا توجد حساسية مسجلة."
                         : "No allergies recorded.");
 
-        // Warnings
-        labels.put("warnings", isArabic ? "4. التحذيرات" : "4. Warnings");
-        labels.put("warningType", isArabic ? "نوع التحذير" : "Warning Type");
-        labels.put("warning", isArabic ? "التحذير" : "Warning");
-        labels.put("noWarnings",
-                isArabic ? "لا توجد تحذيرات مسجلة."
-                        : "No warnings recorded.");
 
         // Medications
         labels.put("activeIngredient",isArabic ? "المادة الفعالة" : "Active Ingredient");
-        labels.put("medications", isArabic ? "5. الأدوية" : "5. Medications");
+        labels.put("medications", isArabic ? "2. الأدوية" : "2. Medications");
         labels.put("medicationName", isArabic ? "اسم الدواء" : "Medication Name");
         labels.put("instructions", isArabic ? "التعليمات" : "Instructions");
         labels.put("duration", isArabic ? "المدة" : "Duration");
