@@ -98,3 +98,5 @@ analytics:
       host: localhost
       port: 5000
       ring-buffer-size: 512
+report:
+  api-base-url: ${GATEWAY_BASE_URL}
