@@ -22,4 +22,8 @@ public interface PatientAllergiesRepository extends JpaRepository<PatientAllergi
             Long patientId,
             PatientAllergyStatus status
     );
+
+
+    List<PatientAllergies> findByPatientIdOrderByCreatedDateAsc(Long patientId);
+
 }

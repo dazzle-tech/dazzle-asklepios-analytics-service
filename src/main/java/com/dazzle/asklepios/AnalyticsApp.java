@@ -5,6 +5,7 @@ import com.dazzle.asklepios.config.Constants;
 import com.dazzle.asklepios.integration.ai.config.AiClinicalSummaryProperties;
 import com.dazzle.asklepios.integration.ai.config.AiRecommendationsProperties;
 import com.dazzle.asklepios.integration.ai.config.MedicationTestOrdersValidationProperties;
+import com.dazzle.asklepios.integration.ai.config.PatientTimelineProperties;
 import jakarta.annotation.PostConstruct;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -27,7 +28,8 @@ import org.springframework.core.env.Environment;
 @EnableConfigurationProperties({
         MedicationTestOrdersValidationProperties.class
         , AiClinicalSummaryProperties.class,
-        AiRecommendationsProperties.class
+        AiRecommendationsProperties.class,
+        PatientTimelineProperties.class,
 })
 @EnableFeignClients
 @SpringBootApplication

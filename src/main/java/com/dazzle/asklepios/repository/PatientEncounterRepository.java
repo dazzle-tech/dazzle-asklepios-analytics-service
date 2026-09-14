@@ -21,6 +21,8 @@ import java.util.Optional;
 @Repository
 public interface PatientEncounterRepository extends JpaRepository<PatientEncounter, Long> , JpaSpecificationExecutor<PatientEncounter> {
 
+    List<PatientEncounter> findByPatient_IdOrderByEncounterDateDesc(Long patientId);
+
     @Query("""
     SELECT COUNT(DISTINCT e.patient.id)
     FROM PatientEncounter e
