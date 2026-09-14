@@ -1,11 +1,15 @@
 package com.dazzle.asklepios.service;
 
-import com.dazzle.asklepios.domain.Appointment;
 import com.dazzle.asklepios.domain.enumeration.AppointmentStatus;
+import com.dazzle.asklepios.domain.enumeration.EncounterType;
 import com.dazzle.asklepios.domain.enumeration.KpiStatus;
 import com.dazzle.asklepios.repository.AppointmentRepository;
+import com.dazzle.asklepios.repository.DiagnosticOrderTestResultRepository;
+import com.dazzle.asklepios.repository.KpiDurationProjection;
 import com.dazzle.asklepios.repository.PatientEncounterRepository;
 import com.dazzle.asklepios.service.dto.reports.AppointmentWaitTimeProjection;
+import com.dazzle.asklepios.service.dto.reports.criticalResult.CriticalResultCommunicationDTO;
+import com.dazzle.asklepios.web.rest.errors.BadRequestAlertException;
 import com.dazzle.asklepios.web.rest.vm.kpis.KpiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +22,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -25,15 +30,31 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AnalyticsKpiService {
 
-    private static final String FACILITY_UTILIZATION_RATE =
-            "FACILITY_UTILIZATION_RATE";
+    private static final String FACILITY_UTILIZATION_RATE = "FACILITY_UTILIZATION_RATE";
+    private static final String DNA_NO_SHOW_RATE = "DNA_NO_SHOW_RATE";
+    private static final String AVERAGE_WAIT_TIME_SCHEDULED = "AVERAGE_WAIT_TIME_SCHEDULED";
 
-    private static final String DNA_NO_SHOW_RATE =
-            "DNA_NO_SHOW_RATE";
+    private static final String DOOR_TO_DOCTOR_TIME = "DOOR_TO_DOCTOR_TIME";
+    private static final String DOOR_TO_DOCTOR_LABEL = "Door-to-Doctor Time";
 
-    private static final String AVERAGE_WAIT_TIME_SCHEDULED =
-            "AVERAGE_WAIT_TIME_SCHEDULED";
+    private static final String UCC_LENGTH_OF_STAY = "UCC_LENGTH_OF_STAY";
+    private static final String UCC_LENGTH_OF_STAY_LABEL = "UCC Length of Stay";
+
+    private static final String TRIAGE_COMPLETION_TIME = "TRIAGE_COMPLETION_TIME";
+    private static final String TRIAGE_COMPLETION_LABEL = "Triage Completion Time";
+
+    private static final String LEFT_WITHOUT_BEING_SEEN = "LEFT_WITHOUT_BEING_SEEN";
+    private static final String LEFT_WITHOUT_BEING_SEEN_LABEL = "Left Without Being Seen";
+
+    private static final String AVG_CONSULTATION_DURATION = "AVG_CONSULTATION_DURATION";
+    private static final String AVG_CONSULTATION_DURATION_LABEL = "Avg Consultation Duration";
+
+    private static final String CRITICAL_RESULT_NOTIFICATION = "CRITICAL_RESULT_NOTIFICATION";
+    private static final String CRITICAL_RESULT_NOTIFICATION_LABEL = "Critical Result Notification";
+
+
     private final PatientEncounterRepository patientEncounterRepository;
+    private final DiagnosticOrderTestResultRepository diagnosticOrderTestResultRepository;
 
     @Value("${analytics.timezone:Asia/Gaza}")
     private String analyticsTimezone;
@@ -42,18 +63,15 @@ public class AnalyticsKpiService {
      * KPI targets from the KPI definition.
      */
     private static final BigDecimal FACILITY_UTILIZATION_TARGET = BigDecimal.valueOf(75);
-
     private static final BigDecimal NO_SHOW_TARGET = BigDecimal.valueOf(5);
-
+    private static final BigDecimal UCC_LENGTH_OF_STAY_TARGET = BigDecimal.valueOf(120);
+    private static final BigDecimal DOOR_TO_DOCTOR_TARGET = BigDecimal.valueOf(15);
     private static final BigDecimal AVERAGE_WAIT_TIME_TARGET = BigDecimal.valueOf(15);
-
-    private static final String INCIDENT_RATE = "INCIDENT_RATE";
-
-    private static final BigDecimal INCIDENT_RATE_TARGET = BigDecimal.valueOf(2);
-
-    private static final String HAND_HYGIENE_COMPLIANCE = "HAND_HYGIENE_COMPLIANCE";
-
-    private static final BigDecimal HAND_HYGIENE_TARGET = BigDecimal.valueOf(90);
+    private static final BigDecimal TRIAGE_COMPLETION_TARGET = BigDecimal.valueOf(5);
+    private static final BigDecimal LEFT_WITHOUT_BEING_SEEN_TARGET = BigDecimal.valueOf(3);
+    private static final BigDecimal CRITICAL_RESULT_NOTIFICATION_TARGET = BigDecimal.valueOf(95);
+    private static final BigDecimal AVG_CONSULTATION_DURATION_MIN = BigDecimal.valueOf(12);
+    private static final BigDecimal AVG_CONSULTATION_DURATION_MAX = BigDecimal.valueOf(18);
 
     private final AppointmentRepository appointmentRepository;
 
@@ -101,35 +119,19 @@ public class AnalyticsKpiService {
             status = KpiStatus.NOT_ACHIEVED;
         }
 
-        KpiResponse response = new KpiResponse();
-
-        response.setKpi(FACILITY_UTILIZATION_RATE);
-
-        response.setLabel("Facility Utilization Rate");
-
-        response.setValue(utilizationRate);
-
-        response.setUnit("%");
-
-        response.setTarget(FACILITY_UTILIZATION_TARGET);
-
-        response.setTargetOperator(">=");
-
-        response.setStatus(status.name());
-
-        response.setStartDate(startDate);
-
-        response.setEndDate(endDate);
-
-        /*
-         * numerator = booked slots
-         * denominator = available slots
-         */
-        response.setNumerator(bookedSlots);
-
-        response.setDenominator(availableSlots);
-
-        return response;
+        return buildResponse(
+                FACILITY_UTILIZATION_RATE,
+                "Facility Utilization Rate",
+                utilizationRate,
+                "%",
+                FACILITY_UTILIZATION_TARGET,
+                ">=",
+                status,
+                startDate,
+                endDate,
+                bookedSlots,
+                availableSlots
+        );
     }
 
 
@@ -186,35 +188,19 @@ public class AnalyticsKpiService {
             status = KpiStatus.NOT_ACHIEVED;
         }
 
-        KpiResponse response = new KpiResponse();
-
-        response.setKpi(DNA_NO_SHOW_RATE);
-
-        response.setLabel("DNA / No-Show Rate");
-
-        response.setValue(noShowRate);
-
-        response.setUnit("%");
-
-        response.setTarget(NO_SHOW_TARGET);
-
-        response.setTargetOperator("<=");
-
-        response.setStatus(status.name());
-
-        response.setStartDate(startDate);
-
-        response.setEndDate(endDate);
-
-        /*
-         * numerator = no-show appointments
-         * denominator = booked appointments
-         */
-        response.setNumerator(noShowAppointments);
-
-        response.setDenominator(bookedAppointments);
-
-        return response;
+        return buildResponse(
+                DNA_NO_SHOW_RATE,
+                "DNA / No-Show Rate",
+                noShowRate,
+                "%",
+                NO_SHOW_TARGET,
+                "<=",
+                status,
+                startDate,
+                endDate,
+                noShowAppointments,
+                bookedAppointments
+        );
     }
 
 
@@ -333,31 +319,19 @@ public class AnalyticsKpiService {
             status = KpiStatus.NOT_ACHIEVED;
         }
 
-        KpiResponse response = new KpiResponse();
-
-        response.setKpi(AVERAGE_WAIT_TIME_SCHEDULED);
-
-        response.setLabel("Average Wait Time (Scheduled)");
-
-        response.setValue(averageWaitMinutes);
-
-        response.setUnit("min");
-
-        response.setTarget(AVERAGE_WAIT_TIME_TARGET);
-
-        response.setTargetOperator("<=");
-
-        response.setStatus(status.name());
-
-        response.setStartDate(startDate);
-
-        response.setEndDate(endDate);
-
-        response.setNumerator(validAppointmentCount);
-
-        response.setDenominator(validAppointmentCount);
-
-        return response;
+        return buildResponse(
+                AVERAGE_WAIT_TIME_SCHEDULED,
+                "Average Wait Time (Scheduled)",
+                averageWaitMinutes,
+                "min",
+                AVERAGE_WAIT_TIME_TARGET,
+                "<=",
+                status,
+                startDate,
+                endDate,
+                validAppointmentCount,
+                validAppointmentCount
+        );
     }
 
     // =========================================================
@@ -385,224 +359,630 @@ public class AnalyticsKpiService {
             status = KpiStatus.ACHIEVED;
         }
 
-        KpiResponse response = new KpiResponse();
-
-        response.setKpi("TOTAL_DAILY_FOOTFALL");
-
-        response.setLabel("Total Daily Footfall");
-
-        response.setValue(BigDecimal.valueOf(value));
-
-        response.setUnit("#");
-
-        /*
-         * Target is currently TBD according to the KPI definition.
-         */
-        response.setTarget(null);
-
-        response.setTargetOperator(null);
-
-        response.setStatus(status.name());
-
-        response.setStartDate(startDate);
-
-        response.setEndDate(endDate);
-
-        /*
-         * numerator = null (not applicable)
-         * denominator = null (not applicable)
-         *
-         * There is currently no ratio calculation for this KPI.
-         */
-        response.setNumerator(null);
-
-        response.setDenominator(null);
-
-        return response;
+        return buildResponse(
+                "TOTAL_DAILY_FOOTFALL",
+                "Total Daily Footfall",
+                BigDecimal.valueOf(value),
+                "patients",
+                BigDecimal.ZERO,
+                ">=",
+                status,
+                startDate,
+                endDate,
+                value,
+                value
+        );
     }
 
-//    // =========================================================
-//    // 5. INCIDENT RATE
-//    // =========================================================
-//
-//    /**
-//     * Incident Rate
-//     * <p>
-//     * Formula:
-//     * <p>
-//     * Reported Patient Safety Incidents
-//     * --------------------------------- x 1,000
-//     * Total Patient Encounters
-//     * <p>
-//     * Target: < 2.0
-//     */
-//    public KpiResponse getIncidentRate(LocalDate startDate, LocalDate endDate) {
+
+    // =========================================================
+    // 5. UCC Door-to-Doctor Time
+    // =========================================================
+    public KpiResponse getDoorToDoctorTime(LocalDate startDate, LocalDate endDate) {
+
+        validateDates(startDate, endDate);
+
+        List<KpiDurationProjection> records = patientEncounterRepository.findDoorToDoctorTimes(startDate, endDate.plusDays(1), EncounterType.EMERGENCY);
+
+        if (records.isEmpty()) {
+            return buildNoDataResponse(
+                    DOOR_TO_DOCTOR_TIME,
+                    DOOR_TO_DOCTOR_LABEL,
+                    "min",
+                    DOOR_TO_DOCTOR_TARGET,
+                    "<=",
+                    startDate,
+                    endDate
+            );
+        }
+
+        BigDecimal totalMinutes = records.stream()
+                .map(record -> calculateMinutes(
+                        record.getStartTime(),
+                        record.getEndTime()
+                ))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal averageMinutes = totalMinutes
+                .divide(
+                        BigDecimal.valueOf(records.size()),
+                        2,
+                        RoundingMode.HALF_UP
+                );
+
+        KpiStatus status =
+                averageMinutes.compareTo(DOOR_TO_DOCTOR_TARGET) <= 0
+                        ? KpiStatus.ACHIEVED
+                        : KpiStatus.NOT_ACHIEVED;
+
+        return buildResponse(
+                DOOR_TO_DOCTOR_TIME,
+                DOOR_TO_DOCTOR_LABEL,
+                averageMinutes,
+                "min",
+                DOOR_TO_DOCTOR_TARGET,
+                "<=",
+                status,
+                startDate,
+                endDate,
+                records.size(),
+                records.size()
+        );
+    }
+
+    // =========================================================
+    // 6. UCC Length of Stay
+    // =========================================================
+    public KpiResponse getUccLengthOfStay(LocalDate startDate, LocalDate endDate) {
+
+        validateDates(startDate, endDate);
+
+        List<KpiDurationProjection> records =
+                patientEncounterRepository.findUccLengthOfStay(
+                        startDate,
+                        endDate.plusDays(1),
+                        EncounterType.EMERGENCY
+                );
+
+        if (records.isEmpty()) {
+            return buildNoDataResponse(
+                    UCC_LENGTH_OF_STAY,
+                    UCC_LENGTH_OF_STAY_LABEL,
+                    "min",
+                    UCC_LENGTH_OF_STAY_TARGET,
+                    "<=",
+                    startDate,
+                    endDate
+            );
+        }
+
+        BigDecimal totalMinutes = records.stream()
+                .map(record -> calculateMinutes(
+                        record.getStartTime(),
+                        record.getEndTime()
+                ))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal averageMinutes = totalMinutes
+                .divide(
+                        BigDecimal.valueOf(records.size()),
+                        2,
+                        RoundingMode.HALF_UP
+                );
+
+        KpiStatus status =
+                averageMinutes.compareTo(UCC_LENGTH_OF_STAY_TARGET) <= 0
+                        ? KpiStatus.ACHIEVED
+                        : KpiStatus.NOT_ACHIEVED;
+
+        return buildResponse(
+                UCC_LENGTH_OF_STAY,
+                UCC_LENGTH_OF_STAY_LABEL,
+                averageMinutes,
+                "min",
+                UCC_LENGTH_OF_STAY_TARGET,
+                "<=",
+                status,
+                startDate,
+                endDate,
+                records.size(),
+                records.size()
+        );
+    }
+
+    // =========================================================
+    // 7. UCC Triage Completion Time
+    // =========================================================
+    public KpiResponse getTriageCompletionTime(LocalDate startDate, LocalDate endDate) {
+
+        validateDates(startDate, endDate);
+
+        List<KpiDurationProjection> records =
+                patientEncounterRepository.findTriageCompletionTimes(
+                        startDate,
+                        endDate.plusDays(1),
+                        EncounterType.EMERGENCY
+                );
+
+        if (records.isEmpty()) {
+            return buildNoDataResponse(
+                    TRIAGE_COMPLETION_TIME,
+                    TRIAGE_COMPLETION_LABEL,
+                    "min",
+                    TRIAGE_COMPLETION_TARGET,
+                    "<=",
+                    startDate,
+                    endDate
+            );
+        }
+
+        BigDecimal totalMinutes = records.stream()
+                .map(record -> calculateMinutes(
+                        record.getStartTime(),
+                        record.getEndTime()
+                ))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal averageMinutes = totalMinutes
+                .divide(
+                        BigDecimal.valueOf(records.size()),
+                        2,
+                        RoundingMode.HALF_UP
+                );
+
+        KpiStatus status =
+                averageMinutes.compareTo(TRIAGE_COMPLETION_TARGET) <= 0
+                        ? KpiStatus.ACHIEVED
+                        : KpiStatus.NOT_ACHIEVED;
+
+        return buildResponse(
+                TRIAGE_COMPLETION_TIME,
+                TRIAGE_COMPLETION_LABEL,
+                averageMinutes,
+                "min",
+                TRIAGE_COMPLETION_TARGET,
+                "<=",
+                status,
+                startDate,
+                endDate,
+                records.size(),
+                records.size()
+        );
+    }
+
+    // =========================================================
+    // 8. UCC Left Without Being Seen
+    // =========================================================
+    public KpiResponse getLeftWithoutBeingSeen(LocalDate startDate, LocalDate endDate) {
+
+        validateDates(startDate, endDate);
+
+        LocalDate endExclusive = endDate.plusDays(1);
+
+        List<String> lwbsStatuses = List.of(
+                "TRIAGE_STARTED",
+                "ASSIGNED_TO_BED",
+                "PENDING_PAYMENT",
+                "WAITING_TRIAGE",
+                "NEW"
+        );
+
+        long leftWithoutBeingSeen = patientEncounterRepository.countLeftWithoutBeingSeen(startDate, endExclusive, EncounterType.EMERGENCY, lwbsStatuses);
+        long totalUcc = patientEncounterRepository.countEncountersByType(startDate, endExclusive, EncounterType.EMERGENCY);
+
+        if (totalUcc == 0) {
+            return buildNoDataResponse(
+                    LEFT_WITHOUT_BEING_SEEN,
+                    LEFT_WITHOUT_BEING_SEEN_LABEL,
+                    "%",
+                    LEFT_WITHOUT_BEING_SEEN_TARGET,
+                    "<",
+                    startDate,
+                    endDate
+            );
+        }
+
+        BigDecimal percentage = BigDecimal.valueOf(leftWithoutBeingSeen)
+                .multiply(BigDecimal.valueOf(100))
+                .divide(
+                        BigDecimal.valueOf(totalUcc),
+                        2,
+                        RoundingMode.HALF_UP
+                );
+
+        KpiStatus status = percentage.compareTo(LEFT_WITHOUT_BEING_SEEN_TARGET) < 0
+                ? KpiStatus.ACHIEVED
+                : KpiStatus.NOT_ACHIEVED;
+
+        return buildResponse(
+                LEFT_WITHOUT_BEING_SEEN,
+                LEFT_WITHOUT_BEING_SEEN_LABEL,
+                percentage,
+                "%",
+                LEFT_WITHOUT_BEING_SEEN_TARGET,
+                "<",
+                status,
+                startDate,
+                endDate,
+                leftWithoutBeingSeen,
+                totalUcc
+        );
+    }
+
+    // =========================================================
+    // 9. UCC Unplanned Re-attendance <72hr
+    // =========================================================
+    public KpiResponse getUnplannedReattendance(LocalDate startDate, LocalDate endDate) {
+
+        validateDates(startDate, endDate);
+
+
+        long reattendanceCount =
+                patientEncounterRepository.countUnplannedReattendance(
+                        startDate,
+                        endDate,
+                        EncounterType.EMERGENCY.name()
+                );
+
+        long totalDischarges =
+                patientEncounterRepository.countDischargesByEncounterType(
+                        startDate,
+                        endDate,
+                        EncounterType.EMERGENCY
+                );
+
+        if (totalDischarges == 0) {
+            return buildNoDataResponse(
+                    "UNPLANNED_REATTENDANCE_72H",
+                    "Unplanned Re-attendance <72h",
+                    "%",
+                    BigDecimal.valueOf(5),
+                    "<",
+                    startDate,
+                    endDate
+            );
+        }
+
+        BigDecimal percentage = BigDecimal.valueOf(reattendanceCount)
+                .multiply(BigDecimal.valueOf(100))
+                .divide(
+                        BigDecimal.valueOf(totalDischarges),
+                        2,
+                        RoundingMode.HALF_UP
+                );
+
+        KpiStatus status =
+                percentage.compareTo(BigDecimal.valueOf(5)) < 0
+                        ? KpiStatus.ACHIEVED
+                        : KpiStatus.NOT_ACHIEVED;
+
+        return buildResponse(
+                "UNPLANNED_REATTENDANCE_72H",
+                "Unplanned Re-attendance <72h",
+                percentage,
+                "%",
+                BigDecimal.valueOf(5),
+                "<",
+                status,
+                startDate,
+                endDate,
+                reattendanceCount,
+                totalDischarges
+        );
+    }
+
+    // =========================================================
+    // 10. No show rate appointments per department
+    // =========================================================
+
+    public KpiResponse getNoShowRate(LocalDate startDate, LocalDate endDate, Long departmentId) {
+
+        validateDates(startDate, endDate);
+
+        Instant start = toStartOfDay(startDate);
+        Instant end = toStartOfDay(endDate.plusDays(1));
+
+        /*
+         * Booked appointments for this department.
+         *
+         * NO_SHOW is included because the appointment was originally booked.
+         *
+         * CANCELLED is excluded.
+         */
+        long bookedAppointments =
+                appointmentRepository
+                        .countAppointmentByStatusInAndDepartmentIdAndStartDatetimeGreaterThanEqualAndEndDatetimeLessThan(
+                                getBookedStatuses(),
+                                departmentId,
+                                start,
+                                end
+                        );
+
+        /*
+         * NO_SHOW appointments for this department.
+         */
+        long noShowAppointments =
+                appointmentRepository
+                        .countAppointmentByStatusAndDepartmentIdAndStartDatetimeGreaterThanEqualAndEndDatetimeLessThan(
+                                AppointmentStatus.NO_SHOW,
+                                departmentId,
+                                start,
+                                end
+                        );
+
+        BigDecimal noShowRate =
+                calculatePercentage(
+                        noShowAppointments,
+                        bookedAppointments
+                );
+
+        KpiStatus status;
+
+        if (bookedAppointments == 0) {
+
+            status = KpiStatus.NO_DATA;
+
+        } else if (noShowRate.compareTo(NO_SHOW_TARGET) <= 0) {
+
+            status = KpiStatus.ACHIEVED;
+
+        } else {
+
+            status = KpiStatus.NOT_ACHIEVED;
+        }
+
+        return buildResponse(
+                DNA_NO_SHOW_RATE,
+                "DNA / No-Show Rate",
+                noShowRate,
+                "%",
+                NO_SHOW_TARGET,
+                "<=",
+                status,
+                startDate,
+                endDate,
+                noShowAppointments,
+                bookedAppointments
+        );
+    }
+
+    // =========================================================
+    // 11. Avg Consultation Duration per department
+    // =========================================================
+    public KpiResponse getAverageConsultationDuration(LocalDate startDate, LocalDate endDate, Long departmentId) {
+
+        validateDates(startDate, endDate);
+
+        List<KpiDurationProjection> records =
+                patientEncounterRepository.findConsultationDurations(
+                        startDate,
+                        endDate.plusDays(1),
+                        departmentId
+                );
+
+        if (records.isEmpty()) {
+            return buildNoDataResponse(
+                    AVG_CONSULTATION_DURATION,
+                    "Avg Consultation Duration",
+                    "min",
+                    BigDecimal.valueOf(18),
+                    "12-18",
+                    startDate,
+                    endDate
+            );
+        }
+
+        BigDecimal totalMinutes = records.stream()
+                .map(record -> calculateMinutes(
+                        record.getStartTime(),
+                        record.getEndTime()
+                ))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal averageMinutes = totalMinutes
+                .divide(
+                        BigDecimal.valueOf(records.size()),
+                        2,
+                        RoundingMode.HALF_UP
+                );
+
+        KpiStatus status =
+                averageMinutes.compareTo(BigDecimal.valueOf(12)) >= 0
+                        && averageMinutes.compareTo(BigDecimal.valueOf(18)) <= 0
+                        ? KpiStatus.ACHIEVED
+                        : KpiStatus.NOT_ACHIEVED;
+
+        return buildResponse(
+                AVG_CONSULTATION_DURATION,
+                "Avg Consultation Duration",
+                averageMinutes,
+                "min",
+                BigDecimal.valueOf(18),
+                "12-18",
+                status,
+                startDate,
+                endDate,
+                records.size(),
+                records.size()
+        );
+    }
+
+    // =========================================================
+    // 12. Chronic Disease Register per department
+    // =========================================================
+    public KpiResponse getChronicDiseaseRegister(LocalDate startDate, LocalDate endDate, Long departmentId) {
+
+        validateDates(startDate, endDate);
+
+        long chronicDiseasePatients =0;
+//                patientRepository.countPatientsOnChronicDiseaseRegister(
+//                        startDate,
+//                        endDate.plusDays(1),
+//                        departmentId
+//                );
+
+        KpiStatus status =
+                chronicDiseasePatients > 0
+                        ? KpiStatus.ACHIEVED
+                        : KpiStatus.NO_DATA;
+
+        return buildResponse(
+                "CHRONIC_DISEASE_REGISTER",
+                "Chronic Disease Register",
+                BigDecimal.valueOf(chronicDiseasePatients),
+                "#",
+                null,
+                null,
+                status,
+                startDate,
+                endDate,
+                chronicDiseasePatients,
+                chronicDiseasePatients
+        );
+    }
+
+    // =========================================================
+    // 13. Diabetic HbA1c Monitoring per department
+    // =========================================================
+    public KpiResponse getDiabeticHba1cMonitoring(LocalDate startDate, LocalDate endDate, Long departmentId) {
+
+        validateDates(startDate, endDate);
+
+        long diabeticPatients =0;
+//                patientRepository.countDiabeticPatients(
+//                        startDate,
+//                        endDate.plusDays(1),
+//                        departmentId
+//                );
+
+        long diabeticPatientsWithHba1c =0;
+//                patientRepository.countDiabeticPatientsWithHba1cWithinSixMonths(
+//                        startDate,
+//                        endDate.plusDays(1),
+//                        departmentId
+//                );
+
+        if (diabeticPatients == 0) {
+            return buildNoDataResponse(
+                    "DIABETIC_HBA1C_MONITORING",
+                    "Diabetic HbA1c Monitoring",
+                    "%",
+                    BigDecimal.valueOf(85),
+                    ">=",
+                    startDate,
+                    endDate
+            );
+        }
+
+        BigDecimal percentage =
+                calculatePercentage(
+                        diabeticPatientsWithHba1c,
+                        diabeticPatients
+                );
+
+        KpiStatus status =
+                percentage.compareTo(BigDecimal.valueOf(85)) >= 0
+                        ? KpiStatus.ACHIEVED
+                        : KpiStatus.NOT_ACHIEVED;
+
+        return buildResponse(
+                "DIABETIC_HBA1C_MONITORING",
+                "Diabetic HbA1c Monitoring",
+                percentage,
+                "%",
+                BigDecimal.valueOf(85),
+                ">=",
+                status,
+                startDate,
+                endDate,
+                diabeticPatientsWithHba1c,
+                diabeticPatients
+        );
+    }
+    // =========================================================
+// 10. CRITICAL RESULT NOTIFICATION
+// =========================================================
+
+    /**
+     * Critical Result Notification
+     * <p>
+     * Formula:
+     * <p>
+     * Critical results communicated within 30 minutes
+     * ----------------------------------------------- x 100
+     * Total critical lab/imaging results
+     * <p>
+     * Critical Laboratory Results:
+     * CRITICAL_UPPER
+     * CRITICAL_LOWER
+     * <p>
+     * Critical Radiology Results:
+     * SEVERE
+     * CRITICAL
+     * <p>
+     * Target: >= 95%
+     */
+//    public KpiResponse getCriticalResultNotification(
+//            LocalDate startDate,
+//            LocalDate endDate
+//    ) {
 //
 //        validateDates(startDate, endDate);
 //
-//        /*
-//         * Number of reported patient safety incidents
-//         * during the requested period.
-//         */
-//        long reportedIncidents =
-//                incidentRepository.countReportedIncidents(startDate, endDate);
+//        Instant start = toStartOfDay(startDate);
+//        Instant end = toStartOfDay(endDate.plusDays(1));
 //
-//        /*
-//         * Total patient encounters during the
-//         * requested period.
-//         */
-//        Long totalEncounters = patientEncounterRepository.countEncountersForPeriod(startDate, endDate);
+//        List<CriticalResultCommunicationDTO> criticalResults =
+//                diagnosticOrderTestResultRepository
+//                        .findCriticalResultCommunications(
+//                                start,
+//                                end
+//                        );
 //
-//        long encounterCount = totalEncounters != null ? totalEncounters : 0L;
+//        long totalCriticalResults = criticalResults.size();
 //
-//        BigDecimal incidentRate;
+//        long communicatedWithin30Minutes =
+//                criticalResults.stream()
+//                        .filter(this::wasCommunicatedWithin30Minutes)
+//                        .count();
 //
-//        if (encounterCount == 0) {
+//        if (totalCriticalResults == 0) {
 //
-//            incidentRate = BigDecimal.ZERO;
-//
-//        } else {
-//
-//            incidentRate = BigDecimal.valueOf(reportedIncidents)
-//                    .multiply(BigDecimal.valueOf(1000))
-//                    .divide(
-//                            BigDecimal.valueOf(encounterCount),
-//                            2,
-//                            RoundingMode.HALF_UP
-//                    );
+//            return buildNoDataResponse(
+//                    "CRITICAL_RESULT_NOTIFICATION",
+//                    "Critical Result Notification",
+//                    "%",
+//                    BigDecimal.valueOf(95),
+//                    ">=",
+//                    startDate,
+//                    endDate
+//            );
 //        }
 //
-//        KpiStatus status;
-//
-//        if (encounterCount == 0) {
-//
-//            status = KpiStatus.NO_DATA;
-//
-//        } else if (incidentRate.compareTo(INCIDENT_RATE_TARGET) < 0) {
-//
-//            status = KpiStatus.ACHIEVED;
-//
-//        } else {
-//
-//            status = KpiStatus.NOT_ACHIEVED;
-//        }
-//
-//        KpiResponse response = new KpiResponse();
-//
-//        response.setKpi(INCIDENT_RATE);
-//
-//        response.setLabel("Incident Rate");
-//
-//        response.setValue(incidentRate);
-//
-//        response.setUnit("per 1,000 encounters");
-//
-//        response.setTarget(INCIDENT_RATE_TARGET);
-//
-//        response.setTargetOperator("<");
-//
-//        response.setStatus(status.name());
-//
-//        response.setStartDate(startDate);
-//
-//        response.setEndDate(endDate);
-//
-//        /*
-//         * numerator = reported incidents
-//         * denominator = total encounters
-//         */
-//        response.setNumerator(reportedIncidents);
-//
-//        response.setDenominator(encounterCount);
-//
-//        return response;
-//    }
-//
-//    // =========================================================
-//// 6. HAND HYGIENE COMPLIANCE
-//// =========================================================
-//
-//    /**
-//     * Hand Hygiene Compliance
-//     * <p>
-//     * Formula:
-//     * <p>
-//     * Compliant Observed Events
-//     * ------------------------- x 100
-//     * Total Observed Events
-//     * <p>
-//     * Target: >= 90%
-//     */
-//    public KpiResponse getHandHygieneCompliance(LocalDate startDate, LocalDate endDate) {
-//
-//        validateDates(startDate, endDate);
-//
-//        /*
-//         * Number of compliant hand hygiene observations.
-//         */
-//        long compliantEvents = handHygieneAuditRepository
-//                .countCompliantObservations(
-//                        startDate,
-//                        endDate
+//        BigDecimal percentage =
+//                calculatePercentage(
+//                        communicatedWithin30Minutes,
+//                        totalCriticalResults
 //                );
 //
-//        /*
-//         * Total number of observed hand hygiene events.
-//         */
-//        long totalObservedEvents = handHygieneAuditRepository
-//                .countObservedEvents(
-//                        startDate,
-//                        endDate
-//                );
+//        KpiStatus status =
+//                percentage.compareTo(BigDecimal.valueOf(95)) >= 0
+//                        ? KpiStatus.ACHIEVED
+//                        : KpiStatus.NOT_ACHIEVED;
 //
-//        BigDecimal complianceRate = calculatePercentage(compliantEvents, totalObservedEvents);
-//
-//        KpiStatus status;
-//
-//        if (totalObservedEvents == 0) {
-//
-//            status = KpiStatus.NO_DATA;
-//
-//        } else if (complianceRate.compareTo(HAND_HYGIENE_TARGET) >= 0) {
-//
-//            status = KpiStatus.ACHIEVED;
-//
-//        } else {
-//
-//            status = KpiStatus.NOT_ACHIEVED;
-//        }
-//
-//        KpiResponse response = new KpiResponse();
-//
-//        response.setKpi(HAND_HYGIENE_COMPLIANCE);
-//
-//        response.setLabel("Hand Hygiene Compliance");
-//
-//        response.setValue(complianceRate);
-//
-//        response.setUnit("%");
-//
-//        response.setTarget(
-//                HAND_HYGIENE_TARGET
+//        return buildResponse(
+//                CRITICAL_RESULT_NOTIFICATION,
+//                CRITICAL_RESULT_NOTIFICATION_LABEL,
+//                percentage,
+//                "%",
+//                CRITICAL_RESULT_NOTIFICATION_TARGET,
+//                ">=",
+//                status,
+//                startDate,
+//                endDate,
+//                communicatedWithin30Minutes,
+//                totalCriticalResults
 //        );
-//
-//        response.setTargetOperator(">=");
-//
-//        response.setStatus(status.name());
-//
-//        response.setStartDate(startDate);
-//
-//        response.setEndDate(endDate);
-//
-//        /*
-//         * numerator = compliant observations
-//         * denominator = total observations
-//         */
-//        response.setNumerator(compliantEvents);
-//
-//        response.setDenominator(totalObservedEvents);
-//
-//        return response;
 //    }
 
     // =========================================================
@@ -655,6 +1035,32 @@ public class AnalyticsKpiService {
                 );
     }
 
+    private BigDecimal calculateMinutes(Instant start, Instant end) {
+
+        if (start == null || end == null) {
+            return BigDecimal.ZERO;
+        }
+
+        long seconds = Duration.between(start, end).getSeconds();
+
+        return BigDecimal.valueOf(seconds)
+                .divide(
+                        BigDecimal.valueOf(60),
+                        2,
+                        RoundingMode.HALF_UP
+                );
+    }
+
+//    private boolean wasCommunicatedWithin30Minutes(CriticalResultCommunicationDTO result) {
+//
+//        if (result.criticalAt() == null
+//                || result.communicatedAt() == null) {
+//            return false;
+//        }
+//
+//        return !result.communicatedAt()
+//                .isAfter(result.criticalAt().plus(30, ChronoUnit.MINUTES));
+//    }
 
     // =========================================================
     // DATE HELPERS
@@ -675,36 +1081,23 @@ public class AnalyticsKpiService {
     // RESPONSE HELPERS
     // =========================================================
 
-    private KpiResponse buildNoDataWaitTimeResponse(
-            LocalDate startDate,
-            LocalDate endDate
-    ) {
+    private KpiResponse buildNoDataWaitTimeResponse(LocalDate startDate, LocalDate endDate) {
 
         KpiResponse response = new KpiResponse();
 
-        response.setKpi(
-                AVERAGE_WAIT_TIME_SCHEDULED
-        );
+        response.setKpi(AVERAGE_WAIT_TIME_SCHEDULED);
 
-        response.setLabel(
-                "Average Wait Time (Scheduled)"
-        );
+        response.setLabel("Average Wait Time (Scheduled)");
 
-        response.setValue(
-                BigDecimal.ZERO
-        );
+        response.setValue(BigDecimal.ZERO);
 
         response.setUnit("min");
 
-        response.setTarget(
-                AVERAGE_WAIT_TIME_TARGET
-        );
+        response.setTarget(AVERAGE_WAIT_TIME_TARGET);
 
         response.setTargetOperator("<=");
 
-        response.setStatus(
-                KpiStatus.NO_DATA.name()
-        );
+        response.setStatus(KpiStatus.NO_DATA);
 
         response.setStartDate(startDate);
 
@@ -717,35 +1110,69 @@ public class AnalyticsKpiService {
         return response;
     }
 
+    private KpiResponse buildResponse(String kpi, String label, BigDecimal value, String unit, BigDecimal target, String targetOperator, KpiStatus status, LocalDate startDate, LocalDate endDate, long numerator, long denominator) {
+
+        KpiResponse response = new KpiResponse();
+
+        response.setKpi(kpi);
+        response.setLabel(label);
+        response.setValue(value);
+        response.setUnit(unit);
+        response.setTarget(target);
+        response.setTargetOperator(targetOperator);
+        response.setStatus(status);
+        response.setStartDate(startDate);
+        response.setEndDate(endDate);
+        response.setNumerator(numerator);
+        response.setDenominator(denominator);
+
+        return response;
+    }
+
+    private KpiResponse buildNoDataResponse(String kpi, String label, String unit, BigDecimal target, String targetOperator, LocalDate startDate, LocalDate endDate) {
+
+        return buildResponse(
+                kpi,
+                label,
+                BigDecimal.ZERO,
+                unit,
+                target,
+                targetOperator,
+                KpiStatus.NO_DATA,
+                startDate,
+                endDate,
+                0,
+                0
+        );
+    }
 
     // =========================================================
     // VALIDATION
     // =========================================================
 
-    private void validateDates(
-            LocalDate startDate,
-            LocalDate endDate
-    ) {
+    private void validateDates(LocalDate startDate, LocalDate endDate) {
 
         if (startDate == null) {
 
-            throw new IllegalArgumentException(
-                    "startDate is required"
+            throw new BadRequestAlertException(
+                    "startDate is required", "AnalyticsKpiService", "startDate.required"
             );
         }
 
         if (endDate == null) {
 
-            throw new IllegalArgumentException(
-                    "endDate is required"
+            throw new BadRequestAlertException(
+                    "endDate is required", "AnalyticsKpiService", "endDate.required"
             );
         }
 
         if (endDate.isBefore(startDate)) {
 
-            throw new IllegalArgumentException(
-                    "endDate must be greater than or equal to startDate"
+            throw new BadRequestAlertException(
+                    "endDate must be greater than or equal to startDate", "AnalyticsKpiService", "endDate.before.startDate"
             );
         }
     }
+
+
 }

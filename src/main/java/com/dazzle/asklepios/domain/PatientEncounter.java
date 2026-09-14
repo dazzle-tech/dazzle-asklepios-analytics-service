@@ -26,6 +26,7 @@ import lombok.Setter;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "patient_encounters")
@@ -116,6 +117,7 @@ public class PatientEncounter extends AbstractAuditingEntity<Long> implements Se
     @Column(name = "physical_examination_summery")
     private String physicalExaminationSummery;
 
-
+    @Column(name = "discharge_at")
+    private LocalDateTime dischargeAt;
 
 }

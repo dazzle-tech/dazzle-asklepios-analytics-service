@@ -32,4 +32,36 @@ public interface AppointmentRepository  extends JpaRepository<Appointment, Long>
             @Param("end") Instant end
     );
 
+    @Query("""
+    SELECT COUNT(a)
+    FROM Appointment a
+    WHERE a.status IN :statuses
+      AND a.departmentId = :departmentId
+      AND a.startDatetime >= :start
+      AND a.endDatetime < :end
+      AND a.patient IS NOT NULL
+""")
+    long countAppointmentByStatusInAndDepartmentIdAndStartDatetimeGreaterThanEqualAndEndDatetimeLessThan(
+            @Param("statuses") List<AppointmentStatus> statuses,
+            @Param("departmentId") Long departmentId,
+            @Param("start") Instant start,
+            @Param("end") Instant end
+    );
+
+    @Query("""
+    SELECT COUNT(a)
+    FROM Appointment a
+    WHERE a.status = :status
+      AND a.departmentId = :departmentId
+      AND a.startDatetime >= :start
+      AND a.endDatetime < :end
+      AND a.patient IS NOT NULL
+""")
+    long countAppointmentByStatusAndDepartmentIdAndStartDatetimeGreaterThanEqualAndEndDatetimeLessThan(
+            @Param("status") AppointmentStatus status,
+            @Param("departmentId") Long departmentId,
+            @Param("start") Instant start,
+            @Param("end") Instant end
+    );
+
 }

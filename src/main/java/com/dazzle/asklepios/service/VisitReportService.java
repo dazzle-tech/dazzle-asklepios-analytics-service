@@ -425,7 +425,7 @@ public class VisitReportService {
                 patient.getLastName(),
                 patient.getMedicalRecordNumber(),
                 encounter.getEncounterNumber(),
-                encounter.getEncounterDate(),
+                encounter.getCreatedDate(),
                 department != null ? department.getName() : null,
                 practitioner != null ? practitioner.getFirstName() : null,
                 practitioner != null ? practitioner.getLastName() : null

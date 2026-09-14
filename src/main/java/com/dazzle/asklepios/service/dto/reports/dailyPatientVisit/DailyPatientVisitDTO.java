@@ -1,6 +1,6 @@
 package com.dazzle.asklepios.service.dto.reports.dailyPatientVisit;
 
-import java.time.LocalDate;
+import java.time.Instant;
 
 
 public record DailyPatientVisitDTO (
@@ -9,7 +9,7 @@ public record DailyPatientVisitDTO (
      String lastName,
      String medicalRecordNumber,
      String encounterNumber,
-     LocalDate visitDate,
+     Instant visitDate,
      String departmentName,
      String practitionerFirstName,
      String practitionerLastName
