@@ -31,6 +31,10 @@ ai:
   recommendations:
     base-url: ${gateway.base-url}/api/ai/v1/clinical-recommendations
     timeout-seconds: 120
+
+  patient-timeline:
+    base-url: ${gateway.base-url}/api/ai/v1/patient-timeline-service
+    timeout-seconds: 360
 spring:
   devtools:
     restart:

@@ -14,4 +14,5 @@ public interface PatientProcedureRepository
     List <PatientProcedure> findByEncounterIdAndStatusNotOrderByCreatedDateAsc(Long encounterId ,String status);
     @EntityGraph(attributePaths = "procedure")
     List<PatientProcedure> findByPatientIdOrderByScheduledDateTimeDesc(Long patientId);
+    List<PatientProcedure> findByPatient_IdOrderByCreatedDateAsc(Long patientId);
 }
