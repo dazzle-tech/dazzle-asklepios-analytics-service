@@ -3,14 +3,17 @@ package com.dazzle.asklepios.web.rest;
 import com.dazzle.asklepios.service.DiagnosticOrderTestResultReportService;
 import com.dazzle.asklepios.service.LaboratoryPdfRenderService;
 import com.dazzle.asklepios.service.dto.laboratory.LaboratoryResultReportDTO;
+import com.dazzle.asklepios.service.dto.reports.DiagnosticResultReportDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -60,5 +63,41 @@ public class DiagnosticOrderTestResultController {
                 .header("Content-Disposition", "inline; filename=laboratory-results.pdf")
                 .header("Content-Type", "application/pdf")
                 .body(pdf);
+    }
+
+    @GetMapping("/laboratory-reports/laboratory-results")
+    public ResponseEntity<List<DiagnosticResultReportDTO>> getLaboratoryResults(
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate startDate,
+
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate endDate
+    ) {
+        return ResponseEntity.ok(
+                resultReportService.getLaboratoryResults(
+                        startDate,
+                        endDate
+                )
+        );
+    }
+
+    @GetMapping("/radiology-reports/radiology-results")
+    public ResponseEntity<List<DiagnosticResultReportDTO>> getRadiologyResults(
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate startDate,
+
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate endDate
+    ) {
+        return ResponseEntity.ok(
+                resultReportService.getRadiologyResults(
+                        startDate,
+                        endDate
+                )
+        );
     }
 }

@@ -11,6 +11,7 @@ import com.dazzle.asklepios.domain.DiagnosticTestProfile;
 import com.dazzle.asklepios.domain.Patient;
 import com.dazzle.asklepios.domain.PatientEncounter;
 import com.dazzle.asklepios.domain.enumeration.TestResultType;
+import com.dazzle.asklepios.domain.enumeration.TestType;
 import com.dazzle.asklepios.repository.ApLovValueRepository;
 import com.dazzle.asklepios.repository.DepartmentsRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderRepository;
@@ -25,12 +26,14 @@ import com.dazzle.asklepios.service.dto.laboratory.LaboratoryOrderSectionDTO;
 import com.dazzle.asklepios.service.dto.laboratory.LaboratoryOrderTestSectionDTO;
 import com.dazzle.asklepios.service.dto.laboratory.LaboratoryResultItemDTO;
 import com.dazzle.asklepios.service.dto.laboratory.LaboratoryResultReportDTO;
+import com.dazzle.asklepios.service.dto.reports.DiagnosticResultReportDTO;
 import com.dazzle.asklepios.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +83,7 @@ public class DiagnosticOrderTestResultReportService {
         this.reportCommonService = reportCommonService;
     }
 
-    public LaboratoryResultReportDTO getLaboratoryResults(List<Long> resultIds, String timezone){
+    public LaboratoryResultReportDTO getLaboratoryResults(List<Long> resultIds, String timezone) {
 
         LOG.debug("[LaboratoryResultReportService] GET_LABORATORY_RESULTS_REPORT - start. resultIds={}", resultIds);
 
@@ -178,6 +181,25 @@ public class DiagnosticOrderTestResultReportService {
                 orderSections
         );
     }
+
+    public List<DiagnosticResultReportDTO> getLaboratoryResults(LocalDate startDate, LocalDate endDate) {
+     validateDates(startDate, endDate);
+        return diagnosticOrderTestResultRepository.findDiagnosticResults(
+                TestType.LABORATORY.name(),
+                startDate,
+                endDate
+        );
+    }
+
+    public List<DiagnosticResultReportDTO> getRadiologyResults(LocalDate startDate, LocalDate endDate) {
+       validateDates(startDate, endDate);
+        return diagnosticOrderTestResultRepository.findDiagnosticResults(
+                TestType.RADIOLOGY.name(),
+                startDate,
+                endDate
+        );
+    }
+
 
     private Long resolveSinglePatientId(Map<Long, DiagnosticOrder> orderMap) {
         List<Long> patientIds = orderMap.values().stream()
@@ -341,4 +363,33 @@ public class DiagnosticOrderTestResultReportService {
                 reportCommonService.getDisplayUserName(result.getReviewBy())
         );
     }
+    // =========================================================
+    // VALIDATION
+    // =========================================================
+
+    private void validateDates(LocalDate startDate, LocalDate endDate) {
+
+        if (startDate == null) {
+
+            throw new BadRequestAlertException(
+                    "startDate is required", "AnalyticsKpiService", "startDate.required"
+            );
+        }
+
+        if (endDate == null) {
+
+            throw new BadRequestAlertException(
+                    "endDate is required", "AnalyticsKpiService", "endDate.required"
+            );
+        }
+
+        if (endDate.isBefore(startDate)) {
+
+            throw new BadRequestAlertException(
+                    "endDate must be greater than or equal to startDate", "AnalyticsKpiService", "endDate.before.startDate"
+            );
+        }
+    }
+
+
 }

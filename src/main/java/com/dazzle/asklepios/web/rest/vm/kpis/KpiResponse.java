@@ -1,5 +1,6 @@
 package com.dazzle.asklepios.web.rest.vm.kpis;
 
+import com.dazzle.asklepios.domain.enumeration.KpiStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,7 +20,7 @@ public class KpiResponse {
 
     private BigDecimal target;
     private String targetOperator;
-    private String status;
+    private KpiStatus status;
 
     private LocalDate startDate;
     private LocalDate endDate;
