@@ -428,7 +428,9 @@ public class VisitReportService {
                 encounter.getCreatedDate(),
                 department != null ? department.getName() : null,
                 practitioner != null ? practitioner.getFirstName() : null,
-                practitioner != null ? practitioner.getLastName() : null
+                practitioner != null ? practitioner.getLastName() : null,
+                patient.getDateOfBirth(),
+                patient.getSexAtBirth().name()
         );
     }
 
