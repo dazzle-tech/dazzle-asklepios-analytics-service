@@ -205,4 +205,13 @@ public class AnalyticsKpiController {
                 )
         );
     }
+
+    @GetMapping("/kpis/modality-utilisation-ct")
+    public ResponseEntity<KpiResponse> getModalityUtilisationCt(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+    ) {
+        LOG.debug("[KPIS] request modality utilisation CT from {} to {}", startDate, endDate);
+        return ResponseEntity.ok(analyticsKpiService.getModalityUtilisationCt(startDate, endDate));
+    }
 }
