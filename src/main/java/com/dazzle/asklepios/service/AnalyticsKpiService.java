@@ -774,7 +774,17 @@ public class AnalyticsKpiService {
     public KpiResponse getAverageConsultationDuration(LocalDate startDate, LocalDate endDate, Long departmentId) {
 
         validateDates(startDate, endDate);
-
+        if (departmentId == null) {
+            return buildNoDataResponse(
+                    AVG_CONSULTATION_DURATION,
+                    AVG_CONSULTATION_DURATION_LABEL,
+                    "min",
+                    AVG_CONSULTATION_DURATION_MAX,
+                    "12-18",
+                    startDate,
+                    endDate
+            );
+        }
         List<KpiDurationProjection> records =
                 patientEncounterRepository.findConsultationDurations(
                         startDate,
