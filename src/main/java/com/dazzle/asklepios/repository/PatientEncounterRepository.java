@@ -198,145 +198,159 @@ public interface PatientEncounterRepository extends JpaRepository<PatientEncount
     );
 
     @Query(value = """
-            WITH visit_responsibility AS (
-                SELECT
-                    r.encounter_id,
-
-                    SUM(
-                        CASE
-                            WHEN r.responsible_party_type = 'PATIENT'
-                            THEN COALESCE(r.responsibility_amount, 0)
-                            ELSE 0
-                        END
-                    ) AS patient_share,
-
-                    SUM(
-                        CASE
-                            WHEN r.responsible_party_type = 'INSURANCE'
-                            THEN COALESCE(r.responsibility_amount, 0)
-                            ELSE 0
-                        END
-                    ) AS insurance_share,
-
-                    SUM(
-                        CASE
-                            WHEN r.responsible_party_type = 'PATIENT'
-                            THEN COALESCE(r.allocated_amount, 0)
-                            ELSE 0
-                        END
-                    ) AS patient_paid,
-
-                    SUM(
-                        CASE
-                            WHEN r.responsible_party_type = 'INSURANCE'
-                            THEN COALESCE(r.allocated_amount, 0)
-                            ELSE 0
-                        END
-                    ) AS insurance_paid,
-
-                    SUM(
-                        CASE
-                            WHEN r.responsible_party_type = 'PATIENT'
-                            THEN COALESCE(r.outstanding_amount, 0)
-                            ELSE 0
-                        END
-                    ) AS patient_outstanding,
-
-                    SUM(
-                        CASE
-                            WHEN r.responsible_party_type = 'INSURANCE'
-                            THEN COALESCE(r.outstanding_amount, 0)
-                            ELSE 0
-                        END
-                    ) AS insurance_outstanding,
-
-                    SUM(COALESCE(r.copay_amount, 0)) AS copay_amount,
-
-                    SUM(COALESCE(r.deductible_amount, 0)) AS deductible_amount,
-
-                    SUM(COALESCE(r.coinsurance_amount, 0)) AS coinsurance_amount,
-
-                    SUM(COALESCE(r.non_covered_amount, 0)) AS non_covered_amount
-
-                FROM billing_charge_responsibility r
-
-                WHERE r.status NOT IN ('CANCELLED', 'SUPERSEDED')
-
-                GROUP BY r.encounter_id
-            )
-
+        WITH visit_responsibility AS (
             SELECT
-                p.id AS patientId,
+                r.encounter_id,
 
-                p.medical_record_number AS medicalRecordNumber,
+                SUM(
+                    CASE
+                        WHEN r.responsible_party_type = 'PATIENT'
+                        THEN COALESCE(r.responsibility_amount, 0)
+                        ELSE 0
+                    END
+                ) AS patient_share,
 
-                CONCAT_WS(
-                    ' ',
-                    p.first_name,
-                    p.second_name,
-                    p.third_name,
-                    p.last_name
-                ) AS patientName,
+                SUM(
+                    CASE
+                        WHEN r.responsible_party_type = 'INSURANCE'
+                        THEN COALESCE(r.responsibility_amount, 0)
+                        ELSE 0
+                    END
+                ) AS insurance_share,
 
-                e.id AS encounterId,
+                SUM(
+                    CASE
+                        WHEN r.responsible_party_type = 'PATIENT'
+                        THEN COALESCE(r.allocated_amount, 0)
+                        ELSE 0
+                    END
+                ) AS patient_paid,
 
-                e.encounter_number AS encounterNumber,
+                SUM(
+                    CASE
+                        WHEN r.responsible_party_type = 'INSURANCE'
+                        THEN COALESCE(r.allocated_amount, 0)
+                        ELSE 0
+                    END
+                ) AS insurance_paid,
 
-                e.created_date AS encounterDate,
+                SUM(
+                    CASE
+                        WHEN r.responsible_party_type = 'PATIENT'
+                        THEN COALESCE(r.outstanding_amount, 0)
+                        ELSE 0
+                    END
+                ) AS patient_outstanding,
 
-                e.encounter_time AS encounterTime,
+                SUM(
+                    CASE
+                        WHEN r.responsible_party_type = 'INSURANCE'
+                        THEN COALESCE(r.outstanding_amount, 0)
+                        ELSE 0
+                    END
+                ) AS insurance_outstanding,
 
-                e.encounter_type AS encounterType,
+                SUM(COALESCE(r.copay_amount, 0)) AS copay_amount,
 
-                e.status AS encounterStatus,
+                SUM(COALESCE(r.deductible_amount, 0)) AS deductible_amount,
 
-                e.coverage_type AS coverageType,
+                SUM(COALESCE(r.coinsurance_amount, 0)) AS coinsurance_amount,
 
-                pi.payer_name AS payerName,
+                SUM(COALESCE(r.non_covered_amount, 0)) AS non_covered_amount
 
-                pi.policy_number AS policyNumber,
+            FROM billing_charge_responsibility r
 
-                pi.member_card_id AS memberCardId,
+            WHERE r.status NOT IN ('CANCELLED', 'SUPERSEDED')
 
-                COALESCE(vr.patient_share, 0) AS patientShare,
+            GROUP BY r.encounter_id
+        )
 
-                COALESCE(vr.insurance_share, 0) AS insuranceShare,
+        SELECT
+            p.id AS patientId,
 
-                COALESCE(vr.patient_paid, 0) AS patientPaid,
+            p.medical_record_number AS medicalRecordNumber,
 
-                COALESCE(vr.insurance_paid, 0) AS insurancePaid,
+            CONCAT_WS(
+                ' ',
+                p.first_name,
+                p.second_name,
+                p.third_name,
+                p.last_name
+            ) AS patientName,
 
-                COALESCE(vr.patient_outstanding, 0) AS patientOutstanding,
+            e.id AS encounterId,
 
-                COALESCE(vr.insurance_outstanding, 0) AS insuranceOutstanding,
+            e.encounter_number AS encounterNumber,
 
-                COALESCE(vr.copay_amount, 0) AS copayAmount,
+            e.created_date AS encounterDate,
 
-                COALESCE(vr.deductible_amount, 0) AS deductibleAmount
+            e.encounter_time AS encounterTime,
 
-            FROM patients p
+            e.encounter_type AS encounterType,
 
-            JOIN patient_encounters e
-                ON e.patient_id = p.id
+            e.status AS encounterStatus,
 
-            LEFT JOIN patient_insurances pi
-                ON pi.id = e.patient_insurance_id
+            e.coverage_type AS coverageType,
 
-            LEFT JOIN visit_responsibility vr
-                ON vr.encounter_id = e.id
+            pi.payer_name AS payerName,
 
-            WHERE e.status <> 'CANCELLED'
+            pi.policy_number AS policyNumber,
 
-             AND (
-                 CAST(:type AS VARCHAR) IS NULL
-                 OR e.coverage_type = CAST(:type AS VARCHAR)
-             )
+            pi.member_card_id AS memberCardId,
 
-            ORDER BY
-                p.id,
-                e.encounter_date DESC,
-                e.id DESC
-            """, nativeQuery = true)
-    List<FinancialReportDTO> findFinancialReport(@Param("type") String type);
+            COALESCE(vr.patient_share, 0) AS patientShare,
+
+            COALESCE(vr.insurance_share, 0) AS insuranceShare,
+
+            COALESCE(vr.patient_paid, 0) AS patientPaid,
+
+            COALESCE(vr.insurance_paid, 0) AS insurancePaid,
+
+            COALESCE(vr.patient_outstanding, 0) AS patientOutstanding,
+
+            COALESCE(vr.insurance_outstanding, 0) AS insuranceOutstanding,
+
+            COALESCE(vr.copay_amount, 0) AS copayAmount,
+
+            COALESCE(vr.deductible_amount, 0) AS deductibleAmount
+
+        FROM patients p
+
+        JOIN patient_encounters e
+            ON e.patient_id = p.id
+
+        LEFT JOIN patient_insurances pi
+            ON pi.id = e.patient_insurance_id
+
+        LEFT JOIN visit_responsibility vr
+            ON vr.encounter_id = e.id
+
+        WHERE e.status <> 'CANCELLED'
+
+          AND (
+              CAST(:type AS VARCHAR) IS NULL
+              OR e.coverage_type = CAST(:type AS VARCHAR)
+          )
+
+          AND (
+              CAST(:startDate AS DATE) IS NULL
+              OR e.encounter_date >= CAST(:startDate AS DATE)
+          )
+
+          AND (
+              CAST(:endDate AS DATE) IS NULL
+              OR e.encounter_date <= CAST(:endDate AS DATE)
+          )
+
+        ORDER BY
+            p.id,
+            e.encounter_date DESC,
+            e.id DESC
+        """, nativeQuery = true)
+    List<FinancialReportDTO> findFinancialReport(
+            @Param("type") String type,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
 
 }

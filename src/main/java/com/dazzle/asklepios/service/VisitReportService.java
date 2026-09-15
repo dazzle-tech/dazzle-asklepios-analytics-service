@@ -195,19 +195,19 @@ public class VisitReportService {
         );
     }
 
-    public List<FinancialReportDTO> getFinancialReport(String type) {
-
-        if (type != null ) {
+    public List<FinancialReportDTO> getFinancialReport(String type, LocalDate startDate, LocalDate endDate) {
+        validateDates(startDate, endDate);
+        if (type != null) {
             type = type.trim().toUpperCase();
 
             if (!type.equals("SELF_PAY") && !type.equals("INSURANCE")) {
                 throw new BadRequestAlertException(
-                        "Invalid financial report type. Allowed values: SELF_PAY, INSURANCE","FinancialReport", "invalid_type"
+                        "Invalid financial report type. Allowed values: SELF_PAY, INSURANCE", "FinancialReport", "invalid_type"
                 );
             }
         }
 
-        return patientEncounterRepository.findFinancialReport(type);
+        return patientEncounterRepository.findFinancialReport(type,startDate,endDate);
     }
 
     private ProceduresDTO mapProcedure(PatientProcedure entity) {
@@ -434,7 +434,7 @@ public class VisitReportService {
     private DailyPatientVisitDTO toDailyPatientVisitDTO(PatientEncounter encounter) {
 
         Patient patient = encounter.getPatient();
-        Practitioner practitioner = encounter.getPractitioner() ;
+        Practitioner practitioner = encounter.getPractitioner();
         Department department = encounter.getDepartment();
 
         return new DailyPatientVisitDTO(
@@ -450,5 +450,30 @@ public class VisitReportService {
                 patient.getSexAtBirth().name()
         );
     }
+
+    private void validateDates(LocalDate startDate, LocalDate endDate) {
+
+        if (startDate == null) {
+
+            throw new BadRequestAlertException(
+                    "startDate is required", "visitReport", "startDate.required"
+            );
+        }
+
+        if (endDate == null) {
+
+            throw new BadRequestAlertException(
+                    "endDate is required", "visitReport", "endDate.required"
+            );
+        }
+
+        if (endDate.isBefore(startDate)) {
+
+            throw new BadRequestAlertException(
+                    "endDate must be greater than or equal to startDate", "visitReport", "endDate.before.startDate"
+            );
+        }
+    }
+
 
 }

@@ -103,9 +103,9 @@ public class VisitReportController {
     }
 
     @GetMapping("/financial-reports")
-    public ResponseEntity<List<FinancialReportDTO>> getFinancialReport(@RequestParam(required = false) String type) {
+    public ResponseEntity<List<FinancialReportDTO>> getFinancialReport(@RequestParam(required = false) String type, @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
         return ResponseEntity.ok(
-                visitReportService.getFinancialReport(type)
+                visitReportService.getFinancialReport(type, startDate, endDate)
         );
     }
 
