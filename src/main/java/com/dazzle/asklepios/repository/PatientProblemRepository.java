@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface PatientProblemRepository extends JpaRepository<PatientProblem, Long> {
+    List<PatientProblem> findByPatientIdAndStatus(Long patientId, PatientHistoryStatus status);
     @Query(value = """
     SELECT COUNT(DISTINCT pp.patient_id)
     FROM patient_problems pp
