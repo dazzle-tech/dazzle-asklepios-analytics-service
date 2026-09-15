@@ -37,6 +37,11 @@ ai:
   patient-timeline:
     base-url: http://patient-timeline-service:8001
     timeout-seconds: 360
+
+  discharge-report:
+    base-url: http://discharge-report-service:8005
+    timeout-seconds: 360
+
 spring:
   devtools:
     restart:

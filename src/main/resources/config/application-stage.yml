@@ -39,6 +39,11 @@ ai:
   patient-timeline:
     base-url: ${gateway.base-url}/api/ai/v1/patient-timeline-service
     timeout-seconds: 360
+
+  discharge-report:
+    base-url: ${gateway.base-url}/api/ai/v1/discharge-report-service
+    timeout-seconds: 360
+
 spring:
   devtools:
     restart:
