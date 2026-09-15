@@ -19,7 +19,7 @@ public interface PatientProblemRepository extends JpaRepository<PatientProblem, 
         ON p.id = pp.patient_id
     JOIN patient_encounters e
         ON e.patient_id = p.id
-    WHERE pp.active = true
+    WHERE pp.status = 'ACTIVE'
       AND e.department_id = :departmentId
       AND e.encounter_date >= :startDate
       AND e.encounter_date < :endDate
@@ -38,7 +38,7 @@ public interface PatientProblemRepository extends JpaRepository<PatientProblem, 
         ON p.id = pp.patient_id
     JOIN patient_encounters e
         ON e.patient_id = p.id
-    WHERE pp.active = true
+    WHERE pp.status = 'ACTIVE'
       AND e.department_id = :departmentId
       AND e.encounter_date >= :startDate
       AND e.encounter_date < :endDate
