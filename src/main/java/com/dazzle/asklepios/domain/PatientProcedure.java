@@ -94,6 +94,9 @@ public class PatientProcedure extends AbstractAuditingEntity<Long> implements Se
     @Column(name = "notes")
     private String notes;
 
+    @Column(name = "result", columnDefinition = "text")
+    private String result;
+
     @Column(name = "extra_documentation")
     private String extraDocumentation;
 
