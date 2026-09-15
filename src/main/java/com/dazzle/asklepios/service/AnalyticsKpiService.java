@@ -6,12 +6,12 @@ import com.dazzle.asklepios.domain.enumeration.EncounterType;
 import com.dazzle.asklepios.domain.enumeration.KpiStatus;
 import com.dazzle.asklepios.domain.enumeration.TemplateType;
 import com.dazzle.asklepios.repository.AppointmentRepository;
-import com.dazzle.asklepios.repository.DiagnosticTestRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderTestResultRepository;
+import com.dazzle.asklepios.repository.DiagnosticTestRepository;
 import com.dazzle.asklepios.repository.KpiDurationProjection;
 import com.dazzle.asklepios.repository.PatientEncounterRepository;
+import com.dazzle.asklepios.repository.PatientProblemRepository;
 import com.dazzle.asklepios.service.dto.reports.AppointmentWaitTimeProjection;
-import com.dazzle.asklepios.service.dto.reports.criticalResult.CriticalResultCommunicationDTO;
 import com.dazzle.asklepios.web.rest.errors.BadRequestAlertException;
 import com.dazzle.asklepios.web.rest.vm.kpis.KpiResponse;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -38,8 +37,14 @@ public class AnalyticsKpiService {
     private static final Logger LOG = LoggerFactory.getLogger(AnalyticsKpiService.class);
 
     private static final String FACILITY_UTILIZATION_RATE = "FACILITY_UTILIZATION_RATE";
+    private static final String FACILITY_UTILIZATION_RATE_LABEL = "Facility Utilization Rate";
+
     private static final String DNA_NO_SHOW_RATE = "DNA_NO_SHOW_RATE";
+    private static final String DNA_NO_SHOW_RATE_LABEL = "DNA / No-Show Rate";
+
     private static final String AVERAGE_WAIT_TIME_SCHEDULED = "AVERAGE_WAIT_TIME_SCHEDULED";
+    private static final String AVERAGE_WAIT_TIME_SCHEDULED_LABEL = "Average Wait Time (Scheduled)";
+
     private static final String MODALITY_UTILISATION_CT = "MODALITY_UTILISATION_CT";
     private static final String MODALITY_UTILISATION_CT_LABEL = "Modality Utilisation - CT";
 
@@ -61,10 +66,14 @@ public class AnalyticsKpiService {
     private static final String CRITICAL_RESULT_NOTIFICATION = "CRITICAL_RESULT_NOTIFICATION";
     private static final String CRITICAL_RESULT_NOTIFICATION_LABEL = "Critical Result Notification";
 
+    private static final String DIABETIC_HBA1C_MONITORING = "DIABETIC_HBA1C_MONITORING";
+    private static final String DIABETIC_HBA1C_MONITORING_LABEL = "Diabetic HbA1c Monitoring";
+
 
     private final PatientEncounterRepository patientEncounterRepository;
     private final DiagnosticOrderTestResultRepository diagnosticOrderTestResultRepository;
     private final DiagnosticTestRepository diagnosticTestRepository;
+    private final PatientProblemRepository patientProblemRepository;
 
     @Value("${analytics.timezone:Asia/Gaza}")
     private String analyticsTimezone;
@@ -83,6 +92,8 @@ public class AnalyticsKpiService {
     private static final BigDecimal AVG_CONSULTATION_DURATION_MIN = BigDecimal.valueOf(12);
     private static final BigDecimal AVG_CONSULTATION_DURATION_MAX = BigDecimal.valueOf(18);
     private static final BigDecimal MODALITY_UTILISATION_CT_TARGET = BigDecimal.valueOf(60);
+    private static final BigDecimal DIABETIC_HBA1C_TARGET = BigDecimal.valueOf(85);
+
 
     private final AppointmentRepository appointmentRepository;
 
@@ -132,7 +143,7 @@ public class AnalyticsKpiService {
 
         return buildResponse(
                 FACILITY_UTILIZATION_RATE,
-                "Facility Utilization Rate",
+                FACILITY_UTILIZATION_RATE_LABEL,
                 utilizationRate,
                 "%",
                 FACILITY_UTILIZATION_TARGET,
@@ -201,7 +212,7 @@ public class AnalyticsKpiService {
 
         return buildResponse(
                 DNA_NO_SHOW_RATE,
-                "DNA / No-Show Rate",
+                DNA_NO_SHOW_RATE_LABEL,
                 noShowRate,
                 "%",
                 NO_SHOW_TARGET,
@@ -332,7 +343,7 @@ public class AnalyticsKpiService {
 
         return buildResponse(
                 AVERAGE_WAIT_TIME_SCHEDULED,
-                "Average Wait Time (Scheduled)",
+                AVERAGE_WAIT_TIME_SCHEDULED_LABEL,
                 averageWaitMinutes,
                 "min",
                 AVERAGE_WAIT_TIME_TARGET,
@@ -774,9 +785,9 @@ public class AnalyticsKpiService {
         if (records.isEmpty()) {
             return buildNoDataResponse(
                     AVG_CONSULTATION_DURATION,
-                    "Avg Consultation Duration",
+                    AVG_CONSULTATION_DURATION_LABEL,
                     "min",
-                    BigDecimal.valueOf(18),
+                    AVG_CONSULTATION_DURATION_MAX,
                     "12-18",
                     startDate,
                     endDate
@@ -805,10 +816,10 @@ public class AnalyticsKpiService {
 
         return buildResponse(
                 AVG_CONSULTATION_DURATION,
-                "Avg Consultation Duration",
+                AVG_CONSULTATION_DURATION_LABEL,
                 averageMinutes,
                 "min",
-                BigDecimal.valueOf(18),
+                AVG_CONSULTATION_DURATION_MAX,
                 "12-18",
                 status,
                 startDate,
@@ -825,12 +836,11 @@ public class AnalyticsKpiService {
 
         validateDates(startDate, endDate);
 
-        long chronicDiseasePatients =0;
-//                patientRepository.countPatientsOnChronicDiseaseRegister(
-//                        startDate,
-//                        endDate.plusDays(1),
-//                        departmentId
-//                );
+        long chronicDiseasePatients = patientProblemRepository.countChronicDiseasePatientsByDepartment(
+                startDate,
+                endDate.plusDays(1),
+                departmentId
+        );
 
         KpiStatus status =
                 chronicDiseasePatients > 0
@@ -855,35 +865,71 @@ public class AnalyticsKpiService {
     // =========================================================
     // 13. Diabetic HbA1c Monitoring per department
     // =========================================================
+
+    /**
+     * Diabetic HbA1c Monitoring
+     * <p>
+     * Definition:
+     * Diabetic patients with HbA1c checked within 6 months.
+     * <p>
+     * Formula:
+     * <p>
+     * Diabetic patients with HbA1c within 6 months
+     * --------------------------------------------- x 100
+     * Total diabetic patients
+     * <p>
+     * Target: >= 85%
+     * <p>
+     * Frequency: Quarterly
+     */
     public KpiResponse getDiabeticHba1cMonitoring(LocalDate startDate, LocalDate endDate, Long departmentId) {
 
         validateDates(startDate, endDate);
 
-        long diabeticPatients =0;
-//                patientRepository.countDiabeticPatients(
-//                        startDate,
-//                        endDate.plusDays(1),
-//                        departmentId
-//                );
+        /*
+         * The KPI population is the diabetic patients
+         * associated with the selected department during
+         * the KPI period.
+         */
+        long diabeticPatients =
+                patientProblemRepository.countDiabeticPatientsByDepartment(
+                        startDate,
+                        endDate.plusDays(1),
+                        departmentId
+                );
 
-        long diabeticPatientsWithHba1c =0;
-//                patientRepository.countDiabeticPatientsWithHba1cWithinSixMonths(
-//                        startDate,
-//                        endDate.plusDays(1),
-//                        departmentId
-//                );
+        /*
+         * HbA1c must have been checked within the previous
+         * six months from the KPI end date.
+         */
+        LocalDate hba1cStartDate =
+                endDate.minusMonths(6);
 
         if (diabeticPatients == 0) {
-            return buildNoDataResponse(
-                    "DIABETIC_HBA1C_MONITORING",
+
+            return buildResponse(
+                    DIABETIC_HBA1C_MONITORING,
                     "Diabetic HbA1c Monitoring",
+                    BigDecimal.ZERO,
                     "%",
-                    BigDecimal.valueOf(85),
+                    DIABETIC_HBA1C_TARGET,
                     ">=",
+                    KpiStatus.NO_DATA,
                     startDate,
-                    endDate
+                    endDate,
+                    0,
+                    0
             );
         }
+
+        long diabeticPatientsWithHba1c =
+                patientProblemRepository
+                        .countDiabeticPatientsWithHba1cWithinSixMonthsByDepartment(
+                                startDate,
+                                endDate.plusDays(1),
+                                hba1cStartDate,
+                                departmentId
+                        );
 
         BigDecimal percentage =
                 calculatePercentage(
@@ -891,17 +937,23 @@ public class AnalyticsKpiService {
                         diabeticPatients
                 );
 
-        KpiStatus status =
-                percentage.compareTo(BigDecimal.valueOf(85)) >= 0
-                        ? KpiStatus.ACHIEVED
-                        : KpiStatus.NOT_ACHIEVED;
+        KpiStatus status;
+
+        if (percentage.compareTo(DIABETIC_HBA1C_TARGET) >= 0) {
+
+            status = KpiStatus.ACHIEVED;
+
+        } else {
+
+            status = KpiStatus.NOT_ACHIEVED;
+        }
 
         return buildResponse(
-                "DIABETIC_HBA1C_MONITORING",
-                "Diabetic HbA1c Monitoring",
+                DIABETIC_HBA1C_MONITORING,
+                DIABETIC_HBA1C_MONITORING_LABEL,
                 percentage,
                 "%",
-                BigDecimal.valueOf(85),
+                DIABETIC_HBA1C_TARGET,
                 ">=",
                 status,
                 startDate,
@@ -910,6 +962,7 @@ public class AnalyticsKpiService {
                 diabeticPatients
         );
     }
+
     // =========================================================
     // 14. MODALITY UTILISATION - CT
     // =========================================================
@@ -1089,7 +1142,7 @@ public class AnalyticsKpiService {
                         RoundingMode.HALF_UP
                 );
     }
-    
+
 
     // =========================================================
     // DATE HELPERS

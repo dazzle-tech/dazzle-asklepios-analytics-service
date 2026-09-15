@@ -176,11 +176,8 @@ public class AnalyticsKpiController {
         );
     }
 
-    @GetMapping("/chronic-disease-register")
-    public ResponseEntity<KpiResponse> getChronicDiseaseRegister(
-            @RequestParam LocalDate startDate,
-            @RequestParam LocalDate endDate,
-            @RequestParam Long departmentId) {
+    @GetMapping("/kpis/chronic-disease-register")
+    public ResponseEntity<KpiResponse> getChronicDiseaseRegister(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate, @RequestParam Long departmentId) {
 
         return ResponseEntity.ok(
                 analyticsKpiService.getChronicDiseaseRegister(
@@ -191,11 +188,8 @@ public class AnalyticsKpiController {
         );
     }
 
-    @GetMapping("/diabetic-hba1c-monitoring")
-    public ResponseEntity<KpiResponse> getDiabeticHba1cMonitoring(
-            @RequestParam LocalDate startDate,
-            @RequestParam LocalDate endDate,
-            @RequestParam Long departmentId) {
+    @GetMapping("/kpis/diabetic-hba1c-monitoring")
+    public ResponseEntity<KpiResponse> getDiabeticHba1cMonitoring(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate, @RequestParam Long departmentId) {
 
         return ResponseEntity.ok(
                 analyticsKpiService.getDiabeticHba1cMonitoring(
