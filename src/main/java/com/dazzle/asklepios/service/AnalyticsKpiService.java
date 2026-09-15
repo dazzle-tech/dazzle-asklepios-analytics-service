@@ -1,5 +1,6 @@
 package com.dazzle.asklepios.service;
 
+import com.dazzle.asklepios.domain.DiagnosticTest;
 import com.dazzle.asklepios.domain.enumeration.AppointmentStatus;
 import com.dazzle.asklepios.domain.enumeration.EncounterType;
 import com.dazzle.asklepios.domain.enumeration.KpiStatus;
@@ -14,6 +15,8 @@ import com.dazzle.asklepios.service.dto.reports.criticalResult.CriticalResultCom
 import com.dazzle.asklepios.web.rest.errors.BadRequestAlertException;
 import com.dazzle.asklepios.web.rest.vm.kpis.KpiResponse;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +34,8 @@ import java.util.List;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AnalyticsKpiService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AnalyticsKpiService.class);
 
     private static final String FACILITY_UTILIZATION_RATE = "FACILITY_UTILIZATION_RATE";
     private static final String DNA_NO_SHOW_RATE = "DNA_NO_SHOW_RATE";
@@ -910,11 +915,25 @@ public class AnalyticsKpiService {
     // =========================================================
     public KpiResponse getModalityUtilisationCt(LocalDate startDate, LocalDate endDate) {
 
+        LOG.debug("[KPIS][CT_UTIL] startDate={} endDate={} analyticsTimezone={}", startDate, endDate, analyticsTimezone);
         validateDates(startDate, endDate);
 
-        List<Long> ctDiagnosticTestIds = diagnosticTestRepository.findDiagnosticTestIdsByModality("CT");
+        List<DiagnosticTest> ctDiagnosticTests =
+                diagnosticTestRepository.findByModality("CT");
+
+        List<Long> ctDiagnosticTestIds = ctDiagnosticTests == null
+                ? List.of()
+                : ctDiagnosticTests.stream()
+                .map(DiagnosticTest::getId)
+                .toList();
+        int ctIdsCount = ctDiagnosticTestIds == null ? 0 : ctDiagnosticTestIds.size();
+        List<Long> ctIdSample = ctDiagnosticTestIds == null
+                ? List.of()
+                : ctDiagnosticTestIds.stream().limit(10).toList();
+        LOG.debug("[KPIS][CT_UTIL] ctTestIdsCount={} ctTestIdSample={}", ctIdsCount, ctIdSample);
 
         if (ctDiagnosticTestIds == null || ctDiagnosticTestIds.isEmpty()) {
+            LOG.warn("[KPIS][CT_UTIL] NO_DATA reason=NO_CT_TEST_IDS startDate={} endDate={}", startDate, endDate);
             return buildNoDataResponse(
                     MODALITY_UTILISATION_CT,
                     MODALITY_UTILISATION_CT_LABEL,
@@ -928,6 +947,11 @@ public class AnalyticsKpiService {
 
         Instant start = toStartOfDay(startDate);
         Instant end = toStartOfDay(endDate.plusDays(1));
+        LOG.debug("[KPIS][CT_UTIL] queryWindowStart={} queryWindowEndExclusive={} resourceType={}",
+                start,
+                end,
+                TemplateType.DIAGNOSTIC_TEST
+        );
 
         long bookedSlots = appointmentRepository
                 .countByResourceTypeAndResourceIdInAndStatusInAndStartDatetimeRange(
@@ -938,6 +962,8 @@ public class AnalyticsKpiService {
                         end
                 );
 
+        LOG.debug("[KPIS][CT_UTIL] bookedSlots={} bookedStatuses={}", bookedSlots, getBookedStatuses());
+
         long unbookedSlots = appointmentRepository
                 .countByResourceTypeAndResourceIdInAndStatusAndStartDatetimeRange(
                         TemplateType.DIAGNOSTIC_TEST,
@@ -947,9 +973,17 @@ public class AnalyticsKpiService {
                         end
                 );
 
+        LOG.debug("[KPIS][CT_UTIL] unbookedSlots={} unbookedStatus={}", unbookedSlots, AppointmentStatus.NEW);
+
         long totalSlots = bookedSlots + unbookedSlots;
+        LOG.debug("[KPIS][CT_UTIL] totalSlots={} (booked + unbooked)", totalSlots);
 
         if (totalSlots == 0) {
+            LOG.warn("[KPIS][CT_UTIL] NO_DATA reason=ZERO_TOTAL_SLOTS start={} endExclusive={} ctTestIdsCount={}",
+                    start,
+                    end,
+                    ctIdsCount
+            );
             return buildNoDataResponse(
                     MODALITY_UTILISATION_CT,
                     MODALITY_UTILISATION_CT_LABEL,
@@ -966,6 +1000,14 @@ public class AnalyticsKpiService {
         KpiStatus status = utilisationRate.compareTo(MODALITY_UTILISATION_CT_TARGET) > 0
                 ? KpiStatus.ACHIEVED
                 : KpiStatus.NOT_ACHIEVED;
+
+        LOG.debug("[KPIS][CT_UTIL] utilisationRate={} target={} operator=> status={} numerator(booked)={} denominator(total)={}",
+                utilisationRate,
+                MODALITY_UTILISATION_CT_TARGET,
+                status,
+                bookedSlots,
+                totalSlots
+        );
 
         return buildResponse(
                 MODALITY_UTILISATION_CT,

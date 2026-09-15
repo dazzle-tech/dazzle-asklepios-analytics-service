@@ -35,4 +35,6 @@ public class DiagnosticTest {
     private String internalCode;
     @Column(name = "short_name", length = 255)
     private String shortName;
+    @Column(name = "modality", length = 255)
+    private String modality;
 }

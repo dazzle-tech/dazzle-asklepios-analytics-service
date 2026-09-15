@@ -11,11 +11,7 @@ import java.util.List;
 
 @Repository
 public interface DiagnosticTestRepository extends JpaRepository<DiagnosticTest, Long> {
+    
 
-    @Query("""
-    SELECT dt.id
-    FROM DiagnosticTest dt
-    WHERE UPPER(COALESCE(dt.type, '')) = :modality
-    """)
-    List<Long> findDiagnosticTestIdsByModality(@Param("modality") String modality);
+    List<DiagnosticTest> findByModality(String modality);
 }
