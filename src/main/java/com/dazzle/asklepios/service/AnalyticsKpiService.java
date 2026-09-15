@@ -899,91 +899,7 @@ public class AnalyticsKpiService {
                 diabeticPatients
         );
     }
-    // =========================================================
-// 10. CRITICAL RESULT NOTIFICATION
-// =========================================================
 
-    /**
-     * Critical Result Notification
-     * <p>
-     * Formula:
-     * <p>
-     * Critical results communicated within 30 minutes
-     * ----------------------------------------------- x 100
-     * Total critical lab/imaging results
-     * <p>
-     * Critical Laboratory Results:
-     * CRITICAL_UPPER
-     * CRITICAL_LOWER
-     * <p>
-     * Critical Radiology Results:
-     * SEVERE
-     * CRITICAL
-     * <p>
-     * Target: >= 95%
-     */
-//    public KpiResponse getCriticalResultNotification(
-//            LocalDate startDate,
-//            LocalDate endDate
-//    ) {
-//
-//        validateDates(startDate, endDate);
-//
-//        Instant start = toStartOfDay(startDate);
-//        Instant end = toStartOfDay(endDate.plusDays(1));
-//
-//        List<CriticalResultCommunicationDTO> criticalResults =
-//                diagnosticOrderTestResultRepository
-//                        .findCriticalResultCommunications(
-//                                start,
-//                                end
-//                        );
-//
-//        long totalCriticalResults = criticalResults.size();
-//
-//        long communicatedWithin30Minutes =
-//                criticalResults.stream()
-//                        .filter(this::wasCommunicatedWithin30Minutes)
-//                        .count();
-//
-//        if (totalCriticalResults == 0) {
-//
-//            return buildNoDataResponse(
-//                    "CRITICAL_RESULT_NOTIFICATION",
-//                    "Critical Result Notification",
-//                    "%",
-//                    BigDecimal.valueOf(95),
-//                    ">=",
-//                    startDate,
-//                    endDate
-//            );
-//        }
-//
-//        BigDecimal percentage =
-//                calculatePercentage(
-//                        communicatedWithin30Minutes,
-//                        totalCriticalResults
-//                );
-//
-//        KpiStatus status =
-//                percentage.compareTo(BigDecimal.valueOf(95)) >= 0
-//                        ? KpiStatus.ACHIEVED
-//                        : KpiStatus.NOT_ACHIEVED;
-//
-//        return buildResponse(
-//                CRITICAL_RESULT_NOTIFICATION,
-//                CRITICAL_RESULT_NOTIFICATION_LABEL,
-//                percentage,
-//                "%",
-//                CRITICAL_RESULT_NOTIFICATION_TARGET,
-//                ">=",
-//                status,
-//                startDate,
-//                endDate,
-//                communicatedWithin30Minutes,
-//                totalCriticalResults
-//        );
-//    }
 
     // =========================================================
     // STATUS HELPERS
@@ -1051,16 +967,7 @@ public class AnalyticsKpiService {
                 );
     }
 
-//    private boolean wasCommunicatedWithin30Minutes(CriticalResultCommunicationDTO result) {
-//
-//        if (result.criticalAt() == null
-//                || result.communicatedAt() == null) {
-//            return false;
-//        }
-//
-//        return !result.communicatedAt()
-//                .isAfter(result.criticalAt().plus(30, ChronoUnit.MINUTES));
-//    }
+
 
     // =========================================================
     // DATE HELPERS
