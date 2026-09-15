@@ -2,13 +2,13 @@ package com.dazzle.asklepios.repository;
 
 import com.dazzle.asklepios.domain.Appointment;
 import com.dazzle.asklepios.domain.enumeration.AppointmentStatus;
+import com.dazzle.asklepios.domain.enumeration.TemplateType;
 import com.dazzle.asklepios.service.dto.reports.AppointmentWaitTimeProjection;
 import feign.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.List;
 
 public interface AppointmentRepository  extends JpaRepository<Appointment, Long> {
@@ -60,6 +60,40 @@ public interface AppointmentRepository  extends JpaRepository<Appointment, Long>
     long countAppointmentByStatusAndDepartmentIdAndStartDatetimeGreaterThanEqualAndEndDatetimeLessThan(
             @Param("status") AppointmentStatus status,
             @Param("departmentId") Long departmentId,
+            @Param("start") Instant start,
+            @Param("end") Instant end
+    );
+
+    @Query("""
+    SELECT COUNT(a)
+    FROM Appointment a
+    WHERE a.resourceType = :resourceType
+      AND a.resourceId IN :resourceIds
+      AND a.status IN :statuses
+      AND a.startDatetime >= :start
+      AND a.startDatetime < :end
+    """)
+    long countByResourceTypeAndResourceIdInAndStatusInAndStartDatetimeRange(
+            @Param("resourceType") TemplateType resourceType,
+            @Param("resourceIds") List<Long> resourceIds,
+            @Param("statuses") List<AppointmentStatus> statuses,
+            @Param("start") Instant start,
+            @Param("end") Instant end
+    );
+
+    @Query("""
+    SELECT COUNT(a)
+    FROM Appointment a
+    WHERE a.resourceType = :resourceType
+      AND a.resourceId IN :resourceIds
+      AND a.status = :status
+      AND a.startDatetime >= :start
+      AND a.startDatetime < :end
+    """)
+    long countByResourceTypeAndResourceIdInAndStatusAndStartDatetimeRange(
+            @Param("resourceType") TemplateType resourceType,
+            @Param("resourceIds") List<Long> resourceIds,
+            @Param("status") AppointmentStatus status,
             @Param("start") Instant start,
             @Param("end") Instant end
     );

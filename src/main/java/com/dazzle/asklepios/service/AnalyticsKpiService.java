@@ -3,7 +3,9 @@ package com.dazzle.asklepios.service;
 import com.dazzle.asklepios.domain.enumeration.AppointmentStatus;
 import com.dazzle.asklepios.domain.enumeration.EncounterType;
 import com.dazzle.asklepios.domain.enumeration.KpiStatus;
+import com.dazzle.asklepios.domain.enumeration.TemplateType;
 import com.dazzle.asklepios.repository.AppointmentRepository;
+import com.dazzle.asklepios.repository.DiagnosticTestRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderTestResultRepository;
 import com.dazzle.asklepios.repository.KpiDurationProjection;
 import com.dazzle.asklepios.repository.PatientEncounterRepository;
@@ -33,6 +35,8 @@ public class AnalyticsKpiService {
     private static final String FACILITY_UTILIZATION_RATE = "FACILITY_UTILIZATION_RATE";
     private static final String DNA_NO_SHOW_RATE = "DNA_NO_SHOW_RATE";
     private static final String AVERAGE_WAIT_TIME_SCHEDULED = "AVERAGE_WAIT_TIME_SCHEDULED";
+    private static final String MODALITY_UTILISATION_CT = "MODALITY_UTILISATION_CT";
+    private static final String MODALITY_UTILISATION_CT_LABEL = "Modality Utilisation - CT";
 
     private static final String DOOR_TO_DOCTOR_TIME = "DOOR_TO_DOCTOR_TIME";
     private static final String DOOR_TO_DOCTOR_LABEL = "Door-to-Doctor Time";
@@ -55,6 +59,7 @@ public class AnalyticsKpiService {
 
     private final PatientEncounterRepository patientEncounterRepository;
     private final DiagnosticOrderTestResultRepository diagnosticOrderTestResultRepository;
+    private final DiagnosticTestRepository diagnosticTestRepository;
 
     @Value("${analytics.timezone:Asia/Gaza}")
     private String analyticsTimezone;
@@ -72,6 +77,7 @@ public class AnalyticsKpiService {
     private static final BigDecimal CRITICAL_RESULT_NOTIFICATION_TARGET = BigDecimal.valueOf(95);
     private static final BigDecimal AVG_CONSULTATION_DURATION_MIN = BigDecimal.valueOf(12);
     private static final BigDecimal AVG_CONSULTATION_DURATION_MAX = BigDecimal.valueOf(18);
+    private static final BigDecimal MODALITY_UTILISATION_CT_TARGET = BigDecimal.valueOf(60);
 
     private final AppointmentRepository appointmentRepository;
 
@@ -900,90 +906,81 @@ public class AnalyticsKpiService {
         );
     }
     // =========================================================
-// 10. CRITICAL RESULT NOTIFICATION
-// =========================================================
+    // 14. MODALITY UTILISATION - CT
+    // =========================================================
+    public KpiResponse getModalityUtilisationCt(LocalDate startDate, LocalDate endDate) {
 
-    /**
-     * Critical Result Notification
-     * <p>
-     * Formula:
-     * <p>
-     * Critical results communicated within 30 minutes
-     * ----------------------------------------------- x 100
-     * Total critical lab/imaging results
-     * <p>
-     * Critical Laboratory Results:
-     * CRITICAL_UPPER
-     * CRITICAL_LOWER
-     * <p>
-     * Critical Radiology Results:
-     * SEVERE
-     * CRITICAL
-     * <p>
-     * Target: >= 95%
-     */
-//    public KpiResponse getCriticalResultNotification(
-//            LocalDate startDate,
-//            LocalDate endDate
-//    ) {
-//
-//        validateDates(startDate, endDate);
-//
-//        Instant start = toStartOfDay(startDate);
-//        Instant end = toStartOfDay(endDate.plusDays(1));
-//
-//        List<CriticalResultCommunicationDTO> criticalResults =
-//                diagnosticOrderTestResultRepository
-//                        .findCriticalResultCommunications(
-//                                start,
-//                                end
-//                        );
-//
-//        long totalCriticalResults = criticalResults.size();
-//
-//        long communicatedWithin30Minutes =
-//                criticalResults.stream()
-//                        .filter(this::wasCommunicatedWithin30Minutes)
-//                        .count();
-//
-//        if (totalCriticalResults == 0) {
-//
-//            return buildNoDataResponse(
-//                    "CRITICAL_RESULT_NOTIFICATION",
-//                    "Critical Result Notification",
-//                    "%",
-//                    BigDecimal.valueOf(95),
-//                    ">=",
-//                    startDate,
-//                    endDate
-//            );
-//        }
-//
-//        BigDecimal percentage =
-//                calculatePercentage(
-//                        communicatedWithin30Minutes,
-//                        totalCriticalResults
-//                );
-//
-//        KpiStatus status =
-//                percentage.compareTo(BigDecimal.valueOf(95)) >= 0
-//                        ? KpiStatus.ACHIEVED
-//                        : KpiStatus.NOT_ACHIEVED;
-//
-//        return buildResponse(
-//                CRITICAL_RESULT_NOTIFICATION,
-//                CRITICAL_RESULT_NOTIFICATION_LABEL,
-//                percentage,
-//                "%",
-//                CRITICAL_RESULT_NOTIFICATION_TARGET,
-//                ">=",
-//                status,
-//                startDate,
-//                endDate,
-//                communicatedWithin30Minutes,
-//                totalCriticalResults
-//        );
-//    }
+        validateDates(startDate, endDate);
+
+        List<Long> ctDiagnosticTestIds = diagnosticTestRepository.findDiagnosticTestIdsByModality("CT");
+
+        if (ctDiagnosticTestIds == null || ctDiagnosticTestIds.isEmpty()) {
+            return buildNoDataResponse(
+                    MODALITY_UTILISATION_CT,
+                    MODALITY_UTILISATION_CT_LABEL,
+                    "%",
+                    MODALITY_UTILISATION_CT_TARGET,
+                    ">",
+                    startDate,
+                    endDate
+            );
+        }
+
+        Instant start = toStartOfDay(startDate);
+        Instant end = toStartOfDay(endDate.plusDays(1));
+
+        long bookedSlots = appointmentRepository
+                .countByResourceTypeAndResourceIdInAndStatusInAndStartDatetimeRange(
+                        TemplateType.DIAGNOSTIC_TEST,
+                        ctDiagnosticTestIds,
+                        getBookedStatuses(),
+                        start,
+                        end
+                );
+
+        long unbookedSlots = appointmentRepository
+                .countByResourceTypeAndResourceIdInAndStatusAndStartDatetimeRange(
+                        TemplateType.DIAGNOSTIC_TEST,
+                        ctDiagnosticTestIds,
+                        AppointmentStatus.NEW,
+                        start,
+                        end
+                );
+
+        long totalSlots = bookedSlots + unbookedSlots;
+
+        if (totalSlots == 0) {
+            return buildNoDataResponse(
+                    MODALITY_UTILISATION_CT,
+                    MODALITY_UTILISATION_CT_LABEL,
+                    "%",
+                    MODALITY_UTILISATION_CT_TARGET,
+                    ">=",
+                    startDate,
+                    endDate
+            );
+        }
+
+        BigDecimal utilisationRate = calculatePercentage(bookedSlots, totalSlots);
+
+        KpiStatus status = utilisationRate.compareTo(MODALITY_UTILISATION_CT_TARGET) > 0
+                ? KpiStatus.ACHIEVED
+                : KpiStatus.NOT_ACHIEVED;
+
+        return buildResponse(
+                MODALITY_UTILISATION_CT,
+                MODALITY_UTILISATION_CT_LABEL,
+                utilisationRate,
+                "%",
+                MODALITY_UTILISATION_CT_TARGET,
+                ">=",
+                status,
+                startDate,
+                endDate,
+                bookedSlots,
+                totalSlots
+        );
+    }
 
     // =========================================================
     // STATUS HELPERS
@@ -1051,16 +1048,6 @@ public class AnalyticsKpiService {
                 );
     }
 
-//    private boolean wasCommunicatedWithin30Minutes(CriticalResultCommunicationDTO result) {
-//
-//        if (result.criticalAt() == null
-//                || result.communicatedAt() == null) {
-//            return false;
-//        }
-//
-//        return !result.communicatedAt()
-//                .isAfter(result.criticalAt().plus(30, ChronoUnit.MINUTES));
-//    }
 
     // =========================================================
     // DATE HELPERS
