@@ -30,6 +30,10 @@ ai:
     base-url: http://clinical-recommendations-service:8004
     timeout-seconds: 120
 
+  auto-population:
+    base-url: http://auto-population-service:8010
+    timeout-seconds: 500
+
   patient-timeline:
     base-url: http://patient-timeline-service:8001
     timeout-seconds: 360

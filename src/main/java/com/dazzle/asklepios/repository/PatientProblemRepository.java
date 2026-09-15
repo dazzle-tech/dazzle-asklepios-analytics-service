@@ -9,5 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface PatientProblemRepository extends JpaRepository<PatientProblem, Long> {
+    List<PatientProblem> findByPatientIdAndStatus(Long patientId, PatientHistoryStatus status);
 
 }

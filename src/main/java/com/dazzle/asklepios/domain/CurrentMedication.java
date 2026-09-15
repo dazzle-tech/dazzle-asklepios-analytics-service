@@ -1,6 +1,8 @@
 package com.dazzle.asklepios.domain;
 
+import com.dazzle.asklepios.domain.enumeration.MedFrequency;
 import com.dazzle.asklepios.domain.enumeration.PatientHistoryStatus;
+import com.dazzle.asklepios.domain.enumeration.UOM;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -58,11 +60,13 @@ public class CurrentMedication extends AbstractAuditingEntity<Long>
     @Column(name = "dosage", precision = 10, scale = 3)
     private BigDecimal dosage;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "unit", length = 50)
-    private String unit;
+    private UOM unit;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "frequency", length = 100)
-    private String frequency;
+    private MedFrequency frequency;
 
     @NotNull
     @Column(name = "start_date", nullable = false)

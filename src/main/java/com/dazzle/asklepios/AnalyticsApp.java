@@ -4,6 +4,7 @@ import com.dazzle.asklepios.config.CRLFLogConverter;
 import com.dazzle.asklepios.config.Constants;
 import com.dazzle.asklepios.integration.ai.config.AiClinicalSummaryProperties;
 import com.dazzle.asklepios.integration.ai.config.AiRecommendationsProperties;
+import com.dazzle.asklepios.integration.ai.config.AutoPopulationProperties;
 import com.dazzle.asklepios.integration.ai.config.MedicationTestOrdersValidationProperties;
 import com.dazzle.asklepios.integration.ai.config.PatientTimelineProperties;
 import jakarta.annotation.PostConstruct;
@@ -30,6 +31,7 @@ import org.springframework.core.env.Environment;
         , AiClinicalSummaryProperties.class,
         AiRecommendationsProperties.class,
         PatientTimelineProperties.class,
+        AutoPopulationProperties.class,
 })
 @EnableFeignClients
 @SpringBootApplication
