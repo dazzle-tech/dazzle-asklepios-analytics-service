@@ -176,11 +176,8 @@ public class AnalyticsKpiController {
         );
     }
 
-    @GetMapping("/chronic-disease-register")
-    public ResponseEntity<KpiResponse> getChronicDiseaseRegister(
-            @RequestParam LocalDate startDate,
-            @RequestParam LocalDate endDate,
-            @RequestParam Long departmentId) {
+    @GetMapping("/kpis/chronic-disease-register")
+    public ResponseEntity<KpiResponse> getChronicDiseaseRegister(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate, @RequestParam Long departmentId) {
 
         return ResponseEntity.ok(
                 analyticsKpiService.getChronicDiseaseRegister(
@@ -191,11 +188,8 @@ public class AnalyticsKpiController {
         );
     }
 
-    @GetMapping("/diabetic-hba1c-monitoring")
-    public ResponseEntity<KpiResponse> getDiabeticHba1cMonitoring(
-            @RequestParam LocalDate startDate,
-            @RequestParam LocalDate endDate,
-            @RequestParam Long departmentId) {
+    @GetMapping("/kpis/diabetic-hba1c-monitoring")
+    public ResponseEntity<KpiResponse> getDiabeticHba1cMonitoring(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate, @RequestParam Long departmentId) {
 
         return ResponseEntity.ok(
                 analyticsKpiService.getDiabeticHba1cMonitoring(
@@ -204,5 +198,14 @@ public class AnalyticsKpiController {
                         departmentId
                 )
         );
+    }
+
+    @GetMapping("/kpis/modality-utilisation-ct")
+    public ResponseEntity<KpiResponse> getModalityUtilisationCt(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+    ) {
+        LOG.debug("[KPIS] request modality utilisation CT from {} to {}", startDate, endDate);
+        return ResponseEntity.ok(analyticsKpiService.getModalityUtilisationCt(startDate, endDate));
     }
 }

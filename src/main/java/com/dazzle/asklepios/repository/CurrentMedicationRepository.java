@@ -12,12 +12,8 @@ import java.util.List;
 public interface CurrentMedicationRepository extends JpaRepository<CurrentMedication, Long> {
 
     @EntityGraph(attributePaths = "activeIngredient")
-    List<CurrentMedication> findByPatientIdAndStatusOrderByCreatedDateAsc(
-            Long patientId,
-            String status
-    );
-
     List<CurrentMedication> findByPatientIdAndStatus(Long patientId, PatientHistoryStatus status);
+
     @EntityGraph(attributePaths = "activeIngredient")
     List<CurrentMedication> findByPatientIdAndStatusOrderByCreatedDateAsc(
             Long patientId,

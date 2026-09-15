@@ -34,6 +34,7 @@ import com.dazzle.asklepios.repository.PrescriptionMedicationRepository;
 import com.dazzle.asklepios.repository.ProcedureRepository;
 import com.dazzle.asklepios.service.dto.PatientEncounterReportDTO;
 import com.dazzle.asklepios.service.dto.prescription.PrescriptionMedicationDTO;
+import com.dazzle.asklepios.service.dto.reports.FinancialReportDTO;
 import com.dazzle.asklepios.service.dto.reports.NurseSummaryAllergyDTO;
 import com.dazzle.asklepios.service.dto.reports.NurseSummaryBodyMeasurementsDTO;
 import com.dazzle.asklepios.service.dto.reports.NurseSummaryReportDTO;
@@ -42,6 +43,7 @@ import com.dazzle.asklepios.service.dto.reports.OrderedDiagnosticsDTO;
 import com.dazzle.asklepios.service.dto.reports.ProceduresDTO;
 import com.dazzle.asklepios.service.dto.reports.VisitReportDTO;
 import com.dazzle.asklepios.service.dto.reports.dailyPatientVisit.DailyPatientVisitDTO;
+import com.dazzle.asklepios.web.rest.errors.BadRequestAlertException;
 import com.dazzle.asklepios.web.rest.vm.report.totalDailyFootfall.TotalDailyFootfallResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -191,6 +193,21 @@ public class VisitReportService {
                 null,
                 Instant.now()
         );
+    }
+
+    public List<FinancialReportDTO> getFinancialReport(String type, LocalDate startDate, LocalDate endDate) {
+        validateDates(startDate, endDate);
+        if (type != null) {
+            type = type.trim().toUpperCase();
+
+            if (!type.equals("SELF_PAY") && !type.equals("INSURANCE")) {
+                throw new BadRequestAlertException(
+                        "Invalid financial report type. Allowed values: SELF_PAY, INSURANCE", "FinancialReport", "invalid_type"
+                );
+            }
+        }
+
+        return patientEncounterRepository.findFinancialReport(type,startDate,endDate);
     }
 
     private ProceduresDTO mapProcedure(PatientProcedure entity) {
@@ -417,7 +434,7 @@ public class VisitReportService {
     private DailyPatientVisitDTO toDailyPatientVisitDTO(PatientEncounter encounter) {
 
         Patient patient = encounter.getPatient();
-        Practitioner practitioner = encounter.getPractitioner() ;
+        Practitioner practitioner = encounter.getPractitioner();
         Department department = encounter.getDepartment();
 
         return new DailyPatientVisitDTO(
@@ -433,5 +450,30 @@ public class VisitReportService {
                 patient.getSexAtBirth().name()
         );
     }
+
+    private void validateDates(LocalDate startDate, LocalDate endDate) {
+
+        if (startDate == null) {
+
+            throw new BadRequestAlertException(
+                    "startDate is required", "visitReport", "startDate.required"
+            );
+        }
+
+        if (endDate == null) {
+
+            throw new BadRequestAlertException(
+                    "endDate is required", "visitReport", "endDate.required"
+            );
+        }
+
+        if (endDate.isBefore(startDate)) {
+
+            throw new BadRequestAlertException(
+                    "endDate must be greater than or equal to startDate", "visitReport", "endDate.before.startDate"
+            );
+        }
+    }
+
 
 }

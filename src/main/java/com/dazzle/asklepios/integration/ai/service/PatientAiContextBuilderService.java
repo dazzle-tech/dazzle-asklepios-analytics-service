@@ -12,6 +12,7 @@ import com.dazzle.asklepios.domain.PatientEncounter;
 import com.dazzle.asklepios.domain.ProgressNote;
 import com.dazzle.asklepios.domain.enumeration.DiagnosisType;
 import com.dazzle.asklepios.domain.enumeration.PatientAllergyStatus;
+import com.dazzle.asklepios.domain.enumeration.PatientHistoryStatus;
 import com.dazzle.asklepios.domain.enumeration.TestResultType;
 import com.dazzle.asklepios.integration.ai.client.dto.recommendations.SurgeryDTO;
 import com.dazzle.asklepios.repository.ApLovValueRepository;
@@ -269,7 +270,7 @@ public class PatientAiContextBuilderService {
         return currentMedicationRepository
                 .findByPatientIdAndStatusOrderByCreatedDateAsc(
                         patientId,
-                        "ACTIVE"
+                        PatientHistoryStatus.ACTIVE
                 )
                 .stream()
                 .map(med -> {

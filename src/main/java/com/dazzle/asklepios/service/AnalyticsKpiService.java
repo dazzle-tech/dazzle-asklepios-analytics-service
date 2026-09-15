@@ -1,17 +1,22 @@
 package com.dazzle.asklepios.service;
 
+import com.dazzle.asklepios.domain.DiagnosticTest;
 import com.dazzle.asklepios.domain.enumeration.AppointmentStatus;
 import com.dazzle.asklepios.domain.enumeration.EncounterType;
 import com.dazzle.asklepios.domain.enumeration.KpiStatus;
+import com.dazzle.asklepios.domain.enumeration.TemplateType;
 import com.dazzle.asklepios.repository.AppointmentRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderTestResultRepository;
+import com.dazzle.asklepios.repository.DiagnosticTestRepository;
 import com.dazzle.asklepios.repository.KpiDurationProjection;
 import com.dazzle.asklepios.repository.PatientEncounterRepository;
+import com.dazzle.asklepios.repository.PatientProblemRepository;
 import com.dazzle.asklepios.service.dto.reports.AppointmentWaitTimeProjection;
-import com.dazzle.asklepios.service.dto.reports.criticalResult.CriticalResultCommunicationDTO;
 import com.dazzle.asklepios.web.rest.errors.BadRequestAlertException;
 import com.dazzle.asklepios.web.rest.vm.kpis.KpiResponse;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +27,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -30,9 +34,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AnalyticsKpiService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(AnalyticsKpiService.class);
+
     private static final String FACILITY_UTILIZATION_RATE = "FACILITY_UTILIZATION_RATE";
+    private static final String FACILITY_UTILIZATION_RATE_LABEL = "Facility Utilization Rate";
+
     private static final String DNA_NO_SHOW_RATE = "DNA_NO_SHOW_RATE";
+    private static final String DNA_NO_SHOW_RATE_LABEL = "DNA / No-Show Rate";
+
     private static final String AVERAGE_WAIT_TIME_SCHEDULED = "AVERAGE_WAIT_TIME_SCHEDULED";
+    private static final String AVERAGE_WAIT_TIME_SCHEDULED_LABEL = "Average Wait Time (Scheduled)";
+
+    private static final String MODALITY_UTILISATION_CT = "MODALITY_UTILISATION_CT";
+    private static final String MODALITY_UTILISATION_CT_LABEL = "Modality Utilisation - CT";
 
     private static final String DOOR_TO_DOCTOR_TIME = "DOOR_TO_DOCTOR_TIME";
     private static final String DOOR_TO_DOCTOR_LABEL = "Door-to-Doctor Time";
@@ -52,9 +66,14 @@ public class AnalyticsKpiService {
     private static final String CRITICAL_RESULT_NOTIFICATION = "CRITICAL_RESULT_NOTIFICATION";
     private static final String CRITICAL_RESULT_NOTIFICATION_LABEL = "Critical Result Notification";
 
+    private static final String DIABETIC_HBA1C_MONITORING = "DIABETIC_HBA1C_MONITORING";
+    private static final String DIABETIC_HBA1C_MONITORING_LABEL = "Diabetic HbA1c Monitoring";
+
 
     private final PatientEncounterRepository patientEncounterRepository;
     private final DiagnosticOrderTestResultRepository diagnosticOrderTestResultRepository;
+    private final DiagnosticTestRepository diagnosticTestRepository;
+    private final PatientProblemRepository patientProblemRepository;
 
     @Value("${analytics.timezone:Asia/Gaza}")
     private String analyticsTimezone;
@@ -72,6 +91,9 @@ public class AnalyticsKpiService {
     private static final BigDecimal CRITICAL_RESULT_NOTIFICATION_TARGET = BigDecimal.valueOf(95);
     private static final BigDecimal AVG_CONSULTATION_DURATION_MIN = BigDecimal.valueOf(12);
     private static final BigDecimal AVG_CONSULTATION_DURATION_MAX = BigDecimal.valueOf(18);
+    private static final BigDecimal MODALITY_UTILISATION_CT_TARGET = BigDecimal.valueOf(60);
+    private static final BigDecimal DIABETIC_HBA1C_TARGET = BigDecimal.valueOf(85);
+
 
     private final AppointmentRepository appointmentRepository;
 
@@ -121,7 +143,7 @@ public class AnalyticsKpiService {
 
         return buildResponse(
                 FACILITY_UTILIZATION_RATE,
-                "Facility Utilization Rate",
+                FACILITY_UTILIZATION_RATE_LABEL,
                 utilizationRate,
                 "%",
                 FACILITY_UTILIZATION_TARGET,
@@ -190,7 +212,7 @@ public class AnalyticsKpiService {
 
         return buildResponse(
                 DNA_NO_SHOW_RATE,
-                "DNA / No-Show Rate",
+                DNA_NO_SHOW_RATE_LABEL,
                 noShowRate,
                 "%",
                 NO_SHOW_TARGET,
@@ -321,7 +343,7 @@ public class AnalyticsKpiService {
 
         return buildResponse(
                 AVERAGE_WAIT_TIME_SCHEDULED,
-                "Average Wait Time (Scheduled)",
+                AVERAGE_WAIT_TIME_SCHEDULED_LABEL,
                 averageWaitMinutes,
                 "min",
                 AVERAGE_WAIT_TIME_TARGET,
@@ -752,7 +774,17 @@ public class AnalyticsKpiService {
     public KpiResponse getAverageConsultationDuration(LocalDate startDate, LocalDate endDate, Long departmentId) {
 
         validateDates(startDate, endDate);
-
+        if (departmentId == null) {
+            return buildNoDataResponse(
+                    AVG_CONSULTATION_DURATION,
+                    AVG_CONSULTATION_DURATION_LABEL,
+                    "min",
+                    AVG_CONSULTATION_DURATION_MAX,
+                    "12-18",
+                    startDate,
+                    endDate
+            );
+        }
         List<KpiDurationProjection> records =
                 patientEncounterRepository.findConsultationDurations(
                         startDate,
@@ -763,9 +795,9 @@ public class AnalyticsKpiService {
         if (records.isEmpty()) {
             return buildNoDataResponse(
                     AVG_CONSULTATION_DURATION,
-                    "Avg Consultation Duration",
+                    AVG_CONSULTATION_DURATION_LABEL,
                     "min",
-                    BigDecimal.valueOf(18),
+                    AVG_CONSULTATION_DURATION_MAX,
                     "12-18",
                     startDate,
                     endDate
@@ -794,10 +826,10 @@ public class AnalyticsKpiService {
 
         return buildResponse(
                 AVG_CONSULTATION_DURATION,
-                "Avg Consultation Duration",
+                AVG_CONSULTATION_DURATION_LABEL,
                 averageMinutes,
                 "min",
-                BigDecimal.valueOf(18),
+                AVG_CONSULTATION_DURATION_MAX,
                 "12-18",
                 status,
                 startDate,
@@ -814,12 +846,11 @@ public class AnalyticsKpiService {
 
         validateDates(startDate, endDate);
 
-        long chronicDiseasePatients =0;
-//                patientRepository.countPatientsOnChronicDiseaseRegister(
-//                        startDate,
-//                        endDate.plusDays(1),
-//                        departmentId
-//                );
+        long chronicDiseasePatients = patientProblemRepository.countChronicDiseasePatientsByDepartment(
+                startDate,
+                endDate.plusDays(1),
+                departmentId
+        );
 
         KpiStatus status =
                 chronicDiseasePatients > 0
@@ -844,35 +875,71 @@ public class AnalyticsKpiService {
     // =========================================================
     // 13. Diabetic HbA1c Monitoring per department
     // =========================================================
+
+    /**
+     * Diabetic HbA1c Monitoring
+     * <p>
+     * Definition:
+     * Diabetic patients with HbA1c checked within 6 months.
+     * <p>
+     * Formula:
+     * <p>
+     * Diabetic patients with HbA1c within 6 months
+     * --------------------------------------------- x 100
+     * Total diabetic patients
+     * <p>
+     * Target: >= 85%
+     * <p>
+     * Frequency: Quarterly
+     */
     public KpiResponse getDiabeticHba1cMonitoring(LocalDate startDate, LocalDate endDate, Long departmentId) {
 
         validateDates(startDate, endDate);
 
-        long diabeticPatients =0;
-//                patientRepository.countDiabeticPatients(
-//                        startDate,
-//                        endDate.plusDays(1),
-//                        departmentId
-//                );
+        /*
+         * The KPI population is the diabetic patients
+         * associated with the selected department during
+         * the KPI period.
+         */
+        long diabeticPatients =
+                patientProblemRepository.countDiabeticPatientsByDepartment(
+                        startDate,
+                        endDate.plusDays(1),
+                        departmentId
+                );
 
-        long diabeticPatientsWithHba1c =0;
-//                patientRepository.countDiabeticPatientsWithHba1cWithinSixMonths(
-//                        startDate,
-//                        endDate.plusDays(1),
-//                        departmentId
-//                );
+        /*
+         * HbA1c must have been checked within the previous
+         * six months from the KPI end date.
+         */
+        LocalDate hba1cStartDate =
+                endDate.minusMonths(6);
 
         if (diabeticPatients == 0) {
-            return buildNoDataResponse(
-                    "DIABETIC_HBA1C_MONITORING",
+
+            return buildResponse(
+                    DIABETIC_HBA1C_MONITORING,
                     "Diabetic HbA1c Monitoring",
+                    BigDecimal.ZERO,
                     "%",
-                    BigDecimal.valueOf(85),
+                    DIABETIC_HBA1C_TARGET,
                     ">=",
+                    KpiStatus.NO_DATA,
                     startDate,
-                    endDate
+                    endDate,
+                    0,
+                    0
             );
         }
+
+        long diabeticPatientsWithHba1c =
+                patientProblemRepository
+                        .countDiabeticPatientsWithHba1cWithinSixMonthsByDepartment(
+                                startDate,
+                                endDate.plusDays(1),
+                                hba1cStartDate,
+                                departmentId
+                        );
 
         BigDecimal percentage =
                 calculatePercentage(
@@ -880,17 +947,23 @@ public class AnalyticsKpiService {
                         diabeticPatients
                 );
 
-        KpiStatus status =
-                percentage.compareTo(BigDecimal.valueOf(85)) >= 0
-                        ? KpiStatus.ACHIEVED
-                        : KpiStatus.NOT_ACHIEVED;
+        KpiStatus status;
+
+        if (percentage.compareTo(DIABETIC_HBA1C_TARGET) >= 0) {
+
+            status = KpiStatus.ACHIEVED;
+
+        } else {
+
+            status = KpiStatus.NOT_ACHIEVED;
+        }
 
         return buildResponse(
-                "DIABETIC_HBA1C_MONITORING",
-                "Diabetic HbA1c Monitoring",
+                DIABETIC_HBA1C_MONITORING,
+                DIABETIC_HBA1C_MONITORING_LABEL,
                 percentage,
                 "%",
-                BigDecimal.valueOf(85),
+                DIABETIC_HBA1C_TARGET,
                 ">=",
                 status,
                 startDate,
@@ -899,91 +972,120 @@ public class AnalyticsKpiService {
                 diabeticPatients
         );
     }
-    // =========================================================
-// 10. CRITICAL RESULT NOTIFICATION
-// =========================================================
 
-    /**
-     * Critical Result Notification
-     * <p>
-     * Formula:
-     * <p>
-     * Critical results communicated within 30 minutes
-     * ----------------------------------------------- x 100
-     * Total critical lab/imaging results
-     * <p>
-     * Critical Laboratory Results:
-     * CRITICAL_UPPER
-     * CRITICAL_LOWER
-     * <p>
-     * Critical Radiology Results:
-     * SEVERE
-     * CRITICAL
-     * <p>
-     * Target: >= 95%
-     */
-//    public KpiResponse getCriticalResultNotification(
-//            LocalDate startDate,
-//            LocalDate endDate
-//    ) {
-//
-//        validateDates(startDate, endDate);
-//
-//        Instant start = toStartOfDay(startDate);
-//        Instant end = toStartOfDay(endDate.plusDays(1));
-//
-//        List<CriticalResultCommunicationDTO> criticalResults =
-//                diagnosticOrderTestResultRepository
-//                        .findCriticalResultCommunications(
-//                                start,
-//                                end
-//                        );
-//
-//        long totalCriticalResults = criticalResults.size();
-//
-//        long communicatedWithin30Minutes =
-//                criticalResults.stream()
-//                        .filter(this::wasCommunicatedWithin30Minutes)
-//                        .count();
-//
-//        if (totalCriticalResults == 0) {
-//
-//            return buildNoDataResponse(
-//                    "CRITICAL_RESULT_NOTIFICATION",
-//                    "Critical Result Notification",
-//                    "%",
-//                    BigDecimal.valueOf(95),
-//                    ">=",
-//                    startDate,
-//                    endDate
-//            );
-//        }
-//
-//        BigDecimal percentage =
-//                calculatePercentage(
-//                        communicatedWithin30Minutes,
-//                        totalCriticalResults
-//                );
-//
-//        KpiStatus status =
-//                percentage.compareTo(BigDecimal.valueOf(95)) >= 0
-//                        ? KpiStatus.ACHIEVED
-//                        : KpiStatus.NOT_ACHIEVED;
-//
-//        return buildResponse(
-//                CRITICAL_RESULT_NOTIFICATION,
-//                CRITICAL_RESULT_NOTIFICATION_LABEL,
-//                percentage,
-//                "%",
-//                CRITICAL_RESULT_NOTIFICATION_TARGET,
-//                ">=",
-//                status,
-//                startDate,
-//                endDate,
-//                communicatedWithin30Minutes,
-//                totalCriticalResults
-//        );
-//    }
+    // =========================================================
+    // 14. MODALITY UTILISATION - CT
+    // =========================================================
+    public KpiResponse getModalityUtilisationCt(LocalDate startDate, LocalDate endDate) {
+
+        LOG.debug("[KPIS][CT_UTIL] startDate={} endDate={} analyticsTimezone={}", startDate, endDate, analyticsTimezone);
+        validateDates(startDate, endDate);
+
+        List<DiagnosticTest> ctDiagnosticTests =
+                diagnosticTestRepository.findByModality("CT");
+
+        List<Long> ctDiagnosticTestIds = ctDiagnosticTests == null
+                ? List.of()
+                : ctDiagnosticTests.stream()
+                .map(DiagnosticTest::getId)
+                .toList();
+        int ctIdsCount = ctDiagnosticTestIds == null ? 0 : ctDiagnosticTestIds.size();
+        List<Long> ctIdSample = ctDiagnosticTestIds == null
+                ? List.of()
+                : ctDiagnosticTestIds.stream().limit(10).toList();
+        LOG.debug("[KPIS][CT_UTIL] ctTestIdsCount={} ctTestIdSample={}", ctIdsCount, ctIdSample);
+
+        if (ctDiagnosticTestIds == null || ctDiagnosticTestIds.isEmpty()) {
+            LOG.warn("[KPIS][CT_UTIL] NO_DATA reason=NO_CT_TEST_IDS startDate={} endDate={}", startDate, endDate);
+            return buildNoDataResponse(
+                    MODALITY_UTILISATION_CT,
+                    MODALITY_UTILISATION_CT_LABEL,
+                    "%",
+                    MODALITY_UTILISATION_CT_TARGET,
+                    ">",
+                    startDate,
+                    endDate
+            );
+        }
+
+        Instant start = toStartOfDay(startDate);
+        Instant end = toStartOfDay(endDate.plusDays(1));
+        LOG.debug("[KPIS][CT_UTIL] queryWindowStart={} queryWindowEndExclusive={} resourceType={}",
+                start,
+                end,
+                TemplateType.DIAGNOSTIC_TEST
+        );
+
+        long bookedSlots = appointmentRepository
+                .countByResourceTypeAndResourceIdInAndStatusInAndStartDatetimeRange(
+                        TemplateType.DIAGNOSTIC_TEST,
+                        ctDiagnosticTestIds,
+                        getBookedStatuses(),
+                        start,
+                        end
+                );
+
+        LOG.debug("[KPIS][CT_UTIL] bookedSlots={} bookedStatuses={}", bookedSlots, getBookedStatuses());
+
+        long unbookedSlots = appointmentRepository
+                .countByResourceTypeAndResourceIdInAndStatusAndStartDatetimeRange(
+                        TemplateType.DIAGNOSTIC_TEST,
+                        ctDiagnosticTestIds,
+                        AppointmentStatus.NEW,
+                        start,
+                        end
+                );
+
+        LOG.debug("[KPIS][CT_UTIL] unbookedSlots={} unbookedStatus={}", unbookedSlots, AppointmentStatus.NEW);
+
+        long totalSlots = bookedSlots + unbookedSlots;
+        LOG.debug("[KPIS][CT_UTIL] totalSlots={} (booked + unbooked)", totalSlots);
+
+        if (totalSlots == 0) {
+            LOG.warn("[KPIS][CT_UTIL] NO_DATA reason=ZERO_TOTAL_SLOTS start={} endExclusive={} ctTestIdsCount={}",
+                    start,
+                    end,
+                    ctIdsCount
+            );
+            return buildNoDataResponse(
+                    MODALITY_UTILISATION_CT,
+                    MODALITY_UTILISATION_CT_LABEL,
+                    "%",
+                    MODALITY_UTILISATION_CT_TARGET,
+                    ">=",
+                    startDate,
+                    endDate
+            );
+        }
+
+        BigDecimal utilisationRate = calculatePercentage(bookedSlots, totalSlots);
+
+        KpiStatus status = utilisationRate.compareTo(MODALITY_UTILISATION_CT_TARGET) > 0
+                ? KpiStatus.ACHIEVED
+                : KpiStatus.NOT_ACHIEVED;
+
+        LOG.debug("[KPIS][CT_UTIL] utilisationRate={} target={} operator=> status={} numerator(booked)={} denominator(total)={}",
+                utilisationRate,
+                MODALITY_UTILISATION_CT_TARGET,
+                status,
+                bookedSlots,
+                totalSlots
+        );
+
+        return buildResponse(
+                MODALITY_UTILISATION_CT,
+                MODALITY_UTILISATION_CT_LABEL,
+                utilisationRate,
+                "%",
+                MODALITY_UTILISATION_CT_TARGET,
+                ">=",
+                status,
+                startDate,
+                endDate,
+                bookedSlots,
+                totalSlots
+        );
+    }
 
     // =========================================================
     // STATUS HELPERS
@@ -1051,16 +1153,6 @@ public class AnalyticsKpiService {
                 );
     }
 
-//    private boolean wasCommunicatedWithin30Minutes(CriticalResultCommunicationDTO result) {
-//
-//        if (result.criticalAt() == null
-//                || result.communicatedAt() == null) {
-//            return false;
-//        }
-//
-//        return !result.communicatedAt()
-//                .isAfter(result.criticalAt().plus(30, ChronoUnit.MINUTES));
-//    }
 
     // =========================================================
     // DATE HELPERS
