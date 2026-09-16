@@ -1,6 +1,7 @@
 package com.dazzle.asklepios.domain;
 
 import com.dazzle.asklepios.domain.enumeration.MedicationOrderStatus;
+import com.dazzle.asklepios.domain.enumeration.Unit;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -21,6 +22,8 @@ import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Getter
@@ -54,8 +57,21 @@ public class UrgentCareMedicationOrder extends AbstractAuditingEntity<Long>
     @Column(name = "dose_unit", length = 100)
     private String doseUnit;
 
-    @Column(name = "frequency", length = 100)
-    private String frequency;
+    @Column(name = "frequency_number")
+    private Integer frequencyNumber;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "frequency_unit", length = 20)
+    private Unit frequencyUnit;
+
+    @Column(name = "duration")
+    private Integer duration;
+
+    @Column(name = "start_time")
+    private LocalTime startTime;
+
+    @Column(name = "dose_time")
+    private LocalDateTime doseTime;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)
