@@ -48,6 +48,10 @@ ai:
     base-url: ${gateway.base-url}/api/ai/v1/ocr-parsing-service
     timeout-seconds: 360
 
+  lab-interpreter:
+    base-url: ${gateway.base-url}/api/ai/v1/lab-interpretation
+    timeout-seconds: 120
+
 spring:
   devtools:
     restart:
