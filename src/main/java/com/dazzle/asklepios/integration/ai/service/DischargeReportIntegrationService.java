@@ -20,6 +20,7 @@ import com.dazzle.asklepios.domain.enumeration.PatientAllergyStatus;
 import com.dazzle.asklepios.domain.enumeration.ProcStatus;
 import com.dazzle.asklepios.domain.enumeration.TestResultType;
 import com.dazzle.asklepios.domain.enumeration.TestType;
+import com.dazzle.asklepios.domain.enumeration.Unit;
 import com.dazzle.asklepios.integration.ai.client.DischargeReportClient;
 import com.dazzle.asklepios.integration.ai.client.dto.discharge.ClinicalDocumentationDTO;
 import com.dazzle.asklepios.integration.ai.client.dto.discharge.DischargeReportRequestDTO;
@@ -155,7 +156,7 @@ public class DischargeReportIntegrationService {
         // batch-resolve every LOV code used across medications (dose units + frequencies)
         // in a single lookup instead of one query per medication per field
         List<String> medicationLovKeys = medicationOrders.stream()
-                .flatMap(m -> java.util.stream.Stream.of(m.getDoseUnit(), m.getFrequency()))
+                .map(UrgentCareMedicationOrder::getDoseUnit)
                 .filter(key -> key != null && !key.isBlank())
                 .distinct()
                 .toList();
@@ -165,7 +166,11 @@ public class DischargeReportIntegrationService {
                 .<Map<String, String>>map(m -> Map.of(
                         "name", m.getActiveIngredient() != null ? m.getActiveIngredient().getName() : "Unknown",
                         "dose", buildDoseText(m.getDose(), resolveLov(m.getDoseUnit(), medicationLovDisplay)),
-                        "frequency", resolveLov(m.getFrequency(), medicationLovDisplay)
+                        "frequency", buildFrequencyText(
+                                m.getFrequencyNumber(),
+                                m.getFrequencyUnit(),
+                                m.getDuration()
+                        )
                 ))
                 .collect(Collectors.toList());
 
@@ -493,5 +498,19 @@ public class DischargeReportIntegrationService {
         }
         LocalDate birthDate = dateOfBirth.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         return Period.between(birthDate, LocalDate.now()).getYears();
+    }
+
+    private String buildFrequencyText(Integer frequencyNumber, Unit frequencyUnit, Integer duration) {
+        if (frequencyNumber == null || frequencyUnit == null) {
+            return "Unknown";
+        }
+
+        String unit = frequencyUnit.name().toLowerCase();
+
+        String frequency = "Every " + frequencyNumber + " " + unit;
+
+        return duration != null
+                ? frequency + " for " + duration + " doses"
+                : frequency;
     }
 }
