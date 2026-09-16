@@ -1,6 +1,7 @@
 package com.dazzle.asklepios.service;
 
 import com.dazzle.asklepios.domain.StimulsoftReportTemplate;
+import com.dazzle.asklepios.domain.enumeration.StimulsoftTemplateType;
 import com.dazzle.asklepios.repository.StimulsoftReportTemplateRepository;
 import com.dazzle.asklepios.service.dto.reportTemplate.StimulsoftReportTemplateWriteDTO;
 import com.dazzle.asklepios.web.rest.errors.BadRequestAlertException;
@@ -22,19 +23,23 @@ public class StimulsoftReportTemplateService {
     }
 
     @Transactional(readOnly = true)
-    public Page<StimulsoftReportTemplateVM> findAll(Pageable pageable) {
-
-        return repository
-                .findAll(pageable)
-                .map(this::toVM);
+    public Page<StimulsoftReportTemplateVM> findAll(StimulsoftTemplateType templateType, Pageable pageable) {
+        Page<StimulsoftReportTemplate> page = templateType == null
+                ? repository.findAll(pageable)
+                : repository.findByTemplateType(templateType, pageable);
+        return page.map(this::toVM);
     }
 
     @Transactional(readOnly = true)
-    public Page<StimulsoftReportTemplateVM> findByName(String name, Pageable pageable) {
-
-        return repository
-                .findByNameContainingIgnoreCase(name, pageable)
-                .map(this::toVM);
+    public Page<StimulsoftReportTemplateVM> findByName(
+            String name,
+            StimulsoftTemplateType templateType,
+            Pageable pageable
+    ) {
+        Page<StimulsoftReportTemplate> page = templateType == null
+                ? repository.findByNameContainingIgnoreCase(name, pageable)
+                : repository.findByNameContainingIgnoreCaseAndTemplateType(name, templateType, pageable);
+        return page.map(this::toVM);
     }
 
     @Transactional(readOnly = true)
@@ -80,6 +85,11 @@ public class StimulsoftReportTemplateService {
         entity.setFacilityId(request.facilityId());
         entity.setDepartmentIds(request.departmentIds());
         entity.setModule(request.module());
+        entity.setTemplateType(
+                request.templateType() == null
+                        ? StimulsoftTemplateType.REPORT
+                        : request.templateType()
+        );
 
         return toVM(repository.save(entity));
     }
@@ -104,6 +114,9 @@ public class StimulsoftReportTemplateService {
         entity.setFacilityId(request.facilityId());
         entity.setDepartmentIds(request.departmentIds());
         entity.setModule(request.module());
+        if (request.templateType() != null) {
+            entity.setTemplateType(request.templateType());
+        }
 
         return toVM(repository.save(entity));
     }
@@ -162,7 +175,10 @@ public class StimulsoftReportTemplateService {
                 entity.getLastModifiedDate(),
                 entity.getFacilityId(),
                 entity.getDepartmentIds(),
-                entity.getModule()
+                entity.getModule(),
+                entity.getTemplateType() == null
+                        ? StimulsoftTemplateType.REPORT
+                        : entity.getTemplateType()
         );
     }
 }

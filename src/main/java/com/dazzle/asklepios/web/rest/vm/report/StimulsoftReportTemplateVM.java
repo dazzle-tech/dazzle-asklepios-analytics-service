@@ -1,6 +1,7 @@
 package com.dazzle.asklepios.web.rest.vm.report;
 
 import com.dazzle.asklepios.domain.enumeration.Modules;
+import com.dazzle.asklepios.domain.enumeration.StimulsoftTemplateType;
 
 import java.time.Instant;
 
@@ -15,6 +16,7 @@ public record StimulsoftReportTemplateVM(
         Instant lastModifiedDate,
         Long facilityId,
         String departmentIds,
-        Modules module
+        Modules module,
+        StimulsoftTemplateType templateType
 ) {
 }

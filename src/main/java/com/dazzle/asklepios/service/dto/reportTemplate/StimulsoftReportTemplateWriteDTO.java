@@ -1,6 +1,7 @@
 package com.dazzle.asklepios.service.dto.reportTemplate;
 
 import com.dazzle.asklepios.domain.enumeration.Modules;
+import com.dazzle.asklepios.domain.enumeration.StimulsoftTemplateType;
 
 public record StimulsoftReportTemplateWriteDTO(
         Long id,
@@ -11,6 +12,7 @@ public record StimulsoftReportTemplateWriteDTO(
         Boolean isActive,
         Long facilityId,
         String departmentIds,
-        Modules module
+        Modules module,
+        StimulsoftTemplateType templateType
 ) {
 }

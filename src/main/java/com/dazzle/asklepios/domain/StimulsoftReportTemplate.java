@@ -1,8 +1,11 @@
 package com.dazzle.asklepios.domain;
 
 import com.dazzle.asklepios.domain.enumeration.Modules;
+import com.dazzle.asklepios.domain.enumeration.StimulsoftTemplateType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -46,6 +49,10 @@ public class StimulsoftReportTemplate extends AbstractAuditingEntity<Long> imple
 
     @Column(name = "module", length = 50)
     private Modules module;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "template_type", nullable = false, length = 20)
+    private StimulsoftTemplateType templateType = StimulsoftTemplateType.REPORT;
 
     /**
      * Stimulsoft MRT JSON.
