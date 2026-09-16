@@ -3,6 +3,7 @@ package com.dazzle.asklepios;
 import com.dazzle.asklepios.config.CRLFLogConverter;
 import com.dazzle.asklepios.config.Constants;
 import com.dazzle.asklepios.integration.ai.config.AiClinicalSummaryProperties;
+import com.dazzle.asklepios.integration.ai.config.AiOcrParsingProperties;
 import com.dazzle.asklepios.integration.ai.config.AiRecommendationsProperties;
 import com.dazzle.asklepios.integration.ai.config.AutoPopulationProperties;
 import com.dazzle.asklepios.integration.ai.config.DischargeReportProperties;
@@ -33,7 +34,8 @@ import org.springframework.core.env.Environment;
         AiRecommendationsProperties.class,
         PatientTimelineProperties.class,
         AutoPopulationProperties.class,
-        DischargeReportProperties.class
+        DischargeReportProperties.class,
+        AiOcrParsingProperties.class,
 })
 @EnableFeignClients
 @SpringBootApplication

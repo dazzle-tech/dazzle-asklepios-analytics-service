@@ -44,6 +44,10 @@ ai:
     base-url: ${gateway.base-url}/api/ai/v1/discharge-report-service
     timeout-seconds: 360
 
+  ocr-parsing:
+    base-url: ${gateway.base-url}/api/ai/v1/ocr-parsing-service
+    timeout-seconds: 360
+
 spring:
   devtools:
     restart:
