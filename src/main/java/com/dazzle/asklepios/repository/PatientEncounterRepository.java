@@ -355,13 +355,13 @@ public interface PatientEncounterRepository extends JpaRepository<PatientEncount
 
     @Query(value = """
     SELECT
-        DATE(e.encounter_date) AS date,
+        DATE(e.created_date) AS date,
         COUNT(DISTINCT e.patient_id) AS patient_count
     FROM patient_encounters e
-    WHERE e.encounter_date >= :startDate
-      AND e.encounter_date < :endDate
-    GROUP BY DATE(e.encounter_date)
-    ORDER BY DATE(e.encounter_date)
+    WHERE e.created_date >= :startDate
+      AND e.created_date < :endDate
+    GROUP BY DATE(e.created_date)
+    ORDER BY DATE(e.created_date)
     """, nativeQuery = true)
     List<Object[]> countDistinctPatientsByDay(
             @Param("startDate") LocalDateTime startDate,
