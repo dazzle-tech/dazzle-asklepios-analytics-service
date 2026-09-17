@@ -137,5 +137,10 @@ public interface DiagnosticOrderTestResultRepository extends JpaRepository<Diagn
 //            @Param("end") Instant end
 //    );
 
-
+    List<DiagnosticOrderTestResult> findByOrderTestIdInAndApprovedDateBetweenAndProcessingStatus(
+            List<Long> orderTestIds,
+            Instant from,
+            Instant to,
+            DiagnosticStatus status
+    );
 }

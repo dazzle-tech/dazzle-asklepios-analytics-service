@@ -46,6 +46,11 @@ ai:
     base-url: http://ocr-parsing-service:8012
     timeout-seconds: 360
 
+  lab-interpreter:
+    base-url: http://localhost:8080/api/ai/v1/lab-interpretation
+#    base-url: http://lab-result-interpreter-service:8003
+    timeout-seconds: 400
+
 spring:
   devtools:
     restart:
