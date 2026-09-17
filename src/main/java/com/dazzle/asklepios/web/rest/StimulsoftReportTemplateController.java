@@ -1,5 +1,6 @@
 package com.dazzle.asklepios.web.rest;
 
+import com.dazzle.asklepios.domain.enumeration.StimulsoftTemplateType;
 import com.dazzle.asklepios.service.StimulsoftDesignerSchemaService;
 import com.dazzle.asklepios.service.StimulsoftReportTemplateService;
 import com.dazzle.asklepios.service.dto.reportTemplate.StimulsoftReportTemplateWriteDTO;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
@@ -33,18 +35,25 @@ public class StimulsoftReportTemplateController {
     }
 
     @GetMapping("/reports/templates")
-    public ResponseEntity<Page<StimulsoftReportTemplateVM>> getAll(@PageableDefault(size = 20) Pageable pageable) {
+    public ResponseEntity<Page<StimulsoftReportTemplateVM>> getAll(
+            @RequestParam(required = false) StimulsoftTemplateType templateType,
+            @PageableDefault(size = 20) Pageable pageable
+    ) {
 
         return ResponseEntity.ok(
-                service.findAll(pageable)
+                service.findAll(templateType, pageable)
         );
     }
 
     @GetMapping("/reports/templates/by-name/{name}")
-    public ResponseEntity<Page<StimulsoftReportTemplateVM>> getByName(@PathVariable String name, @PageableDefault(size = 20) Pageable pageable) {
+    public ResponseEntity<Page<StimulsoftReportTemplateVM>> getByName(
+            @PathVariable String name,
+            @RequestParam(required = false) StimulsoftTemplateType templateType,
+            @PageableDefault(size = 20) Pageable pageable
+    ) {
 
         return ResponseEntity.ok(
-                service.findByName(name, pageable)
+                service.findByName(name, templateType, pageable)
         );
     }
 

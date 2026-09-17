@@ -4,6 +4,7 @@ import com.dazzle.asklepios.service.AnalyticsReportService;
 import com.dazzle.asklepios.service.VisitReportPdfRenderService;
 import com.dazzle.asklepios.service.VisitReportService;
 import com.dazzle.asklepios.service.dto.PatientEncounterReportDTO;
+import com.dazzle.asklepios.service.dto.reports.DailyPatientCountDTO;
 import com.dazzle.asklepios.service.dto.reports.FinancialReportDTO;
 import com.dazzle.asklepios.service.dto.reports.VisitReportDTO;
 import com.dazzle.asklepios.service.dto.reports.dailyPatientVisit.DailyPatientVisitDTO;
@@ -106,6 +107,22 @@ public class VisitReportController {
     public ResponseEntity<List<FinancialReportDTO>> getFinancialReport(@RequestParam(required = false) String type, @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
         return ResponseEntity.ok(
                 visitReportService.getFinancialReport(type, startDate, endDate)
+        );
+    }
+
+    @GetMapping("/daily-patient-count")
+    public ResponseEntity<List<DailyPatientCountDTO>> getDailyPatientCount(
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate
+    ) {
+        LOG.debug(
+                "[VisitReport] request daily patient count from {} to {}",
+                startDate,
+                endDate
+        );
+
+        return ResponseEntity.ok(
+                visitReportService.getDailyPatientCount(startDate, endDate)
         );
     }
 

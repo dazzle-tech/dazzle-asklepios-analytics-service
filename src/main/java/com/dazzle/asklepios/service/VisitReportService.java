@@ -34,6 +34,7 @@ import com.dazzle.asklepios.repository.PrescriptionMedicationRepository;
 import com.dazzle.asklepios.repository.ProcedureRepository;
 import com.dazzle.asklepios.service.dto.PatientEncounterReportDTO;
 import com.dazzle.asklepios.service.dto.prescription.PrescriptionMedicationDTO;
+import com.dazzle.asklepios.service.dto.reports.DailyPatientCountDTO;
 import com.dazzle.asklepios.service.dto.reports.FinancialReportDTO;
 import com.dazzle.asklepios.service.dto.reports.NurseSummaryAllergyDTO;
 import com.dazzle.asklepios.service.dto.reports.NurseSummaryBodyMeasurementsDTO;
@@ -53,6 +54,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -429,6 +431,59 @@ public class VisitReportService {
                 .stream()
                 .map(this::toDailyPatientVisitDTO)
                 .toList();
+    }
+
+    public List<DailyPatientCountDTO> getDailyPatientCount(
+            LocalDate startDate,
+            LocalDate endDate
+    ) {
+        if (startDate == null || endDate == null) {
+            throw new BadRequestAlertException(
+                    "Start date and end date are required",
+                    "analytics",
+                    "datesrequired"
+            );
+        }
+
+        if (endDate.isBefore(startDate)) {
+            throw new BadRequestAlertException(
+                    "End date must be greater than or equal to start date",
+                    "analytics",
+                    "invaliddaterange"
+            );
+        }
+
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
+
+        List<Object[]> results =
+                patientEncounterRepository.countDistinctPatientsByDay(
+                        startDateTime,
+                        endDateTime
+                );
+
+        Map<LocalDate, Long> countByDate = results.stream()
+                .collect(Collectors.toMap(
+                        row -> (LocalDate) row[0],
+                        row -> ((Number) row[1]).longValue()
+                ));
+
+        List<DailyPatientCountDTO> response = new ArrayList<>();
+
+        LocalDate currentDate = startDate;
+
+        while (!currentDate.isAfter(endDate)) {
+            response.add(
+                    new DailyPatientCountDTO(
+                            currentDate,
+                            countByDate.getOrDefault(currentDate, 0L)
+                    )
+            );
+
+            currentDate = currentDate.plusDays(1);
+        }
+
+        return response;
     }
 
     private DailyPatientVisitDTO toDailyPatientVisitDTO(PatientEncounter encounter) {
