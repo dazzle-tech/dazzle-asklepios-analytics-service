@@ -368,4 +368,43 @@ public interface PatientEncounterRepository extends JpaRepository<PatientEncount
             @Param("endDate") LocalDateTime endDate
     );
 
+
+    @Query(value = """
+    SELECT
+        d.name AS departmentName,
+        COUNT(e.id) AS encounterCount,
+        ROUND(
+            COUNT(e.id) * 100.0
+            / SUM(COUNT(e.id)) OVER (),
+            2
+        ) AS percentage
+    FROM patient_encounters e
+    JOIN department d
+        ON d.id = e.department_id
+    WHERE e.encounter_date >= :startDate
+      AND e.encounter_date < :endDate
+    GROUP BY d.id, d.name
+    ORDER BY COUNT(e.id) DESC
+    """, nativeQuery = true)
+    List<DepartmentEncounterCountProjection> countEncountersByDepartment(
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate
+    );
+
+    @Query(value = """
+    SELECT
+        DATE(e.encounter_date) AS date,
+        COUNT(DISTINCT e.patient_id) AS patientCount,
+        COUNT(e.id) AS encounterCount
+    FROM patient_encounters e
+    WHERE e.encounter_date >= :startDate
+      AND e.encounter_date < :endDate
+    GROUP BY DATE(e.encounter_date)
+    ORDER BY DATE(e.encounter_date)
+    """, nativeQuery = true)
+    List<DailyPatientEncounterCountProjection> countPatientsAndEncountersByDay(
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate
+    );
+
 }

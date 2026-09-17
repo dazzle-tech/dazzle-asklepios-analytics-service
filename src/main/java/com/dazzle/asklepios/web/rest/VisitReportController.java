@@ -5,6 +5,8 @@ import com.dazzle.asklepios.service.VisitReportPdfRenderService;
 import com.dazzle.asklepios.service.VisitReportService;
 import com.dazzle.asklepios.service.dto.PatientEncounterReportDTO;
 import com.dazzle.asklepios.service.dto.reports.DailyPatientCountDTO;
+import com.dazzle.asklepios.service.dto.reports.DailyPatientEncounterCountDTO;
+import com.dazzle.asklepios.service.dto.reports.DepartmentEncounterCountDTO;
 import com.dazzle.asklepios.service.dto.reports.FinancialReportDTO;
 import com.dazzle.asklepios.service.dto.reports.VisitReportDTO;
 import com.dazzle.asklepios.service.dto.reports.dailyPatientVisit.DailyPatientVisitDTO;
@@ -123,6 +125,44 @@ public class VisitReportController {
 
         return ResponseEntity.ok(
                 visitReportService.getDailyPatientCount(startDate, endDate)
+        );
+    }
+
+    @GetMapping("/department-encounters-count")
+    public ResponseEntity<List<DepartmentEncounterCountDTO>> getDepartmentEncounterCount(
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate
+    ) {
+        LOG.debug(
+                "[VisitReport] request department encounter count from {} to {}",
+                startDate,
+                endDate
+        );
+
+        return ResponseEntity.ok(
+                visitReportService.getDepartmentEncounterCount(
+                        startDate,
+                        endDate
+                )
+        );
+    }
+
+    @GetMapping("/daily-patient-encounters")
+    public ResponseEntity<List<DailyPatientEncounterCountDTO>> getDailyPatientEncounterCount(
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate
+    ) {
+        LOG.debug(
+                "[VisitReport] request daily patient and encounter count from {} to {}",
+                startDate,
+                endDate
+        );
+
+        return ResponseEntity.ok(
+                visitReportService.getDailyPatientEncounterCount(
+                        startDate,
+                        endDate
+                )
         );
     }
 

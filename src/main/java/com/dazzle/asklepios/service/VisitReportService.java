@@ -18,6 +18,7 @@ import com.dazzle.asklepios.domain.enumeration.AllergenTypes;
 import com.dazzle.asklepios.domain.enumeration.DiagnosticOrderTestStatus;
 import com.dazzle.asklepios.domain.enumeration.PrescriptionStatus;
 import com.dazzle.asklepios.repository.BodyMeasurementsRepository;
+import com.dazzle.asklepios.repository.DailyPatientEncounterCountProjection;
 import com.dazzle.asklepios.repository.DiagnosticOrderRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderTestRepository;
 import com.dazzle.asklepios.repository.DiagnosticTestRepository;
@@ -35,6 +36,8 @@ import com.dazzle.asklepios.repository.ProcedureRepository;
 import com.dazzle.asklepios.service.dto.PatientEncounterReportDTO;
 import com.dazzle.asklepios.service.dto.prescription.PrescriptionMedicationDTO;
 import com.dazzle.asklepios.service.dto.reports.DailyPatientCountDTO;
+import com.dazzle.asklepios.service.dto.reports.DailyPatientEncounterCountDTO;
+import com.dazzle.asklepios.service.dto.reports.DepartmentEncounterCountDTO;
 import com.dazzle.asklepios.service.dto.reports.FinancialReportDTO;
 import com.dazzle.asklepios.service.dto.reports.NurseSummaryAllergyDTO;
 import com.dazzle.asklepios.service.dto.reports.NurseSummaryBodyMeasurementsDTO;
@@ -60,6 +63,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -528,6 +532,75 @@ public class VisitReportService {
                     "endDate must be greater than or equal to startDate", "visitReport", "endDate.before.startDate"
             );
         }
+    }
+
+
+    public List<DepartmentEncounterCountDTO> getDepartmentEncounterCount(
+            LocalDate startDate,
+            LocalDate endDate
+    ) {
+       validateDates(startDate, endDate);
+
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
+
+        return patientEncounterRepository
+                .countEncountersByDepartment(
+                        startDateTime,
+                        endDateTime
+                )
+                .stream()
+                .map(result -> new DepartmentEncounterCountDTO(
+                        result.getDepartmentName(),
+                        result.getEncounterCount(),
+                        result.getPercentage()
+                ))
+                .toList();
+    }
+
+    public List<DailyPatientEncounterCountDTO> getDailyPatientEncounterCount(
+            LocalDate startDate,
+            LocalDate endDate
+    ) {
+       validateDates(startDate, endDate);
+
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
+
+        List<DailyPatientEncounterCountProjection> results =
+                patientEncounterRepository.countPatientsAndEncountersByDay(
+                        startDateTime,
+                        endDateTime
+                );
+
+        Map<LocalDate, DailyPatientEncounterCountProjection> resultsByDate =
+                results.stream()
+                        .collect(Collectors.toMap(
+                                DailyPatientEncounterCountProjection::getDate,
+                                Function.identity()
+                        ));
+
+        List<DailyPatientEncounterCountDTO> response = new ArrayList<>();
+
+        LocalDate currentDate = startDate;
+
+        while (!currentDate.isAfter(endDate)) {
+
+            DailyPatientEncounterCountProjection result =
+                    resultsByDate.get(currentDate);
+
+            response.add(
+                    new DailyPatientEncounterCountDTO(
+                            currentDate,
+                            result != null ? result.getPatientCount() : 0L,
+                            result != null ? result.getEncounterCount() : 0L
+                    )
+            );
+
+            currentDate = currentDate.plusDays(1);
+        }
+
+        return response;
     }
 
 
