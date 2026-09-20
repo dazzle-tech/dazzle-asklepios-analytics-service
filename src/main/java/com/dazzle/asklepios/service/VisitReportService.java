@@ -506,7 +506,7 @@ public class VisitReportService {
                 practitioner != null ? practitioner.getFirstName() : null,
                 practitioner != null ? practitioner.getLastName() : null,
                 patient.getDateOfBirth(),
-                patient.getSexAtBirth().name()
+               patient.getSexAtBirth()!=null? patient.getSexAtBirth().name():null
         );
     }
 
