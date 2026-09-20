@@ -21,6 +21,9 @@ public record RadiologyReportDTO(
 
         String report,
         String severity,
+       String criticalFindings,
+       String radiologistComments,
+        String radiologistInformation,
         String approvedBy,
         String reviewedBy
 ) {}

@@ -32,7 +32,7 @@ public class RadiologyPdfRenderService {
         String primaryColor = reportPdfCommonService.getPrimaryColor();
 
         String css = reportPdfCommonService.loadCss(
-                "templates/reports/styles/visit-report.css"
+                "templates/reports/styles/radiology-report.css"
         ).replace("__PRIMARY_COLOR__", primaryColor);
 
         context.setVariable("reportCss", css);
@@ -72,7 +72,9 @@ public class RadiologyPdfRenderService {
         labels.put("noRadiologyNotes",
                 isArabic ? "لا توجد ملاحظات أشعة مسجلة لهذا التقرير."
                         : "No radiology notes recorded for this report.");
-
+        labels.put("criticalFindings", isArabic ? "النتائج الحرجة" : "Critical Findings");
+        labels.put("radiologistComments", isArabic ? "تعليقات أخصائي الأشعة" : "Radiologist Comments");
+        labels.put("radiologistInformation", isArabic ? "معلومات أخصائي الأشعة" : "Radiologist Information");
         // Review & Approval
         labels.put("reviewApproval", isArabic ? "4. المراجعة والاعتماد" : "4. Review & Approval");
         labels.put("reviewedBy", isArabic ? "تمت المراجعة بواسطة" : "Reviewed By");

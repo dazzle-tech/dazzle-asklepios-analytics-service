@@ -147,21 +147,78 @@
     </div>
 
     <div class="severity-row">
-      <span class="severity-label" th:text="${labels.severityLevel}">Severity Level</span>
+        <span class="severity-label" th:text="${labels.severityLevel}">
+            Severity Level
+        </span>
+
       <span class="severity-value-text"
             th:text="${report.severity != null and !#strings.isEmpty(report.severity) ? report.severity : '—'}">
-        NORMAL
-      </span>
+            NORMAL
+        </span>
     </div>
 
-    <div class="notes-box">
-      <div class="notes-content"
-           th:utext="${report.report != null and !#strings.isEmpty(report.report) ? report.report : labels.noRadiologyNotes}">
-        Report content
+    <!-- Critical Findings -->
+    <div class="report-subsection"
+         th:if="${report.criticalFindings != null and !#strings.isEmpty(report.criticalFindings)}">
+        <span class="report-subsection-title"
+              th:text="${labels.criticalFindings}">
+            Critical Findings
+        </span>
+
+      <div class="notes-box">
+        <div class="notes-content"
+             th:utext="${report.criticalFindings}">
+        </div>
+      </div>
+    </div>
+
+    <!-- Radiologist Comments -->
+    <div class="report-subsection"
+         th:if="${report.radiologistComments != null and !#strings.isEmpty(report.radiologistComments)}">
+        <span class="report-subsection-title"
+              th:text="${labels.radiologistComments}">
+            Radiologist Comments
+        </span>
+
+      <div class="notes-box">
+        <div class="notes-content"
+             th:utext="${report.radiologistComments}">
+        </div>
+      </div>
+    </div>
+
+    <!-- Radiologist Information -->
+    <div class="report-subsection"
+         th:if="${report.radiologistInformation != null and !#strings.isEmpty(report.radiologistInformation)}">
+        <span class="report-subsection-title"
+              th:text="${labels.radiologistInformation}">
+            Radiologist Information
+        </span>
+
+      <div class="notes-box">
+        <div class="notes-content"
+             th:utext="${report.radiologistInformation}">
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Report -->
+    <div class="report-subsection">
+        <span class="report-subsection-title"
+              th:text="${labels.report}">
+            Report
+        </span>
+
+      <div class="notes-box">
+        <div class="notes-content"
+             th:utext="${report.report != null and !#strings.isEmpty(report.report)
+                    ? report.report
+                    : labels.noRadiologyNotes}">
+          Report content
+        </div>
       </div>
     </div>
   </section>
-
   <section class="report-section">
     <div class="section-header">
       <h2 class="section-title" th:text="${labels.reviewApproval}">

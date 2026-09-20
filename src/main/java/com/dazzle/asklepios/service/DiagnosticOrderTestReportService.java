@@ -1,13 +1,11 @@
 package com.dazzle.asklepios.service;
 
-import com.dazzle.asklepios.domain.Department;
 import com.dazzle.asklepios.domain.DiagnosticOrder;
 import com.dazzle.asklepios.domain.DiagnosticOrderTest;
 import com.dazzle.asklepios.domain.DiagnosticOrderTestReport;
 import com.dazzle.asklepios.domain.DiagnosticTest;
 import com.dazzle.asklepios.domain.Patient;
 import com.dazzle.asklepios.domain.PatientEncounter;
-import com.dazzle.asklepios.repository.DepartmentsRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderTestReportRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderTestRepository;
@@ -37,7 +35,6 @@ public class DiagnosticOrderTestReportService {
     private final DiagnosticOrderRepository orderRepository;
     private final PatientRepository patientRepository;
     private final DiagnosticTestRepository diagnosticTestRepository;
-    private final DepartmentsRepository departmentRepository;
     private final PatientEncounterRepository encounterRepository;
     private final ReportCommonService reportCommonService;
 
@@ -127,6 +124,9 @@ public class DiagnosticOrderTestReportService {
 
                 report.getReport(),
                 reportCommonService.formatEnum(report.getSeverity()),
+                report.getCriticalFindings(),
+                report.getRadiologistComments(),
+                report.getRadiologistInformation(),
                 reportCommonService.getDisplayUserName(report.getApprovedBy()),
                 reportCommonService.getDisplayUserName(report.getReviewBy())
         );
