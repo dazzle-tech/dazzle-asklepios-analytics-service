@@ -1,5 +1,6 @@
 package com.dazzle.asklepios.domain;
 
+import com.dazzle.asklepios.domain.enumeration.JobRole;
 import com.dazzle.asklepios.domain.enumeration.Modules;
 import com.dazzle.asklepios.domain.enumeration.StimulsoftTemplateType;
 import jakarta.persistence.Column;
@@ -53,6 +54,19 @@ public class StimulsoftReportTemplate extends AbstractAuditingEntity<Long> imple
     @Enumerated(EnumType.STRING)
     @Column(name = "template_type", nullable = false, length = 20)
     private StimulsoftTemplateType templateType = StimulsoftTemplateType.REPORT;
+
+    /**
+     * Empty means the dashboard is visible to every user.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "job_role", length = 50)
+    private JobRole jobRole;
+
+    /**
+     * Comma-separated user ids. Empty means every user of {@link #jobRole}.
+     */
+    @Column(name = "user_ids", columnDefinition = "text")
+    private String userIds;
 
     /**
      * Stimulsoft MRT JSON.

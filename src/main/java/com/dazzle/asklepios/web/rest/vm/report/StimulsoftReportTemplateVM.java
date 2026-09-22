@@ -1,5 +1,6 @@
 package com.dazzle.asklepios.web.rest.vm.report;
 
+import com.dazzle.asklepios.domain.enumeration.JobRole;
 import com.dazzle.asklepios.domain.enumeration.Modules;
 import com.dazzle.asklepios.domain.enumeration.StimulsoftTemplateType;
 
@@ -17,6 +18,8 @@ public record StimulsoftReportTemplateVM(
         Long facilityId,
         String departmentIds,
         Modules module,
-        StimulsoftTemplateType templateType
+        StimulsoftTemplateType templateType,
+        JobRole jobRole,
+        String userIds
 ) {
 }

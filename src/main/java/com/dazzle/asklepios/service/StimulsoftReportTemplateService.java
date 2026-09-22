@@ -1,6 +1,7 @@
 package com.dazzle.asklepios.service;
 
 import com.dazzle.asklepios.domain.StimulsoftReportTemplate;
+import com.dazzle.asklepios.domain.enumeration.JobRole;
 import com.dazzle.asklepios.domain.enumeration.StimulsoftTemplateType;
 import com.dazzle.asklepios.repository.StimulsoftReportTemplateRepository;
 import com.dazzle.asklepios.service.dto.reportTemplate.StimulsoftReportTemplateWriteDTO;
@@ -8,9 +9,14 @@ import com.dazzle.asklepios.web.rest.errors.BadRequestAlertException;
 import com.dazzle.asklepios.web.rest.vm.report.StimulsoftReportTemplateVM;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 @Service
 @Transactional
@@ -40,6 +46,41 @@ public class StimulsoftReportTemplateService {
                 ? repository.findByNameContainingIgnoreCase(name, pageable)
                 : repository.findByNameContainingIgnoreCaseAndTemplateType(name, templateType, pageable);
         return page.map(this::toVM);
+    }
+
+    /**
+     * Dashboards the viewer may open.
+     * No job role on the template: every user.
+     * Job role only: users with that role.
+     * Job role plus user ids: only those users.
+     * The designer list stays on {@link #findAll} and is not filtered here.
+     */
+    @Transactional(readOnly = true)
+    public Page<StimulsoftReportTemplateVM> findViewableDashboards(
+            JobRole jobRole,
+            Long userId,
+            Long facilityId,
+            Long departmentId,
+            Pageable pageable
+    ) {
+        List<StimulsoftReportTemplateVM> matched = repository
+                .findByTemplateType(StimulsoftTemplateType.DASHBOARD, Pageable.unpaged())
+                .getContent()
+                .stream()
+                .filter(template -> !Boolean.FALSE.equals(template.getActive()))
+                .filter(template -> matchesAudience(template, jobRole, userId))
+                .filter(template -> matchesFacility(template, facilityId))
+                .filter(template -> matchesDepartment(template, departmentId))
+                .sorted(Comparator.comparing(
+                        template -> template.getName() == null ? "" : template.getName(),
+                        String.CASE_INSENSITIVE_ORDER
+                ))
+                .map(this::toVM)
+                .toList();
+
+        int start = (int) Math.min(pageable.getOffset(), matched.size());
+        int end = Math.min(start + pageable.getPageSize(), matched.size());
+        return new PageImpl<>(new ArrayList<>(matched.subList(start, end)), pageable, matched.size());
     }
 
     @Transactional(readOnly = true)
@@ -85,6 +126,8 @@ public class StimulsoftReportTemplateService {
         entity.setFacilityId(request.facilityId());
         entity.setDepartmentIds(request.departmentIds());
         entity.setModule(request.module());
+        entity.setJobRole(request.jobRole());
+        entity.setUserIds(request.jobRole() == null ? null : request.userIds());
         entity.setTemplateType(
                 request.templateType() == null
                         ? StimulsoftTemplateType.REPORT
@@ -114,6 +157,8 @@ public class StimulsoftReportTemplateService {
         entity.setFacilityId(request.facilityId());
         entity.setDepartmentIds(request.departmentIds());
         entity.setModule(request.module());
+        entity.setJobRole(request.jobRole());
+        entity.setUserIds(request.jobRole() == null ? null : request.userIds());
         if (request.templateType() != null) {
             entity.setTemplateType(request.templateType());
         }
@@ -162,6 +207,59 @@ public class StimulsoftReportTemplateService {
         return template.getTemplateJson();
     }
 
+    private boolean matchesAudience(StimulsoftReportTemplate template, JobRole viewerRole, Long viewerUserId) {
+        if (template.getJobRole() == null) {
+            return true;
+        }
+
+        List<Long> allowedUserIds = parseIdList(template.getUserIds());
+        if (!allowedUserIds.isEmpty()) {
+            return viewerUserId != null && allowedUserIds.contains(viewerUserId);
+        }
+
+        return viewerRole != null && viewerRole == template.getJobRole();
+    }
+
+    private boolean matchesFacility(StimulsoftReportTemplate template, Long facilityId) {
+        if (facilityId == null || template.getFacilityId() == null) {
+            return true;
+        }
+        return facilityId.equals(template.getFacilityId());
+    }
+
+    private boolean matchesDepartment(StimulsoftReportTemplate template, Long departmentId) {
+        if (departmentId == null) {
+            return true;
+        }
+        List<Long> departmentIds = parseIdList(template.getDepartmentIds());
+        return departmentIds.isEmpty() || departmentIds.contains(departmentId);
+    }
+
+    private List<Long> parseIdList(String value) {
+        if (value == null || value.isBlank()) {
+            return List.of();
+        }
+        String raw = value.trim();
+        if (raw.startsWith("[")) {
+            raw = raw.substring(1, raw.endsWith("]") ? raw.length() - 1 : raw.length());
+        }
+        List<Long> ids = new ArrayList<>();
+        for (String part : raw.split("[,\\s]+")) {
+            if (part.isBlank()) {
+                continue;
+            }
+            try {
+                long id = Long.parseLong(part.trim());
+                if (id > 0) {
+                    ids.add(id);
+                }
+            } catch (NumberFormatException ignored) {
+                // skip tokens that are not ids
+            }
+        }
+        return ids;
+    }
+
     private StimulsoftReportTemplateVM toVM(StimulsoftReportTemplate entity) {
 
         return new StimulsoftReportTemplateVM(
@@ -178,7 +276,9 @@ public class StimulsoftReportTemplateService {
                 entity.getModule(),
                 entity.getTemplateType() == null
                         ? StimulsoftTemplateType.REPORT
-                        : entity.getTemplateType()
+                        : entity.getTemplateType(),
+                entity.getJobRole(),
+                entity.getUserIds()
         );
     }
 }

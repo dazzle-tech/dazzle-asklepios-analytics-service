@@ -1,5 +1,6 @@
 package com.dazzle.asklepios.service.dto.reportTemplate;
 
+import com.dazzle.asklepios.domain.enumeration.JobRole;
 import com.dazzle.asklepios.domain.enumeration.Modules;
 import com.dazzle.asklepios.domain.enumeration.StimulsoftTemplateType;
 
@@ -13,6 +14,8 @@ public record StimulsoftReportTemplateWriteDTO(
         Long facilityId,
         String departmentIds,
         Modules module,
-        StimulsoftTemplateType templateType
+        StimulsoftTemplateType templateType,
+        JobRole jobRole,
+        String userIds
 ) {
 }
