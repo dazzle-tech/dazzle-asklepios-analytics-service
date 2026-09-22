@@ -1,5 +1,6 @@
 package com.dazzle.asklepios.web.rest;
 
+import com.dazzle.asklepios.domain.enumeration.JobRole;
 import com.dazzle.asklepios.domain.enumeration.StimulsoftTemplateType;
 import com.dazzle.asklepios.service.StimulsoftDesignerSchemaService;
 import com.dazzle.asklepios.service.StimulsoftReportTemplateService;
@@ -42,6 +43,23 @@ public class StimulsoftReportTemplateController {
 
         return ResponseEntity.ok(
                 service.findAll(templateType, pageable)
+        );
+    }
+
+    /**
+     * Dashboards visible to one user. The designer continues to use
+     * {@code GET /reports/templates}, which returns every declared dashboard.
+     */
+    @GetMapping("/reports/dashboards")
+    public ResponseEntity<Page<StimulsoftReportTemplateVM>> getViewableDashboards(
+            @RequestParam(required = false) JobRole jobRole,
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) Long facilityId,
+            @RequestParam(required = false) Long departmentId,
+            @PageableDefault(size = 200, sort = "name") Pageable pageable
+    ) {
+        return ResponseEntity.ok(
+                service.findViewableDashboards(jobRole, userId, facilityId, departmentId, pageable)
         );
     }
 
