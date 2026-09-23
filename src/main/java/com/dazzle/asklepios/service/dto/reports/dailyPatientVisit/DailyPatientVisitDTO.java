@@ -15,6 +15,8 @@ public record DailyPatientVisitDTO(
         String practitionerFirstName,
         String practitionerLastName,
         Date dateOfBirth,
-        String gender
+        String gender,
+        String status,
+        String encounterStatus
 ) {
 }
