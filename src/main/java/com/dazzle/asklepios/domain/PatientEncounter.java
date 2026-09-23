@@ -120,4 +120,7 @@ public class PatientEncounter extends AbstractAuditingEntity<Long> implements Se
     @Column(name = "discharge_at")
     private LocalDateTime dischargeAt;
 
+    @Column(name = "encounter_status")
+    private String encounterStatus ;
+
 }
