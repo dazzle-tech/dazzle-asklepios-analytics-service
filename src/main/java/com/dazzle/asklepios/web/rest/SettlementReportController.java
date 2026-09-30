@@ -1,7 +1,6 @@
 package com.dazzle.asklepios.web.rest;
 
 import com.dazzle.asklepios.service.SettlementReportPdfRenderService;
-import com.dazzle.asklepios.service.dto.SettlementReport.SettlementReportCriteriaDTO;
 import com.dazzle.asklepios.service.dto.SettlementReport.SettlementReportRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +29,28 @@ public class SettlementReportController {
 
         byte[] pdf =
                 pdfRenderService.generateSettlementReportPdf(
+                        request,
+                        timezone,
+                        lang
+                );
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
+
+    @PostMapping(
+            value = "/settlement/pdf/without-patient-and-claim",
+            produces = MediaType.APPLICATION_PDF_VALUE
+    )
+    public ResponseEntity<byte[]> generateSettlementPdfWithoutPatientAndClaimInfo(
+            @RequestBody SettlementReportRequestDTO request,
+            @RequestParam String timezone,
+            @RequestParam(defaultValue = "en") String lang
+    ) {
+
+        byte[] pdf =
+                pdfRenderService.generateSettlementReportPdfWithoutPatientAndClaimInfo(
                         request,
                         timezone,
                         lang

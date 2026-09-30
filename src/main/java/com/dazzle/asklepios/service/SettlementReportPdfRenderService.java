@@ -1,6 +1,5 @@
 package com.dazzle.asklepios.service;
 
-import com.dazzle.asklepios.service.dto.SettlementReport.SettlementReportCriteriaDTO;
 import com.dazzle.asklepios.service.dto.SettlementReport.SettlementReportDTO;
 import com.dazzle.asklepios.service.dto.SettlementReport.SettlementReportRequestDTO;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +22,35 @@ public class SettlementReportPdfRenderService {
             SettlementReportRequestDTO request,
             String timezone,
             String lang
+    ) {
+
+        return renderSettlementReportPdf(
+                request,
+                timezone,
+                lang,
+                "reports/settlement-report"
+        );
+    }
+
+    public byte[] generateSettlementReportPdfWithoutPatientAndClaimInfo(
+            SettlementReportRequestDTO request,
+            String timezone,
+            String lang
+    ) {
+
+        return renderSettlementReportPdf(
+                request,
+                timezone,
+                lang,
+                "reports/settlement-report-without-patient-and-claim"
+        );
+    }
+
+    private byte[] renderSettlementReportPdf(
+            SettlementReportRequestDTO request,
+            String timezone,
+            String lang,
+            String templateName
     ) {
 
         SettlementReportDTO dto =
@@ -81,7 +109,7 @@ public class SettlementReportPdfRenderService {
 
         String html =
                 templateEngine.process(
-                        "reports/settlement-report",
+                        templateName,
                         context
                 );
 

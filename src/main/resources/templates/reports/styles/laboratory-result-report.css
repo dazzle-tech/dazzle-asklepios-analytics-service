@@ -308,9 +308,10 @@ tr:last-child td {
     margin: 0;
     border: 2px solid #cbdff3;
     border-radius: 10px;
-    overflow: hidden;
+    overflow: visible;
     background: #ffffff;
-    page-break-inside: avoid;
+    break-inside: auto;
+    page-break-inside: auto;
 }
 
 .order-summary {
@@ -318,12 +319,16 @@ tr:last-child td {
     border: none;
     border-bottom: 1px solid #d9e7f5;
     background: #f8fbff;
+    break-after: avoid-page;
+    page-break-after: avoid;
 }
 
 .order-test-block {
     margin: 0;
     padding: 0 0 10px 0;
     background: #ffffff;
+    break-inside: avoid-page;
+    page-break-inside: avoid;
 }
 
 .order-test-block + .order-test-block {
@@ -357,6 +362,15 @@ tr:last-child td {
 
 .order-test-block .table-container {
     margin: 10px;
+}
+
+thead {
+    display: table-header-group;
+}
+
+tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
 }
 
 .order-separator {
