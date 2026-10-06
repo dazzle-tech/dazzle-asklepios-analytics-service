@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:attr="lang=${lang}, dir=${dir}">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${labels.vaccinationReport}">Vaccination Report</title>
+    <style th:utext="${reportCss}"></style>
+</head>
+
+<body th:class="${dir}">
+<div class="container">
+
+    <div class="header">
+        <div class="logo-box">
+            <img class="report-logo"
+                 th:src="'data:image/png;base64,' + ${logo}" />
+        </div>
+    </div>
+
+    <div class="main-title-section">
+        <h1 class="main-title" th:text="${labels.vaccinationReport}">VACCINATION REPORT</h1>
+
+        <div class="title-underline">
+            <div class="underline-accent"></div>
+        </div>
+
+        <div class="date-time-info">
+            <span>
+                <span th:text="${labels.printDateTime}">Print Date/Time</span>:
+                <strong th:text="${printedAtDisplay}">—</strong>
+            </span>
+        </div>
+    </div>
+
+    <section class="report-section">
+        <div class="section-header">
+            <h2 class="section-title" th:text="${labels.patientInformation}">
+                1. Patient Information
+            </h2>
+        </div>
+
+        <div class="patient-grid">
+            <div class="grid-row grid-3">
+                <div class="info-box">
+                    <span class="info-label" th:text="${labels.name}">Name</span>
+                    <span class="info-value" th:text="${report.patientName ?: '-'}">—</span>
+                </div>
+
+                <div class="info-box">
+                    <span class="info-label" th:text="${labels.mrn}">MRN</span>
+                    <span class="info-value" th:text="${report.mrn ?: '-'}">—</span>
+                </div>
+
+                <div class="info-box no-border">
+                    <span class="info-label" th:text="${labels.gender}">Gender</span>
+                    <span class="info-value" th:text="${report.gender ?: '-'}">—</span>
+                </div>
+            </div>
+
+            <div class="grid-row grid-2">
+                <div class="info-box">
+                    <span class="info-label" th:text="${labels.dob}">DOB</span>
+                    <span class="info-value" th:text="${report.dateOfBirth ?: '-'}">—</span>
+                </div>
+
+                <div class="info-box no-border">
+                    <span class="info-label" th:text="${labels.age}">Age</span>
+                    <span class="info-value" th:text="${report.age ?: '-'}">—</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="report-section">
+        <div class="section-header">
+            <h2 class="section-title" th:text="${labels.vaccines}">
+                2. Vaccines
+            </h2>
+        </div>
+
+        <div class="empty-state"
+             th:if="${#lists.isEmpty(report.vaccines)}"
+             th:text="${labels.noVaccines}">
+            No vaccinations recorded for this patient.
+        </div>
+
+        <div class="vaccine-card" th:each="vaccine : ${report.vaccines}">
+            <div class="vaccine-name" th:text="${vaccine.vaccineName}">Vaccine Name</div>
+
+            <div class="patient-grid">
+                <div class="grid-row grid-5">
+                    <div class="info-box">
+                        <span class="info-label" th:text="${labels.atcCode}">ATC Code</span>
+                        <span class="info-value" th:text="${vaccine.atcCode ?: '-'}">—</span>
+                    </div>
+
+                    <div class="info-box">
+                        <span class="info-label" th:text="${labels.type}">Type</span>
+                        <span class="info-value" th:text="${vaccine.type ?: '-'}">—</span>
+                    </div>
+
+                    <div class="info-box">
+                        <span class="info-label" th:text="${labels.numberOfDoses}">Number Of Doses</span>
+                        <span class="info-value" th:text="${vaccine.numberOfDoses ?: '-'}">—</span>
+                    </div>
+
+                    <div class="info-box">
+                        <span class="info-label" th:text="${labels.roa}">ROA</span>
+                        <span class="info-value" th:text="${vaccine.roa ?: '-'}">—</span>
+                    </div>
+
+                    <div class="info-box no-border">
+                        <span class="info-label" th:text="${labels.siteOfAdministration}">Site Of Administration</span>
+                        <span class="info-value" th:text="${vaccine.siteOfAdministration ?: '-'}">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th th:text="${labels.brandName}">Brand Name</th>
+                        <th class="col-dose" th:text="${labels.doseNumber}">Dose Number</th>
+                        <th th:text="${labels.dateOfAdministration}">Date Of Administration</th>
+                        <th th:text="${labels.vaccinationLocation}">Vaccination Location</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="dose : ${vaccine.doses}">
+                        <td th:text="${dose.brandName ?: '-'}">—</td>
+                        <td class="col-dose" th:text="${dose.doseNumber ?: '-'}">—</td>
+                        <td th:text="${dose.dateAdministered != null
+                                ? #temporals.format(dose.dateAdministered.atZone(zoneId), 'dd/MM/yyyy')
+                                : '-'}">—</td>
+                        <td th:text="${dose.vaccinationLocation ?: '-'}">—</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <div class="footer">
+        <div class="footer-left">
+            <div class="signature-line"></div>
+
+            <p class="signature-label" th:text="${labels.authorizedSignature}">
+                Authorized Signature
+            </p>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
