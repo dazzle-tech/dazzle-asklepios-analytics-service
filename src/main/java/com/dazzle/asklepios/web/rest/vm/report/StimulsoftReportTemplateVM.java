@@ -3,6 +3,7 @@ package com.dazzle.asklepios.web.rest.vm.report;
 import com.dazzle.asklepios.domain.enumeration.JobRole;
 import com.dazzle.asklepios.domain.enumeration.Modules;
 import com.dazzle.asklepios.domain.enumeration.StimulsoftTemplateType;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.Instant;
 
@@ -20,6 +21,7 @@ public record StimulsoftReportTemplateVM(
         Modules module,
         StimulsoftTemplateType templateType,
         JobRole jobRole,
-        String userIds
+        String userIds,
+        @JsonProperty("isUserDefault") Boolean isUserDefault
 ) {
 }
