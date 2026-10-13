@@ -1,9 +1,12 @@
 package com.dazzle.asklepios.service;
 
 import com.dazzle.asklepios.domain.StimulsoftReportTemplate;
+import com.dazzle.asklepios.domain.UserDashboardDefault;
 import com.dazzle.asklepios.domain.enumeration.JobRole;
 import com.dazzle.asklepios.domain.enumeration.StimulsoftTemplateType;
 import com.dazzle.asklepios.repository.StimulsoftReportTemplateRepository;
+import com.dazzle.asklepios.repository.UserDashboardDefaultRepository;
+import com.dazzle.asklepios.service.dto.reportTemplate.StimulsoftDashboardDefaultDTO;
 import com.dazzle.asklepios.service.dto.reportTemplate.StimulsoftReportTemplateWriteDTO;
 import com.dazzle.asklepios.web.rest.errors.BadRequestAlertException;
 import com.dazzle.asklepios.web.rest.vm.report.StimulsoftReportTemplateVM;
@@ -23,9 +26,14 @@ import java.util.List;
 public class StimulsoftReportTemplateService {
 
     private final StimulsoftReportTemplateRepository repository;
+    private final UserDashboardDefaultRepository userDashboardDefaultRepository;
 
-    public StimulsoftReportTemplateService(StimulsoftReportTemplateRepository repository) {
+    public StimulsoftReportTemplateService(
+            StimulsoftReportTemplateRepository repository,
+            UserDashboardDefaultRepository userDashboardDefaultRepository
+    ) {
         this.repository = repository;
+        this.userDashboardDefaultRepository = userDashboardDefaultRepository;
     }
 
     @Transactional(readOnly = true)
@@ -63,6 +71,12 @@ public class StimulsoftReportTemplateService {
             Long departmentId,
             Pageable pageable
     ) {
+        Long defaultTemplateId = userId == null
+                ? null
+                : userDashboardDefaultRepository.findByUserId(userId)
+                .map(UserDashboardDefault::getTemplateId)
+                .orElse(null);
+
         List<StimulsoftReportTemplateVM> matched = repository
                 .findByTemplateType(StimulsoftTemplateType.DASHBOARD, Pageable.unpaged())
                 .getContent()
@@ -75,12 +89,60 @@ public class StimulsoftReportTemplateService {
                         template -> template.getName() == null ? "" : template.getName(),
                         String.CASE_INSENSITIVE_ORDER
                 ))
-                .map(this::toVM)
+                .map(template -> toVM(
+                        template,
+                        defaultTemplateId != null && defaultTemplateId.equals(template.getId())
+                ))
                 .toList();
 
         int start = (int) Math.min(pageable.getOffset(), matched.size());
         int end = Math.min(start + pageable.getPageSize(), matched.size());
         return new PageImpl<>(new ArrayList<>(matched.subList(start, end)), pageable, matched.size());
+    }
+
+    /**
+     * Saves one default dashboard for the user and replaces any previous choice.
+     */
+    public StimulsoftDashboardDefaultDTO setUserDefault(StimulsoftDashboardDefaultDTO request) {
+        if (request == null || request.userId() == null) {
+            throw new BadRequestAlertException(
+                    "userId is required",
+                    "dashboardDefault",
+                    "dashboard.default.userid"
+            );
+        }
+        if (request.templateId() == null) {
+            throw new BadRequestAlertException(
+                    "templateId is required",
+                    "dashboardDefault",
+                    "dashboard.default.template"
+            );
+        }
+
+        StimulsoftReportTemplate template = findEntityById(request.templateId());
+        if (template.getTemplateType() != StimulsoftTemplateType.DASHBOARD) {
+            throw new BadRequestAlertException(
+                    "Only a dashboard can be set as the default",
+                    "dashboardDefault",
+                    "dashboard.default.type"
+            );
+        }
+        if (!Boolean.TRUE.equals(template.getActive())) {
+            throw new BadRequestAlertException(
+                    "Inactive dashboard cannot be set as the default",
+                    "dashboardDefault",
+                    "dashboard.default.inactive"
+            );
+        }
+
+        UserDashboardDefault preference = userDashboardDefaultRepository
+                .findByUserId(request.userId())
+                .orElseGet(UserDashboardDefault::new);
+        preference.setUserId(request.userId());
+        preference.setTemplateId(template.getId());
+        userDashboardDefaultRepository.save(preference);
+
+        return new StimulsoftDashboardDefaultDTO(request.userId(), template.getId());
     }
 
     @Transactional(readOnly = true)
@@ -261,6 +323,10 @@ public class StimulsoftReportTemplateService {
     }
 
     private StimulsoftReportTemplateVM toVM(StimulsoftReportTemplate entity) {
+        return toVM(entity, false);
+    }
+
+    private StimulsoftReportTemplateVM toVM(StimulsoftReportTemplate entity, boolean isUserDefault) {
 
         return new StimulsoftReportTemplateVM(
                 entity.getId(),
@@ -278,7 +344,8 @@ public class StimulsoftReportTemplateService {
                         ? StimulsoftTemplateType.REPORT
                         : entity.getTemplateType(),
                 entity.getJobRole(),
-                entity.getUserIds()
+                entity.getUserIds(),
+                isUserDefault
         );
     }
 }

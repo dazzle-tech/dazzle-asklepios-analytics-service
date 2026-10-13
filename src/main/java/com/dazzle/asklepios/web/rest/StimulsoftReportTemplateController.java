@@ -4,6 +4,7 @@ import com.dazzle.asklepios.domain.enumeration.JobRole;
 import com.dazzle.asklepios.domain.enumeration.StimulsoftTemplateType;
 import com.dazzle.asklepios.service.StimulsoftDesignerSchemaService;
 import com.dazzle.asklepios.service.StimulsoftReportTemplateService;
+import com.dazzle.asklepios.service.dto.reportTemplate.StimulsoftDashboardDefaultDTO;
 import com.dazzle.asklepios.service.dto.reportTemplate.StimulsoftReportTemplateWriteDTO;
 import com.dazzle.asklepios.web.rest.vm.report.DesignerSchemaVM;
 import com.dazzle.asklepios.web.rest.vm.report.StimulsoftReportTemplateVM;
@@ -61,6 +62,16 @@ public class StimulsoftReportTemplateController {
         return ResponseEntity.ok(
                 service.findViewableDashboards(jobRole, userId, facilityId, departmentId, pageable)
         );
+    }
+
+    /**
+     * One default dashboard per user. Body is {@code userId} and {@code templateId} only.
+     */
+    @PutMapping("/reports/dashboards/default")
+    public ResponseEntity<StimulsoftDashboardDefaultDTO> setUserDefault(
+            @RequestBody StimulsoftDashboardDefaultDTO request
+    ) {
+        return ResponseEntity.ok(service.setUserDefault(request));
     }
 
     @GetMapping("/reports/templates/by-name/{name}")
