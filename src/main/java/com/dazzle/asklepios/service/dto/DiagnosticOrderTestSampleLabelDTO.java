@@ -15,6 +15,7 @@ public record DiagnosticOrderTestSampleLabelDTO(
         BigDecimal sampleQuantity,
         String sampleUnit,
         Instant expiryDate,
-        String sourceOfSample
+        String sourceOfSample,
+        String printNumber
 ) {
 }

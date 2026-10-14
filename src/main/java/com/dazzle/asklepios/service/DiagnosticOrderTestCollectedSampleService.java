@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -79,6 +80,21 @@ public class DiagnosticOrderTestCollectedSampleService {
                 ));
 
         return buildSampleLabelDto(orderTest, lastSample);
+    }
+
+    /**
+     * Same as {@link #getSampleLabel}, but returns empty instead of throwing when
+     * there's no collected sample (e.g. a test still NEW/REJECTED). Used by bulk
+     * print flows that need to skip such tests without failing the whole batch -
+     * throwing from here would mark the caller's transaction rollback-only even
+     * if the caller catches the exception, since this bean is @Transactional too.
+     */
+    @Transactional(readOnly = true)
+    public Optional<DiagnosticOrderTestSampleLabelDTO> tryGetSampleLabel(Long orderTestId) {
+        return orderTestRepository.findById(orderTestId)
+                .flatMap(orderTest -> sampleRepository
+                        .findTopByOrderTestIdOrderByCreatedDateDescIdDesc(orderTestId)
+                        .map(sample -> buildSampleLabelDto(orderTest, sample)));
     }
 
 
@@ -158,7 +174,8 @@ public class DiagnosticOrderTestCollectedSampleService {
                 sample.getQuantity(),
                 sample.getUnit(),
                 sample.getExpiryDate(),
-                sourceOfSample
+                sourceOfSample,
+                orderTest.getPrintNumber()
         );
     }
     public List<DiagnosticOrderTestSampleLabelDTO> getSampleLabelsByOrderTestId(Long orderTestId) {
