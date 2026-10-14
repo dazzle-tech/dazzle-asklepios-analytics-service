@@ -116,4 +116,7 @@ public class DiagnosticOrderTest extends AbstractAuditingEntity implements Seria
     @JoinColumn(name = "icd_diagnosis_id")
     private ICDDiagnosis Diagnosis;
 
+    @Column(name = "print_number")
+    private Integer printNumber;
+
 }
