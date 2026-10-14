@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:attr="lang=${lang}, dir=${dir}">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${labels.sampleLabel}">Sample Label</title>
+  <style th:utext="${reportCss}"></style>
+</head>
+
+<body th:class="${dir}">
+
+<div th:each="label : ${labelsList}">
+  <div th:each="copy : ${#numbers.sequence(1, copies)}"
+       class="label-wrapper">
+
+    <div class="label">
+
+      <div class="header">
+        <div class="header-left">
+          <div class="title" th:text="${labels.sampleLabel}">
+            Sample Label
+          </div>
+        </div>
+
+        <div class="header-right">
+          <div class="right-block">
+            <div class="right-text">
+              <div class="date" th:text="${today} ?: ''"></div>
+
+              <div class="facility"
+                   dir="auto"
+                   th:text="${label.facilityName} ?: ''">
+              </div>
+            </div>
+
+            <div class="right-qr">
+              <img class="qr"
+                   th:if="${service.buildQrImage(label) != null and !#strings.isEmpty(service.buildQrImage(label))}"
+                   th:src="'data:image/png;base64,' + ${service.buildQrImage(label)}" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+
+        <div class="row">
+          <span class="label-text">
+            <span th:text="${labels.patient}">Patient</span>:
+          </span>
+          <span dir="auto" th:text="${label.patientName} ?: ''"></span>
+        </div>
+
+        <div class="row">
+          <span class="label-text">
+            <span th:text="${labels.mrn}">MRN</span>:
+          </span>
+          <span th:text="${label.mrn} ?: ''"></span>
+        </div>
+
+      
+
+        <div class="row">
+          <span class="label-text">
+            <span th:text="${labels.test}">Test</span>:
+          </span>
+          <span dir="auto" th:text="${label.testName} ?: ''"></span>
+        </div>
+
+        <div class="row">
+          <span class="label-text">
+            <span th:text="${labels.tubeType}">Tube Type</span>:
+          </span>
+          <span dir="auto" th:text="${label.tubeType} ?: ''"></span>
+        </div>
+
+        <div class="row">
+          <span class="label-text">
+            <span th:text="${labels.tubeColor}">Tube Color</span>:
+          </span>
+          <span dir="auto" th:text="${label.tubeColor} ?: ''"></span>
+        </div>
+      </div>
+
+      <div class="barcode-box">
+        <img class="barcode"
+             th:if="${service.buildBarcodeImage(label) != null and !#strings.isEmpty(service.buildBarcodeImage(label))}"
+             th:src="'data:image/png;base64,' + ${service.buildBarcodeImage(label)}" />
+
+        <div class="barcode-text" th:text="${label.printNumber} ?: ''"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

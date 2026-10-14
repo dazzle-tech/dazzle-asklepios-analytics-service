@@ -3,6 +3,7 @@ package com.dazzle.asklepios.web.rest;
 import com.dazzle.asklepios.service.DiagnosticOrderTestCollectedSampleService;
 import com.dazzle.asklepios.service.DiagnosticOrderTestSampleLabelPdfRenderService;
 import com.dazzle.asklepios.service.dto.DiagnosticOrderTestSampleLabelDTO;
+import com.dazzle.asklepios.service.dto.GroupedSampleLabelsPrintResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/analytics")
@@ -99,6 +104,47 @@ public class DiagnosticOrderTestCollectedSampleController {
                 .header("Content-Type", "application/pdf")
                 .body(pdf);
     }
+    @GetMapping("/diagnostic-order-tests/grouped-sample-labels/pdf")
+    public ResponseEntity<byte[]> generateGroupedSampleLabelsPdf(
+            @RequestParam List<Long> orderTestIds,
+            @RequestParam(defaultValue = "1") Integer copies,
+            @RequestParam(defaultValue = "en") String lang
+    ) {
+        LOG.debug(
+                "[GroupedSampleLabel] GENERATE_GROUPED_SAMPLE_LABELS_PDF - request received. orderTestIds={} lang={} copies={}",
+                orderTestIds,
+                lang,
+                copies
+        );
+
+        GroupedSampleLabelsPrintResult result =
+                diagnosticOrderTestSampleLabelPdfRenderService.generateGroupedSampleLabelsPdf(
+                        orderTestIds,
+                        lang,
+                        copies
+                );
+
+        LOG.debug(
+                "[GroupedSampleLabel] GENERATE_GROUPED_SAMPLE_LABELS_PDF - completed. orderTestIds={} missingDefinitionCount={}",
+                orderTestIds,
+                result.missingDefinitionTestNames().size()
+        );
+
+        String missingDefinitionHeader = result.missingDefinitionTestNames().stream()
+                .map(name -> URLEncoder.encode(name, StandardCharsets.UTF_8))
+                .reduce((a, b) -> a + "," + b)
+                .orElse("");
+
+        return ResponseEntity.ok()
+                .header(
+                        "Content-Disposition",
+                        "inline; filename=grouped-sample-labels.pdf"
+                )
+                .header("Content-Type", "application/pdf")
+                .header("X-Missing-Definition-Tests", missingDefinitionHeader)
+                .body(result.pdf());
+    }
+
     @GetMapping("/diagnostic-orders/{orderId}/order-sample-label/pdf")
     public ResponseEntity<byte[]> generateOrderSampleLabelPdf(
             @PathVariable Long orderId,
