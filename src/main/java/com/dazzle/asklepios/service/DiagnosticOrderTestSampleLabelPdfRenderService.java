@@ -1,11 +1,9 @@
 package com.dazzle.asklepios.service;
 
-import com.dazzle.asklepios.domain.Analyzer;
 import com.dazzle.asklepios.domain.ApLovValue;
 import com.dazzle.asklepios.domain.DiagnosticOrderTest;
 import com.dazzle.asklepios.domain.DiagnosticTest;
 import com.dazzle.asklepios.domain.DiagnosticTestLaboratory;
-import com.dazzle.asklepios.repository.AnalyzerRepository;
 import com.dazzle.asklepios.repository.ApLovValueRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderTestRepository;
 import com.dazzle.asklepios.repository.DiagnosticTestLaboratoryRepository;
@@ -50,7 +48,6 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
     private final ReportPdfCommonService reportPdfCommonService;
     private final DiagnosticOrderTestRepository orderTestRepository;
     private final DiagnosticTestLaboratoryRepository laboratoryRepository;
-    private final AnalyzerRepository analyzerRepository;
     private final ApLovValueRepository apLovValueRepository;
     private final DiagnosticTestRepository diagnosticTestRepository;
 
@@ -97,15 +94,14 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
     }
     /**
      * Prints one label per group of selected order tests that share the same
-     * (analyzer, tubeColor, tubeType). Tests with no analyzer assigned are
-     * never printed - they're reported back as "missing definition" so the
-     * UI can warn the user. Tests that have an analyzer but incomplete
-     * tubeColor/tubeType still print, just standalone (never merged into a
-     * group based on incomplete/missing tube info).
-     * Each printed group's printNumber is {analyzerCode}{orderId} (no
-     * separator), persisted on every order test within that group.
+     * printNumber - a value assigned once per order at submit time (see
+     * {@link PrintNumberService}), never computed here. Tests with no
+     * printNumber (order not submitted yet, or was missing analyzer/tube
+     * definition at submit time) or no collected sample are never printed -
+     * they're reported back as "missing definition" so the UI can warn
+     * the user instead of silently skipping them.
      */
-    @Transactional
+    @Transactional(readOnly = true)
     public GroupedSampleLabelsPrintResult generateGroupedSampleLabelsPdf(
             List<Long> orderTestIds,
             String lang,
@@ -133,18 +129,24 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
 
         LinkedHashMap<Long, DiagnosticOrderTestSampleLabelDTO> dtoByOrderTestId = new LinkedHashMap<>();
         List<String> missingDefinitionTestNames = new ArrayList<>();
+
         for (Long orderTestId : orderTestIds) {
+            DiagnosticOrderTest orderTest = orderTestById.get(orderTestId);
+
+            if (orderTest == null || orderTest.getPrintNumber() == null) {
+                missingDefinitionTestNames.add(resolveTestName(orderTest, orderTestId));
+                LOG.warn(
+                        "[GroupedSampleLabel] Skipping orderTestId={} - no printNumber assigned (order not submitted or missing analyzer/tube definition)",
+                        orderTestId
+                );
+                continue;
+            }
+
             Optional<DiagnosticOrderTestSampleLabelDTO> dto = sampleService.tryGetSampleLabel(orderTestId);
             if (dto.isPresent()) {
                 dtoByOrderTestId.put(orderTestId, dto.get());
             } else {
-                DiagnosticOrderTest orderTest = orderTestById.get(orderTestId);
-                String testName = orderTest != null
-                        ? diagnosticTestRepository.findById(orderTest.getTestId())
-                                .map(DiagnosticTest::getName)
-                                .orElse("#" + orderTestId)
-                        : "#" + orderTestId;
-                missingDefinitionTestNames.add(testName);
+                missingDefinitionTestNames.add(resolveTestName(orderTest, orderTestId));
                 LOG.warn(
                         "[GroupedSampleLabel] Skipping orderTestId={} - no collected sample yet",
                         orderTestId
@@ -154,53 +156,20 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
 
         if (dtoByOrderTestId.isEmpty()) {
             return new GroupedSampleLabelsPrintResult(
-                    reportPdfCommonService.renderEmptyPdf("No collected samples found"),
+                    reportPdfCommonService.renderEmptyPdf("No printable tests found"),
                     missingDefinitionTestNames
             );
         }
 
-        // Tests with no analyzer assigned at all are never printed (missing definition).
-        // Tests with an analyzer but incomplete tubeColor/tubeType still print - just
-        // standalone, since they can't be reliably matched to any group without both.
+        // Grouping is purely by the already-assigned printNumber - decided once
+        // at order submit time, never recomputed here.
         LinkedHashMap<String, List<Long>> groups = new LinkedHashMap<>();
-
         for (Long orderTestId : dtoByOrderTestId.keySet()) {
-            DiagnosticOrderTest orderTest = orderTestById.get(orderTestId);
-            DiagnosticTestLaboratory lab = orderTest != null ? labByTestId.get(orderTest.getTestId()) : null;
-
-            if (lab == null || lab.getAnalyzerId() == null) {
-                missingDefinitionTestNames.add(dtoByOrderTestId.get(orderTestId).testName());
-                continue;
-            }
-
-            String groupKey = (lab.getTubeColor() != null && lab.getTubeType() != null)
-                    ? lab.getAnalyzerId() + "|" + lab.getTubeColor() + "|" + lab.getTubeType()
-                    : "STANDALONE-" + orderTestId;
-
-            groups.computeIfAbsent(groupKey, k -> new ArrayList<>()).add(orderTestId);
+            String printNumber = orderTestById.get(orderTestId).getPrintNumber();
+            groups.computeIfAbsent(printNumber, k -> new ArrayList<>()).add(orderTestId);
         }
-
-        if (groups.isEmpty()) {
-            LOG.warn(
-                    "[GroupedSampleLabel] No eligible tests to print - all selected tests are missing analyzer/tube definition: {}",
-                    missingDefinitionTestNames
-            );
-            return new GroupedSampleLabelsPrintResult(
-                    reportPdfCommonService.renderEmptyPdf("Selected tests are missing analyzer/tube configuration"),
-                    missingDefinitionTestNames
-            );
-        }
-
-        Map<Long, Analyzer> analyzerById = analyzerRepository.findAllById(
-                labByTestId.values().stream()
-                        .map(DiagnosticTestLaboratory::getAnalyzerId)
-                        .filter(Objects::nonNull)
-                        .distinct()
-                        .toList()
-        ).stream().collect(Collectors.toMap(Analyzer::getId, a -> a));
 
         List<String> lovKeysToResolve = new ArrayList<>();
-        analyzerById.values().forEach(a -> lovKeysToResolve.add(a.getType()));
         labByTestId.values().forEach(lab -> {
             lovKeysToResolve.add(lab.getTubeColor());
             lovKeysToResolve.add(lab.getTubeType());
@@ -210,7 +179,6 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
         ).stream().collect(Collectors.toMap(ApLovValue::getKey, ApLovValue::getLovDisplayVale));
 
         List<GroupedSampleLabelDTO> labelsList = new ArrayList<>();
-        List<DiagnosticOrderTest> toSave = new ArrayList<>();
 
         for (List<Long> groupOrderTestIds : groups.values()) {
             List<DiagnosticOrderTestSampleLabelDTO> groupDtos = groupOrderTestIds.stream()
@@ -227,20 +195,8 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
                             .collect(Collectors.joining(", "))
                     : representative.testName();
 
-            // Reuse an already-assigned printNumber (from an earlier print) if any
-            // member of the group has one - never recompute/overwrite it.
-            String existingPrintNumber = groupOrderTestIds.stream()
-                    .map(id -> orderTestById.get(id).getPrintNumber())
-                    .filter(Objects::nonNull)
-                    .findFirst()
-                    .orElse(null);
-
             DiagnosticTestLaboratory lab = labByTestId.get(orderTestById.get(groupOrderTestIds.get(0)).getTestId());
-            Analyzer analyzer = analyzerById.get(lab.getAnalyzerId());
-            String analyzerCode = analyzer != null ? analyzer.getCode() : "";
-            String printNumber = existingPrintNumber != null
-                    ? existingPrintNumber
-                    : analyzerCode + String.format("%07d", representative.orderId());
+            String printNumber = orderTestById.get(groupOrderTestIds.get(0)).getPrintNumber();
 
             GroupedSampleLabelDTO groupedLabel = new GroupedSampleLabelDTO(
                     representative.orderId(),
@@ -250,28 +206,17 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
                     joinedNames,
                     representative.sampleDateTime(),
                     representative.expiryDate(),
-                    analyzer != null ? lovDisplayByKey.get(analyzer.getType()) : null,
-                    lovDisplayByKey.get(lab.getTubeType()),
-                    lovDisplayByKey.get(lab.getTubeColor()),
+                    lab != null ? lovDisplayByKey.get(lab.getTubeType()) : null,
+                    lab != null ? lovDisplayByKey.get(lab.getTubeColor()) : null,
                     printNumber
             );
 
             labelsList.add(groupedLabel);
-
-            groupOrderTestIds.forEach(id -> {
-                DiagnosticOrderTest orderTest = orderTestById.get(id);
-                if (orderTest != null && orderTest.getPrintNumber() == null) {
-                    orderTest.setPrintNumber(printNumber);
-                    toSave.add(orderTest);
-                }
-            });
         }
-
-        orderTestRepository.saveAll(toSave);
 
         if (!missingDefinitionTestNames.isEmpty()) {
             LOG.warn(
-                    "[GroupedSampleLabel] {} test(s) skipped - missing analyzer/tube definition: {}",
+                    "[GroupedSampleLabel] {} test(s) skipped - no printNumber/no sample: {}",
                     missingDefinitionTestNames.size(),
                     missingDefinitionTestNames
             );
@@ -287,6 +232,15 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
                 renderGroupedSampleLabels(labelsList, lang, copies),
                 missingDefinitionTestNames
         );
+    }
+
+    private String resolveTestName(DiagnosticOrderTest orderTest, Long orderTestId) {
+        if (orderTest == null) {
+            return "#" + orderTestId;
+        }
+        return diagnosticTestRepository.findById(orderTest.getTestId())
+                .map(DiagnosticTest::getName)
+                .orElse("#" + orderTestId);
     }
 
     public byte[] generateOrderSampleLabelPdf(
@@ -518,7 +472,6 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
         labels.put("sample", isArabic ? "تاريخ العينة" : "Sample");
         labels.put("expiry", isArabic ? "تاريخ الانتهاء" : "Expiry");
         labels.put("test", isArabic ? "الفحص" : "Test");
-        labels.put("analyzerType", isArabic ? "نوع المحلل" : "Analyzer Type");
         labels.put("tubeType", isArabic ? "نوع الأنبوب" : "Tube Type");
         labels.put("tubeColor", isArabic ? "لون الأنبوب" : "Tube Color");
 

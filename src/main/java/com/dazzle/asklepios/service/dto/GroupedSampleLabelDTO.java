@@ -4,8 +4,8 @@ import java.time.Instant;
 
 /**
  * Label shown for the "Print Selected" bulk/grouped print flow - shows
- * analyzer type / tube type / tube color instead of source/amount, since
- * those are the attributes the group was matched on.
+ * tube type / tube color instead of source/amount, since those (plus
+ * analyzer) are the attributes the group was matched on.
  */
 public record GroupedSampleLabelDTO(
         Long orderId,
@@ -15,7 +15,6 @@ public record GroupedSampleLabelDTO(
         String testName,
         Instant sampleDateTime,
         Instant expiryDate,
-        String analyzerType,
         String tubeType,
         String tubeColor,
         String printNumber
