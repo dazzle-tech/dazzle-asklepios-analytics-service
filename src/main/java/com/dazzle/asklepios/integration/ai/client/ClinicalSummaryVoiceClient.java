@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 public interface ClinicalSummaryVoiceClient {
 
     @PostMapping(
-            value = "/api/v1/summarize",
+            value = "/summarize",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     ClinicalSummaryVoiceResponseDTO summarize(

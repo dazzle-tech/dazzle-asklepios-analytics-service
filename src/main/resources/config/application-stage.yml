@@ -53,7 +53,7 @@ ai:
     timeout-seconds: 120
 
   clinical-summary-voice:
-    base-url: http://clinical-summary-voice:8037
+    base-url: ${gateway.base-url}/api/ai/v1/clinical-summary-voice
     timeout-seconds: 120
 
 spring:
