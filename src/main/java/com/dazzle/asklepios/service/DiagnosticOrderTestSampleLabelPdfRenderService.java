@@ -68,7 +68,8 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
         return renderSampleLabels(
                 List.of(dto),
                 lang,
-                copies
+                copies,
+                false
         );
     }
 
@@ -86,10 +87,12 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
             );
         }
 
+        // Labels printed from this endpoint carry the orderId instead of the printNumber.
         return renderSampleLabels(
                 sampleLabels,
                 lang,
-                copies
+                copies,
+                true
         );
     }
     /**
@@ -322,7 +325,8 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
     private byte[] renderSampleLabels(
             List<DiagnosticOrderTestSampleLabelDTO> sampleLabels,
             String lang,
-            Integer copies
+            Integer copies,
+            boolean useOrderId
     ) {
         int safeCopies = copies == null || copies < 1 ? 1 : copies;
         boolean isArabic = "ar".equalsIgnoreCase(lang);
@@ -331,6 +335,7 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
 
         context.setVariable("labelsList", sampleLabels);
         context.setVariable("copies", safeCopies);
+        context.setVariable("useOrderId", useOrderId);
 
         context.setVariable(
                 "today",
@@ -511,41 +516,41 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
     }
 
     public String buildQrImage(
-            DiagnosticOrderTestSampleLabelDTO dto
+            DiagnosticOrderTestSampleLabelDTO dto,
+            boolean useOrderId
     ) {
-        String sampleDateTime = formatSampleDateTime(dto);
-        String qrValue = buildQrValue(dto, sampleDateTime);
-
         return generateQrBase64(
-                qrValue,
+                resolveLabelCode(dto, useOrderId),
                 220,
                 220
         );
     }
 
     /**
-     * Barcode contains printNumber (analyzerCode+orderId) instead of MRN.
+     * Barcode contains printNumber (analyzerCode+orderId) instead of MRN,
+     * or the plain orderId when useOrderId is set.
      */
     public String buildBarcodeImage(
-            DiagnosticOrderTestSampleLabelDTO dto
+            DiagnosticOrderTestSampleLabelDTO dto,
+            boolean useOrderId
     ) {
-        String barcodeValue =
-                nullSafe(dto.printNumber())
-                ;
-
         return generateCode128BarcodeBase64(
-                barcodeValue,
+                resolveLabelCode(dto, useOrderId),
                 1000,
                 200
         );
     }
 
-    private String buildQrValue(
+    public String resolveLabelCode(
             DiagnosticOrderTestSampleLabelDTO dto,
-            String sampleDateTime
+            boolean useOrderId
     ) {
-        return    nullSafe(dto.printNumber())
-                ;
+        if (useOrderId) {
+            return dto.orderId() != null
+                    ? String.valueOf(dto.orderId())
+                    : "—";
+        }
+        return nullSafe(dto.printNumber());
     }
 
     private String nullSafe(String value) {
