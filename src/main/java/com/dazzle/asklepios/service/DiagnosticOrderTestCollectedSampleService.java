@@ -174,9 +174,8 @@ public class DiagnosticOrderTestCollectedSampleService {
                 sample.getQuantity(),
                 sample.getUnit(),
                 sample.getExpiryDate(),
-                sourceOfSample
-                // TODO(print_number): temporarily disabled - restore later
-                // , orderTest.getPrintNumber()
+                sourceOfSample,
+                orderTest.getPrintNumber()
         );
     }
     public List<DiagnosticOrderTestSampleLabelDTO> getSampleLabelsByOrderTestId(Long orderTestId) {

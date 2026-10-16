@@ -15,8 +15,7 @@ public record DiagnosticOrderTestSampleLabelDTO(
         BigDecimal sampleQuantity,
         String sampleUnit,
         Instant expiryDate,
-        String sourceOfSample
-        // TODO(print_number): temporarily disabled - restore later
-        // , String printNumber
+        String sourceOfSample,
+        String printNumber
 ) {
 }
