@@ -116,7 +116,8 @@ public class DiagnosticOrderTest extends AbstractAuditingEntity implements Seria
     @JoinColumn(name = "icd_diagnosis_id")
     private ICDDiagnosis Diagnosis;
 
-    @Column(name = "print_number", length = 100)
-    private String printNumber;
+    // TODO(print_number): temporarily disabled - restore this field and all its usages later
+    // @Column(name = "print_number", length = 100)
+    // private String printNumber;
 
 }
