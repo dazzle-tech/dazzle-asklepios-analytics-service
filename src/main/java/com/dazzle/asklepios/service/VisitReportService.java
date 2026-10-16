@@ -139,7 +139,7 @@ public class VisitReportService {
                 .map(a -> new NurseSummaryAllergyDTO(
                         a.getAllergenType() != null ? a.getAllergenType() : null,
                         resolveAllergyName(a),
-                        a.getSeverity().name()
+                        a.getSeverity() != null ? a.getSeverity().name() : null
                 ))
                 .toList();
 
