@@ -101,7 +101,10 @@
              th:if="${service.buildBarcodeImage(label, useOrderId) != null and !#strings.isEmpty(service.buildBarcodeImage(label, useOrderId))}"
              th:src="'data:image/png;base64,' + ${service.buildBarcodeImage(label, useOrderId)}" />
 
+        <!--/* TODO(print_number): temporarily disabled - restore later
         <div class="barcode-text" th:text="${useOrderId ? label.orderId : label.printNumber} ?: ''"></div>
+        */-->
+        <div class="barcode-text" th:text="${label.orderId} ?: ''"></div>
       </div>
 
     </div>
