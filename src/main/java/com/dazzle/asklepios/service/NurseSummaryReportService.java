@@ -124,7 +124,7 @@ public class NurseSummaryReportService {
         List<NurseSummaryAllergyDTO> allergies = patientAllergiesRepository
                 .findByEncounterIdAndStatusNotOrderByCreatedDateAsc(
                         encounterId,
-                        PatientAllergyStatus.CANCELLED
+                        PatientAllergyStatus.CANCELLED.name()
                 )
                 .stream()
                 .map(this::mapAllergy)
@@ -133,7 +133,7 @@ public class NurseSummaryReportService {
         List<NurseSummaryWarningDTO> warnings = patientWarningsRepository
                 .findByEncounterIdAndStatusNotOrderByCreatedDateAsc(
                         encounterId,
-                        PatientWarningStatus.CANCELLED
+                        PatientWarningStatus.CANCELLED.name()
                 )
                 .stream()
                 .map(this::mapWarning)
@@ -142,7 +142,7 @@ public class NurseSummaryReportService {
         List<NurseSummaryVaccinationDTO> vaccinations = encounterVaccinationRepository
                 .findByEncounterIdAndStatusNotOrderByCreatedDateAsc(
                         encounterId,
-                        EncounterVaccinationStatus.CANCELLED
+                        EncounterVaccinationStatus.CANCELLED.name()
                 )
                 .stream()
                 .map(this::mapVaccination)
@@ -186,7 +186,7 @@ public class NurseSummaryReportService {
                 patient.getMedicalRecordNumber(),
                 patient.getDateOfBirth(),
                 reportCommonService.calculateAge(patient.getDateOfBirth()),
-                patient.getSexAtBirth() != null ? patient.getSexAtBirth().name() : null
+                patient.getSexAtBirth()
         );
     }
 
@@ -207,9 +207,9 @@ public class NurseSummaryReportService {
                 freshEncounter.getId(),
                 freshEncounter.getEncounterNumber(),
                 freshEncounter.getEncounterDate(),
-                freshEncounter.getEncounterReason() != null ? freshEncounter.getEncounterReason().name() : null,
-                freshEncounter.getPriorityLevel() != null ? freshEncounter.getPriorityLevel().name() : null,
-                freshEncounter.getStatus() != null ? freshEncounter.getStatus() : null,
+                freshEncounter.getEncounterReason(),
+                freshEncounter.getPriorityLevel(),
+                freshEncounter.getStatus(),
                 freshEncounter.getChiefComplaint(),
                 facilityName,
                 departmentName,
@@ -257,7 +257,7 @@ public class NurseSummaryReportService {
 
     private NurseSummaryAdditionalMeasurementsDTO mapAdditionalMeasurements(AdditionalMeasurements entity) {
         return new NurseSummaryAdditionalMeasurementsDTO(
-                entity.getAgeGroup() != null ? entity.getAgeGroup().name() : null,
+                entity.getAgeGroup(),
                 entity.getHearingTest(),
                 entity.getDehydration(),
                 entity.getNasalFlaring(),
@@ -277,7 +277,7 @@ public class NurseSummaryReportService {
         return new NurseSummaryAllergyDTO(
                 entity.getAllergenType(),
                 resolveAllergyName(entity),
-                entity.getSeverity() != null ? entity.getSeverity().name() : null
+                entity.getSeverity()
 
         );
     }
@@ -286,13 +286,13 @@ public class NurseSummaryReportService {
         return new NurseSummaryWarningDTO(
                 reportCommonService.getLovDisplayValue(entity.getWarningType()),
                 entity.getWarning(),
-                entity.getSeverity() != null ? entity.getSeverity().name() : null,
+                entity.getSeverity(),
                 entity.getOnsetDate(),
                 entity.isByPatient(),
                 entity.getSourceOfInformation(),
                 entity.getNote(),
                 entity.getActionTaken(),
-                entity.getStatus() != null ? entity.getStatus().name() : null
+                entity.getStatus()
         );
     }
 
@@ -304,7 +304,7 @@ public class NurseSummaryReportService {
                 entity.getVaccineDoseId(),
                 entity.getVaccineLotNumber(),
                 entity.getDateAdministered(),
-                entity.getStatus() != null ? entity.getStatus().name() : null,
+                entity.getStatus(),
                 entity.getAdministeredLocation(),
                 entity.getAdministrationReactions(),
                 entity.getIsExternalFacility(),
@@ -349,7 +349,7 @@ public class NurseSummaryReportService {
     }
     String buildDiagnosis(Long encounterId) {
         return patientDiagnosisRepository
-                .findByEncounterIdAndType(encounterId, DiagnosisType.PRIMARY)
+                .findByEncounterIdAndType(encounterId, DiagnosisType.PRIMARY.name())
                 .map(patientDiagnosis -> patientDiagnosis.getDiagnosis() != null
                         ? patientDiagnosis.getDiagnosis().getIcdShortDescription()
                         : null
@@ -366,7 +366,7 @@ public class NurseSummaryReportService {
             return null;
         }
 
-        if (allergy.getAllergenType() == AllergenTypes.MEDICATION) {
+        if (AllergenTypes.MEDICATION.name().equals(allergy.getAllergenType())) {
             return allergy.getMedicationClass() != null
                     ? allergy.getMedicationClass().getName()
                     : null;

@@ -137,9 +137,9 @@ public class VisitReportService {
 
         List<NurseSummaryAllergyDTO> allergyDTOS = allergies.stream()
                 .map(a -> new NurseSummaryAllergyDTO(
-                        a.getAllergenType() != null ? a.getAllergenType() : null,
+                        a.getAllergenType(),
                         resolveAllergyName(a),
-                        a.getSeverity() != null ? a.getSeverity().name() : null
+                        a.getSeverity()
                 ))
                 .toList();
 
@@ -149,13 +149,13 @@ public class VisitReportService {
                                 ? reportCommonService.getLovDisplayValue(String.valueOf(w.getWarningType()))
                                 : null,
                         w.getWarning(),
-                        w.getSeverity() != null ? w.getSeverity().name() : null,
+                        w.getSeverity(),
                         w.getOnsetDate(),
                         w.isByPatient(),
                         w.getSourceOfInformation(),
                         w.getNote(),
                         w.getActionTaken(),
-                        w.getStatus() != null ? w.getStatus().name() : null
+                        w.getStatus()
                 ))
                 .toList();
 
@@ -234,11 +234,11 @@ public class VisitReportService {
         }
 
         return switch (medication.getInstructionsType()) {
-            case MANUAL_INSTRUCTIONS -> medication.getInstructions();
+            case "MANUAL_INSTRUCTIONS" -> medication.getInstructions();
 
-            case CUSTOM_INSTRUCTIONS -> buildCustomInstruction(medication);
+            case "CUSTOM_INSTRUCTIONS" -> buildCustomInstruction(medication);
 
-            case PRE_DEFINED_INSTRUCTIONS -> {
+            case "PRE_DEFINED_INSTRUCTIONS" -> {
                 Long id = safeParse(medication.getInstructions());
                 if (id == null) {
                     yield null;
@@ -253,6 +253,8 @@ public class VisitReportService {
 
                 yield buildPredefinedInstruction(instructionOptional.get());
             }
+
+            default -> null;
         };
     }
 
@@ -328,7 +330,7 @@ public class VisitReportService {
                 .toList();
 
         return prescriptionMedicationRepository
-                .findAllByPrescriptionHeaderIdInAndStatusNotOrderByIdAsc(prescriptionIds, PrescriptionStatus.CANCELLED)
+                .findAllByPrescriptionHeaderIdInAndStatusNotOrderByIdAsc(prescriptionIds, PrescriptionStatus.CANCELLED.name())
                 .stream()
                 .map(m -> new PrescriptionMedicationDTO(
                         m.getActiveIngredient().getName(),
@@ -374,7 +376,7 @@ public class VisitReportService {
                 .toList();
 
         return diagnosticOrderTestRepository
-                .findByOrderIdInAndStatusNotOrderByIdAsc(orderIds, DiagnosticOrderTestStatus.CANCELLED)
+                .findByOrderIdInAndStatusNotOrderByIdAsc(orderIds, DiagnosticOrderTestStatus.CANCELLED.name())
                 .stream()
                 .map(test -> {
                     DiagnosticOrder order = orderMap.get(test.getOrderId());
@@ -398,7 +400,7 @@ public class VisitReportService {
             return null;
         }
 
-        if (allergy.getAllergenType() == AllergenTypes.MEDICATION) {
+        if (AllergenTypes.MEDICATION.name().equals(allergy.getAllergenType())) {
             return allergy.getMedicationClass() != null
                     ? allergy.getMedicationClass().getName()
                     : null;
@@ -506,7 +508,7 @@ public class VisitReportService {
                 practitioner != null ? practitioner.getFirstName() : null,
                 practitioner != null ? practitioner.getLastName() : null,
                 patient.getDateOfBirth(),
-               patient.getSexAtBirth()!=null? patient.getSexAtBirth().name():null,
+               patient.getSexAtBirth(),
                 encounter.getStatus(),
                 encounter.getEncounterStatus()
         );

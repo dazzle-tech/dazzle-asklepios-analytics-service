@@ -1,7 +1,6 @@
 package com.dazzle.asklepios.repository;
 
 import com.dazzle.asklepios.domain.SystemConfiguration;
-import com.dazzle.asklepios.domain.enumeration.SystemConfigKey;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,7 +11,7 @@ import java.util.Optional;
 public interface SystemConfigurationRepository
         extends JpaRepository<SystemConfiguration, Long> {
 
-    Optional<SystemConfiguration> findByConfigKey(SystemConfigKey configKey);
+    Optional<SystemConfiguration> findByConfigKey(String configKey);
 
     List<SystemConfiguration> findAllByOrderByConfigKeyAsc();
 }

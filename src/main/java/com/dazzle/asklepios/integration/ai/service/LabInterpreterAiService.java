@@ -101,7 +101,7 @@ public class LabInterpreterAiService {
                 orderTestIds,
                 request.dateFrom(),
                 request.dateTo(),
-                DiagnosticStatus.RESULT_APPROVED
+                DiagnosticStatus.RESULT_APPROVED.name()
         );
 
         LOG.debug("Current Results Count={}", currentResults.size());
@@ -308,7 +308,7 @@ public class LabInterpreterAiService {
 
     private String resolveResultValue(DiagnosticOrderTestResult result, DiagnosticTestProfile profile) {
 
-        if (profile != null && profile.getResultType() == TestResultType.LOV) {
+        if (profile != null && TestResultType.LOV.name().equals(profile.getResultType())) {
             return apLovValueRepository
                     .findById(String.valueOf(result.getResultValueText()))
                     .map(ApLovValue::getLovDisplayVale)
@@ -322,7 +322,7 @@ public class LabInterpreterAiService {
 
     private String resolveReferenceRange(DiagnosticOrderTestResult result, DiagnosticTestProfile profile) {
 
-        if (profile != null && profile.getResultType() == TestResultType.LOV) {
+        if (profile != null && TestResultType.LOV.name().equals(profile.getResultType())) {
             return apLovValueRepository
                     .findById(String.valueOf(result.getNormalRangeValue()))
                     .map(ApLovValue::getLovDisplayVale)
@@ -334,7 +334,7 @@ public class LabInterpreterAiService {
 
     private String mapFlag(DiagnosticOrderTestResult result) {
         return result.getMarker() != null
-                ? result.getMarker().name().toLowerCase()
+                ? result.getMarker().toLowerCase()
                 : "not defined";
     }
 

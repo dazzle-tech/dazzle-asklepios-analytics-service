@@ -1,8 +1,6 @@
 package com.dazzle.asklepios.repository;
 
 import com.dazzle.asklepios.domain.Appointment;
-import com.dazzle.asklepios.domain.enumeration.AppointmentStatus;
-import com.dazzle.asklepios.domain.enumeration.TemplateType;
 import com.dazzle.asklepios.service.dto.reports.AppointmentWaitTimeProjection;
 import feign.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,7 +11,7 @@ import java.util.List;
 
 public interface AppointmentRepository  extends JpaRepository<Appointment, Long> {
 
-    long countAppointmentByStatusInAndStartDatetimeIsGreaterThanEqualAndEndDatetimeIsLessThan(List<AppointmentStatus> status, Instant start, Instant end);
+    long countAppointmentByStatusInAndStartDatetimeIsGreaterThanEqualAndEndDatetimeIsLessThan(List<String> status, Instant start, Instant end);
 
     @Query("""
     SELECT
@@ -42,7 +40,7 @@ public interface AppointmentRepository  extends JpaRepository<Appointment, Long>
       AND a.patient IS NOT NULL
 """)
     long countAppointmentByStatusInAndDepartmentIdAndStartDatetimeGreaterThanEqualAndEndDatetimeLessThan(
-            @Param("statuses") List<AppointmentStatus> statuses,
+            @Param("statuses") List<String> statuses,
             @Param("departmentId") Long departmentId,
             @Param("start") Instant start,
             @Param("end") Instant end
@@ -58,7 +56,7 @@ public interface AppointmentRepository  extends JpaRepository<Appointment, Long>
       AND a.patient IS NOT NULL
 """)
     long countAppointmentByStatusAndDepartmentIdAndStartDatetimeGreaterThanEqualAndEndDatetimeLessThan(
-            @Param("status") AppointmentStatus status,
+            @Param("status") String status,
             @Param("departmentId") Long departmentId,
             @Param("start") Instant start,
             @Param("end") Instant end
@@ -74,9 +72,9 @@ public interface AppointmentRepository  extends JpaRepository<Appointment, Long>
       AND a.startDatetime < :end
     """)
     long countByResourceTypeAndResourceIdInAndStatusInAndStartDatetimeRange(
-            @Param("resourceType") TemplateType resourceType,
+            @Param("resourceType") String resourceType,
             @Param("resourceIds") List<Long> resourceIds,
-            @Param("statuses") List<AppointmentStatus> statuses,
+            @Param("statuses") List<String> statuses,
             @Param("start") Instant start,
             @Param("end") Instant end
     );
@@ -91,9 +89,9 @@ public interface AppointmentRepository  extends JpaRepository<Appointment, Long>
       AND a.startDatetime < :end
     """)
     long countByResourceTypeAndResourceIdInAndStatusAndStartDatetimeRange(
-            @Param("resourceType") TemplateType resourceType,
+            @Param("resourceType") String resourceType,
             @Param("resourceIds") List<Long> resourceIds,
-            @Param("status") AppointmentStatus status,
+            @Param("status") String status,
             @Param("start") Instant start,
             @Param("end") Instant end
     );

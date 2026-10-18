@@ -1,10 +1,7 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.DocumentType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -48,9 +45,8 @@ public class PatientDocument extends AbstractAuditingEntity<Long> implements Ser
     private Long countryId;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, length = 255)
-    private DocumentType type;
+    private String type;
 
     @Column(name = "number", nullable = false, length = 255)
     private String number;

@@ -123,7 +123,7 @@ public class PatientVaccinationReportService {
                 reportCommonService.getPatientDisplayName(patient),
                 patient.getMedicalRecordNumber(),
                 patient.getSexAtBirth() != null
-                        ? reportCommonService.formatEnum(patient.getSexAtBirth().name())
+                        ? reportCommonService.formatEnum(patient.getSexAtBirth())
                         : null,
                 patient.getDateOfBirth() != null
                         ? new SimpleDateFormat("dd/MM/yyyy").format(patient.getDateOfBirth())

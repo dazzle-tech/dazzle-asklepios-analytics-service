@@ -139,7 +139,7 @@ public class ReportPdfCommonService {
 
     public String getLogoBase64() {
         try {
-            String storageKey = repository.findByConfigKey(SystemConfigKey.SIDEBAR_LOGO)
+            String storageKey = repository.findByConfigKey(SystemConfigKey.SIDEBAR_LOGO.name())
                     .map(config -> config.getConfigValue())
                     .filter(value -> value != null && !value.isBlank())
                     .orElse(null);
@@ -187,7 +187,7 @@ public class ReportPdfCommonService {
     }
 
     public String getPrimaryColor() {
-        return repository.findByConfigKey(SystemConfigKey.PRIMARY_COLOR)
+        return repository.findByConfigKey(SystemConfigKey.PRIMARY_COLOR.name())
                 .map(config -> config.getConfigValue())
                 .filter(value -> value != null && !value.isBlank())
                 .orElse("#001f3f");

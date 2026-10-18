@@ -1,7 +1,6 @@
 package com.dazzle.asklepios.repository;
 
 import com.dazzle.asklepios.domain.UrgentCareMedicationOrder;
-import com.dazzle.asklepios.domain.enumeration.MedicationOrderStatus;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -12,6 +11,6 @@ public interface UrgentCareMedicationOrderRepository extends JpaRepository<Urgen
     @EntityGraph(attributePaths = {"activeIngredient"})
     List<UrgentCareMedicationOrder> findByEncounterIdAndStatusOrderByCreatedDateAsc(
             Long encounterId,
-            MedicationOrderStatus status
+            String status
     );
 }

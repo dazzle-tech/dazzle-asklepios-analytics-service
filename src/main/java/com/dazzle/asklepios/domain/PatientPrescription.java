@@ -1,12 +1,8 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.PrescriptionStatus;
-import com.dazzle.asklepios.domain.enumeration.PrescriptionUrgencyLevel;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -50,13 +46,11 @@ public class PatientPrescription extends AbstractAuditingEntity<Long> implements
     @Column(name = "prescription_date", nullable = false)
     private LocalDate prescriptionDate;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "urgency_level", length = 50, nullable = false)
-    private PrescriptionUrgencyLevel urgencyLevel;
+    private String urgencyLevel;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)
-    private PrescriptionStatus status;
+    private String status;
 
     @Column(name = "from_facility_id", nullable = false)
     private Long fromFacilityId;

@@ -1,10 +1,7 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.PatientHistoryStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -70,10 +67,9 @@ public class PatientProblem extends AbstractAuditingEntity<Long>
     @Column(name = "source_of_information")
     private String sourceOfInformation;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)
 
-    private PatientHistoryStatus status = PatientHistoryStatus.ACTIVE;
+    private String status = "ACTIVE";
 
     @Column(name = "cancelled_by", length = 50)
     private String cancelledBy;

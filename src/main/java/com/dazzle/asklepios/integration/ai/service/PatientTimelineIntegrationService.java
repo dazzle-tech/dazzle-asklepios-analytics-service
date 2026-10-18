@@ -93,7 +93,7 @@ public class PatientTimelineIntegrationService {
 
     private PatientDataInputDTO buildPatientData(Patient patient) {
         List<PatientEncounter> encounters = patientEncounterRepository.findByPatient_IdOrderByEncounterDateDesc(patient.getId());
-        List<CurrentMedication> medications = currentMedicationRepository.findByPatientIdAndStatus(patient.getId(), PatientHistoryStatus.ACTIVE);
+        List<CurrentMedication> medications = currentMedicationRepository.findByPatientIdAndStatus(patient.getId(), PatientHistoryStatus.ACTIVE.name());
 
         List<PatientDiagnosis> diagnoses = patientDiagnosisRepository.findByPatientId(patient.getId());
         List<PatientAllergies> allergies = patientAllergiesRepository.findByPatientIdOrderByCreatedDateAsc(patient.getId());
@@ -116,7 +116,7 @@ public class PatientTimelineIntegrationService {
 
     private DemographicsDTO buildDemographics(Patient patient) {
         String age = patient.getDateOfBirth() != null ? buildAge(patient.getDateOfBirth()) : null;
-        String gender = patient.getSexAtBirth() != null ? patient.getSexAtBirth().name() : null;
+        String gender = patient.getSexAtBirth();
         return new DemographicsDTO(age, gender);
     }
 
@@ -139,7 +139,7 @@ public class PatientTimelineIntegrationService {
                                 .atZone(ZoneId.systemDefault()).toLocalDate().toString()
                                 : "",
                         null,
-                        m.getStatus() != null ? m.getStatus().name() : null
+                        m.getStatus()
                 ))
                 .collect(Collectors.toList());
     }
@@ -147,7 +147,7 @@ public class PatientTimelineIntegrationService {
     private List<EncounterEntryDTO> buildEncounters(List<PatientEncounter> encounters) {
         return encounters.stream()
                 .map(e -> new EncounterEntryDTO(
-                        e.getEncounterType() != null ? e.getEncounterType().name() : "Unknown",
+                        e.getEncounterType() != null ? e.getEncounterType() : "Unknown",
                         e.getEncounterDate() != null ? e.getEncounterDate().toString() : "",
                         e.getChiefComplaint()
                 ))
@@ -206,14 +206,14 @@ public class PatientTimelineIntegrationService {
                     String value;
                     if (r.getResultValueNumber() != null) {
                         value = r.getResultValueNumber().toString();
-                    } else if (profile != null && profile.getResultType() == TestResultType.LOV) {
+                    } else if (profile != null && TestResultType.LOV.name().equals(profile.getResultType())) {
                         String displayValue = lovLookupService.findDisplayValue(r.getResultValueText());
                         value = displayValue != null ? displayValue : r.getResultValueText();
                     } else {
                         value = r.getResultValueText();
                     }
                     String date = r.getApprovedDate() != null ? toDateString(r.getApprovedDate()) : toDateString(r.getCreatedDate());
-                    String flag = r.getMarker() != null ? r.getMarker().name() : null;
+                    String flag = r.getMarker();
                     return value != null && !value.isBlank()
                             ? new LabResultEntryDTO(name, value, unit, date, flag)
                             : null;

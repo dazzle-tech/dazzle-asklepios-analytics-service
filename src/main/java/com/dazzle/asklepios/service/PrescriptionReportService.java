@@ -202,7 +202,7 @@ public class PrescriptionReportService {
                 ));
 
         List<PatientPrescriptionMedication> medications =
-                Optional.ofNullable(prescriptionMedicationRepository.findAllByPrescriptionHeaderIdAndStatusNotOrderByIdAsc(prescriptionId, PrescriptionStatus.CANCELLED))
+                Optional.ofNullable(prescriptionMedicationRepository.findAllByPrescriptionHeaderIdAndStatusNotOrderByIdAsc(prescriptionId, PrescriptionStatus.CANCELLED.name()))
                         .orElse(Collections.emptyList());
 
 
@@ -228,8 +228,8 @@ public class PrescriptionReportService {
                 .findTopByPatientIdAndIsPrimaryTrueOrderByIdDesc(patient.getId())
                 .orElse(null);
 
-        String primaryDocumentType = patientDocument != null && patientDocument.getType() != null
-                ? patientDocument.getType().name()
+        String primaryDocumentType = patientDocument != null
+                ? patientDocument.getType()
                 : null;
 
         String primaryDocumentNumber = patientDocument != null
@@ -249,7 +249,7 @@ public class PrescriptionReportService {
                 .map(a -> new PrescriptionAllergyDTO(
                         a.getAllergenType(),
                         resolveAllergyName(a),
-                        a.getSeverity() != null ? a.getSeverity().name() : null
+                        a.getSeverity()
                 ))
                 .toList();
 
@@ -257,7 +257,7 @@ public class PrescriptionReportService {
                 .map(w -> new PrescriptionWarningDTO(
                         resolveLovDisplayValue(w.getWarningType()),
                         w.getWarning(),
-                        w.getSeverity() != null ? w.getSeverity().name() : null
+                        w.getSeverity()
                 ))
                 .toList();
 
@@ -363,14 +363,14 @@ public class PrescriptionReportService {
 
         return switch (medication.getInstructionsType()) {
 
-            case MANUAL_INSTRUCTIONS -> {
+            case "MANUAL_INSTRUCTIONS" -> {
                 LOG.debug("[resolveInstruction] MANUAL_INSTRUCTIONS medicationId={} result={}",
                         medication.getId(),
                         medication.getInstructions());
                 yield medication.getInstructions();
             }
 
-            case CUSTOM_INSTRUCTIONS -> {
+            case "CUSTOM_INSTRUCTIONS" -> {
                 LOG.debug("[resolveInstruction] CUSTOM_INSTRUCTIONS medicationId={}", medication.getId());
                 String result = buildCustomInstruction(medication);
                 LOG.debug("[resolveInstruction] CUSTOM_INSTRUCTIONS medicationId={} result={}",
@@ -379,7 +379,7 @@ public class PrescriptionReportService {
                 yield result;
             }
 
-            case PRE_DEFINED_INSTRUCTIONS -> {
+            case "PRE_DEFINED_INSTRUCTIONS" -> {
                 LOG.debug("[resolveInstruction] PRE_DEFINED_INSTRUCTIONS medicationId={} rawInstructions={}",
                         medication.getId(),
                         medication.getInstructions());
@@ -427,6 +427,8 @@ public class PrescriptionReportService {
 
                 yield result;
             }
+
+            default -> null;
         };
     }
 
@@ -555,7 +557,7 @@ public class PrescriptionReportService {
             return null;
         }
 
-        if (allergy.getAllergenType() == AllergenTypes.MEDICATION) {
+        if (AllergenTypes.MEDICATION.name().equals(allergy.getAllergenType())) {
             return allergy.getMedicationClass() != null
                     ? allergy.getMedicationClass().getName()
                     : null;

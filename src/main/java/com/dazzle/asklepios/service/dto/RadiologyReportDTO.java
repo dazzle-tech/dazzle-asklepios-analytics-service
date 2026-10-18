@@ -1,6 +1,5 @@
 package com.dazzle.asklepios.service.dto;
 
-import com.dazzle.asklepios.domain.enumeration.Gender;
 import java.util.Date;
 
 public record RadiologyReportDTO(
@@ -11,7 +10,7 @@ public record RadiologyReportDTO(
         String mrn,
         Date dateOfBirth,
         String age,
-        Gender gender,
+        String gender,
         String primaryMobileNumber,
 
         String encounterNumber,

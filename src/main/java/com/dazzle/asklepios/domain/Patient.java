@@ -1,13 +1,8 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.Gender;
-import com.dazzle.asklepios.domain.enumeration.PreferredWayOfContact;
-import com.dazzle.asklepios.domain.enumeration.SecurityLevel;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -58,9 +53,8 @@ public class Patient extends AbstractAuditingEntity<Long> implements Serializabl
     @Column(name = "last_name", length = 100)
     private String lastName;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "sex_at_birth", length = 20)
-    private Gender sexAtBirth;
+    private String sexAtBirth;
 
     @PastOrPresent
     @Column(name = "date_of_birth")
@@ -105,9 +99,8 @@ public class Patient extends AbstractAuditingEntity<Long> implements Serializabl
     @Column(name = "receive_email")
     private Boolean receiveEmail;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "preferred_way_of_contact", length = 50)
-    private PreferredWayOfContact preferredWayOfContact;
+    private String preferredWayOfContact;
 
     @Column(name = "preferred_language", length = 100)
     private String preferredLanguage;

@@ -163,19 +163,15 @@ public class PatientAiContextBuilderService {
         return patientAllergiesRepository
                 .findByPatientIdAndStatusNotOrderByCreatedDateAsc(
                         patientId,
-                        PatientAllergyStatus.CANCELLED
+                        PatientAllergyStatus.CANCELLED.name()
                 )
                 .stream()
                 .map(allergy -> {
-                    String type = allergy.getAllergenType() != null
-                            ? allergy.getAllergenType().name()
-                            : null;
+                    String type = allergy.getAllergenType();
 
                     String allergenName = resolveAllergenName(allergy);
 
-                    String severity = allergy.getSeverity() != null
-                            ? allergy.getSeverity().name()
-                            : null;
+                    String severity = allergy.getSeverity();
 
                     return Stream.of(type, allergenName, severity)
                             .filter(Objects::nonNull)
@@ -249,7 +245,7 @@ public class PatientAiContextBuilderService {
 
     String buildDiagnosis(Long encounterId) {
         return patientDiagnosisRepository
-                .findByEncounterIdAndType(encounterId, DiagnosisType.PRIMARY)
+                .findByEncounterIdAndType(encounterId, DiagnosisType.PRIMARY.name())
                 .map(patientDiagnosis -> patientDiagnosis.getDiagnosis() != null
                         ? patientDiagnosis.getDiagnosis().getIcdShortDescription()
                         : null
@@ -270,7 +266,7 @@ public class PatientAiContextBuilderService {
         return currentMedicationRepository
                 .findByPatientIdAndStatusOrderByCreatedDateAsc(
                         patientId,
-                        PatientHistoryStatus.ACTIVE
+                        PatientHistoryStatus.ACTIVE.name()
                 )
                 .stream()
                 .map(med -> {
@@ -305,7 +301,7 @@ public class PatientAiContextBuilderService {
             DiagnosticTestProfile profile,
             DiagnosticOrderTestResult result
     ) {
-        if (profile != null && profile.getResultType() == TestResultType.LOV) {
+        if (profile != null && TestResultType.LOV.name().equals(profile.getResultType())) {
             return apLovValueRepository
                     .findById(String.valueOf(result.getResultValueText()))
                     .map(ApLovValue::getLovDisplayVale)
@@ -327,7 +323,7 @@ public class PatientAiContextBuilderService {
             return null;
         }
 
-        if (profile != null && profile.getResultType() == TestResultType.LOV) {
+        if (profile != null && TestResultType.LOV.name().equals(profile.getResultType())) {
             return apLovValueRepository
                     .findById(String.valueOf(value))
                     .map(ApLovValue::getLovDisplayVale)

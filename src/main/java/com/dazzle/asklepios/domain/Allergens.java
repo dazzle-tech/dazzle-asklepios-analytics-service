@@ -1,10 +1,7 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.AllergenType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -40,9 +37,8 @@ public class Allergens extends AbstractAuditingEntity<Long> implements Serializa
     private String name;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AllergenType type;
+    private String type;
 
     @Column(columnDefinition = "text")
     private String description;

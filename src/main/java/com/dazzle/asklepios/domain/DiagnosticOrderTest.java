@@ -1,12 +1,7 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.DiagnosticOrderTestStatus;
-import com.dazzle.asklepios.domain.enumeration.DiagnosticStatus;
-import com.dazzle.asklepios.domain.enumeration.TestType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -42,9 +37,8 @@ public class DiagnosticOrderTest extends AbstractAuditingEntity implements Seria
     private Long id;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 50)
-    private DiagnosticOrderTestStatus status;
+    private String status;
 
     @NotNull
     @Column(name = "order_id")
@@ -64,9 +58,8 @@ public class DiagnosticOrderTest extends AbstractAuditingEntity implements Seria
     private String notes;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "processing_status", length = 50)
-    private DiagnosticStatus processingStatus;
+    private String processingStatus;
 
     @Column(name = "submit_date")
     private Instant submitDate;
@@ -91,9 +84,8 @@ public class DiagnosticOrderTest extends AbstractAuditingEntity implements Seria
 
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "order_type", length = 50)
-    private TestType orderType;
+    private String orderType;
 
     @Column(name = "accepted_by", length = 50)
     private String acceptedBy;

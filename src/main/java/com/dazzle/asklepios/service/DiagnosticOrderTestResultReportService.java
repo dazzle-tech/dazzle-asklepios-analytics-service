@@ -317,7 +317,7 @@ public class DiagnosticOrderTestResultReportService {
                 ));
 
         String normalRangeValue =
-                testProfile.getResultType() == TestResultType.LOV
+                TestResultType.LOV.name().equals(testProfile.getResultType())
                         ? apLovValueRepository.findById(String.valueOf(result.getNormalRangeValue()))
                         .map(ApLovValue::getLovDisplayVale)
                         .orElse(result.getNormalRangeValue())
@@ -325,14 +325,14 @@ public class DiagnosticOrderTestResultReportService {
 
         String resultValue;
 
-        if (testProfile.getResultType() == TestResultType.LOV) {
+        if (TestResultType.LOV.name().equals(testProfile.getResultType())) {
 
             resultValue = apLovValueRepository
                     .findById(String.valueOf(result.getResultValueText()))
                     .map(ApLovValue::getLovDisplayVale)
                     .orElse(result.getResultValueText());
 
-        } else if (testProfile.getResultType() == TestResultType.TEXT) {
+        } else if (TestResultType.TEXT.name().equals(testProfile.getResultType())) {
 
             resultValue = result.getResultValueText();
 
@@ -345,7 +345,7 @@ public class DiagnosticOrderTestResultReportService {
         }
 
         String unit =
-                testProfile.getResultType() == TestResultType.NUMBER
+                TestResultType.NUMBER.name().equals(testProfile.getResultType())
                         ? reportCommonService.getLovDisplayValue(
                         String.valueOf(testProfile.getResultUnit())
                 )

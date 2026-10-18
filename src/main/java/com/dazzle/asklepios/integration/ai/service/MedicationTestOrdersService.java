@@ -87,7 +87,7 @@ public class MedicationTestOrdersService {
         PatientDTO patientDTO = new PatientDTO(
                 safe(patient.getMedicalRecordNumber()),
                 buildFullName(patient),
-                patient.getSexAtBirth() != null ? patient.getSexAtBirth().name() : "Unknown",
+                patient.getSexAtBirth() != null ? patient.getSexAtBirth() : "Unknown",
                 patient.getDateOfBirth() != null
                         ? patient.getDateOfBirth().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().toString()
                         : ""
@@ -95,7 +95,7 @@ public class MedicationTestOrdersService {
 
         EncounterDTO encounterDTO = new EncounterDTO(
                 safe(encounter.getId()),
-                encounter.getEncounterType() != null ? encounter.getEncounterType().name() : "",
+                encounter.getEncounterType() != null ? encounter.getEncounterType() : "",
                 encounter.getEncounterDate() != null ? encounter.getEncounterDate().toString() : "",
                 encounter.getChiefComplaint(),
                 buildAge(patient.getDateOfBirth()),
@@ -103,7 +103,7 @@ public class MedicationTestOrdersService {
         );
 
         List<String> medications = prescriptionMedicationRepository
-                .findAllByPrescriptionHeaderIdAndStatusNotOrderByIdAsc(request.prescriptionId(), PrescriptionStatus.CANCELLED)
+                .findAllByPrescriptionHeaderIdAndStatusNotOrderByIdAsc(request.prescriptionId(), PrescriptionStatus.CANCELLED.name())
                 .stream()
                 .map(this::formatMedication)
                 .toList();
@@ -125,7 +125,7 @@ public class MedicationTestOrdersService {
         PatientDTO patientDTO = new PatientDTO(
                 safe(patient.getMedicalRecordNumber()),
                 buildFullName(patient),
-                patient.getSexAtBirth() != null ? patient.getSexAtBirth().name() : "Unknown",
+                patient.getSexAtBirth() != null ? patient.getSexAtBirth() : "Unknown",
                 patient.getDateOfBirth() != null
                         ? patient.getDateOfBirth().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().toString()
                         : ""
@@ -133,7 +133,7 @@ public class MedicationTestOrdersService {
 
         EncounterDTO encounterDTO = new EncounterDTO(
                 safe(encounter.getId()),
-                encounter.getEncounterType() != null ? encounter.getEncounterType().name() : "",
+                encounter.getEncounterType() != null ? encounter.getEncounterType() : "",
                 encounter.getEncounterDate() != null ? encounter.getEncounterDate().toString() : "",
                 encounter.getChiefComplaint(),
                 buildAge(patient.getDateOfBirth()),
@@ -186,7 +186,7 @@ public class MedicationTestOrdersService {
     }
 
     private String getPrimaryDiagnosis(Long encounterId) {
-        Optional<PatientDiagnosis> diagnosis = patientDiagnosisRepository.findByEncounterIdAndType(encounterId, DiagnosisType.PRIMARY);
+        Optional<PatientDiagnosis> diagnosis = patientDiagnosisRepository.findByEncounterIdAndType(encounterId, DiagnosisType.PRIMARY.name());
         if (diagnosis.isPresent()) {
             PatientDiagnosis d = diagnosis.get();
             String code = d.getDiagnosis() != null ? d.getDiagnosis().getIcdCode() : "";
@@ -210,7 +210,7 @@ public class MedicationTestOrdersService {
         }
         String code = safe(diagnosis.getDiagnosis().getIcdCode());
         String desc = safe(diagnosis.getDiagnosis().getIcdShortDescription());
-        String type = diagnosis.getType() != null ? diagnosis.getType().name() : "";
+        String type = diagnosis.getType() != null ? diagnosis.getType() : "";
         String value = (code + "," + desc).trim();
         if (value.isBlank()) {
             return null;
@@ -239,13 +239,13 @@ public class MedicationTestOrdersService {
         if (medication == null || medication.getInstructionsType() == null) {
             return medication != null ? medication.getInstructions() : "";
         }
-        if (medication.getInstructionsType() == PrescriptionInstructionsType.MANUAL_INSTRUCTIONS) {
+        if (PrescriptionInstructionsType.MANUAL_INSTRUCTIONS.name().equals(medication.getInstructionsType())) {
             return safe(medication.getInstructions());
         }
-        if (medication.getInstructionsType() == PrescriptionInstructionsType.CUSTOM_INSTRUCTIONS) {
+        if (PrescriptionInstructionsType.CUSTOM_INSTRUCTIONS.name().equals(medication.getInstructionsType())) {
             return buildCustomInstruction(medication);
         }
-        if (medication.getInstructionsType() == PrescriptionInstructionsType.PRE_DEFINED_INSTRUCTIONS) {
+        if (PrescriptionInstructionsType.PRE_DEFINED_INSTRUCTIONS.name().equals(medication.getInstructionsType())) {
             Long id = safeParseLong(medication.getInstructions());
             if (id == null) {
                 return "";

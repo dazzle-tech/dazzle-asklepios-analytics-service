@@ -1,14 +1,7 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.AppointmentStatus;
-import com.dazzle.asklepios.domain.enumeration.BookingMode;
-import com.dazzle.asklepios.domain.enumeration.EncounterPriority;
-import com.dazzle.asklepios.domain.enumeration.EncounterReason;
-import com.dazzle.asklepios.domain.enumeration.TemplateType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -43,9 +36,8 @@ public class Appointment extends AbstractAuditingEntity<Long> implements Seriali
     private AvailabilityGenerationBatch availabilityGenerationBatch;
 
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "resource_type", nullable = false)
-    private TemplateType resourceType;
+    private String resourceType;
 
     @Column(name = "resource_id", nullable = false)
     private Long resourceId;
@@ -75,20 +67,17 @@ public class Appointment extends AbstractAuditingEntity<Long> implements Seriali
     @Column(name = "reason", length = 255)
     private String reason;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "service", length = 50)
-    private EncounterReason service;
+    private String service;
 
     @Column(name = "service_group_id")
     private Long serviceGroupId;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "booking_mode", nullable = false, length = 20)
-    private BookingMode bookingMode;
+    private String bookingMode;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)
-    private AppointmentStatus status;
+    private String status;
 
     @Column(name = "deferred", nullable = false)
     private Boolean deferred = false;
@@ -108,9 +97,8 @@ public class Appointment extends AbstractAuditingEntity<Long> implements Seriali
     @Column(name = "cancelled_by", length = 50)
     private String cancelledBy;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "priority", nullable = false, length = 50)
-    private EncounterPriority priority;
+    private String priority;
 
     @Column(name = "origin_type", length = 255)
     private String originType;

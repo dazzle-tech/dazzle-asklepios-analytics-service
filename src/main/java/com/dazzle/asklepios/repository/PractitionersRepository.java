@@ -1,7 +1,6 @@
 package com.dazzle.asklepios.repository;
 
 import com.dazzle.asklepios.domain.Practitioner;
-import com.dazzle.asklepios.domain.enumeration.Specialty;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,7 +16,7 @@ public interface PractitionersRepository extends JpaRepository<Practitioner, Lon
 
     Page<Practitioner> findByFacilityId(Long facilityId, Pageable pageable);
 
-    Page<Practitioner> findBySpecialty(Specialty specialty, Pageable pageable);
+    Page<Practitioner> findBySpecialty(String specialty, Pageable pageable);
     Page<Practitioner> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
             String firstName,
             String lastName,
@@ -34,7 +33,7 @@ public interface PractitionersRepository extends JpaRepository<Practitioner, Lon
     Page<Practitioner> findByFacilityIdAndSubSpecialtyAndSpecialtyAndUserIdIsNotNullAndIsActiveTrue(
             Long facilityId,
             String subSpecialty,
-            Specialty specialty,
+            String specialty,
             Pageable pageable
     );
 

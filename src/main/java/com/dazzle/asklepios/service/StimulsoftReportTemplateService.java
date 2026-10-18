@@ -120,7 +120,7 @@ public class StimulsoftReportTemplateService {
         }
 
         StimulsoftReportTemplate template = findEntityById(request.templateId());
-        if (template.getTemplateType() != StimulsoftTemplateType.DASHBOARD) {
+        if (!StimulsoftTemplateType.DASHBOARD.name().equals(template.getTemplateType())) {
             throw new BadRequestAlertException(
                     "Only a dashboard can be set as the default",
                     "dashboardDefault",
@@ -187,8 +187,8 @@ public class StimulsoftReportTemplateService {
         );
         entity.setFacilityId(request.facilityId());
         entity.setDepartmentIds(request.departmentIds());
-        entity.setModule(request.module());
-        entity.setJobRole(request.jobRole());
+        entity.setModule(request.module() == null ? null : request.module());
+        entity.setJobRole(request.jobRole() == null ? null : request.jobRole());
         entity.setUserIds(request.jobRole() == null ? null : request.userIds());
         entity.setTemplateType(
                 request.templateType() == null
@@ -218,8 +218,8 @@ public class StimulsoftReportTemplateService {
 
         entity.setFacilityId(request.facilityId());
         entity.setDepartmentIds(request.departmentIds());
-        entity.setModule(request.module());
-        entity.setJobRole(request.jobRole());
+        entity.setModule(request.module() == null ? null : request.module());
+        entity.setJobRole(request.jobRole() == null ? null : request.jobRole());
         entity.setUserIds(request.jobRole() == null ? null : request.userIds());
         if (request.templateType() != null) {
             entity.setTemplateType(request.templateType());
@@ -279,7 +279,7 @@ public class StimulsoftReportTemplateService {
             return viewerUserId != null && allowedUserIds.contains(viewerUserId);
         }
 
-        return viewerRole != null && viewerRole == template.getJobRole();
+        return viewerRole != null && viewerRole.name().equals(template.getJobRole());
     }
 
     private boolean matchesFacility(StimulsoftReportTemplate template, Long facilityId) {

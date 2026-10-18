@@ -1,12 +1,7 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.AvailabilityGenerationScope;
-import com.dazzle.asklepios.domain.enumeration.BatchStatus;
-import com.dazzle.asklepios.domain.enumeration.HolidayHandlingMode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -33,13 +28,11 @@ public class AvailabilityGenerationBatch extends  AbstractAuditingEntity<Long> i
     @JoinColumn(name = "template_id", nullable = false)
     private AvailabilityTemplate template;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "holiday_handling_mode")
-    private HolidayHandlingMode holidayHandlingMode;
+    private String holidayHandlingMode;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "scope", nullable = false)
-    private AvailabilityGenerationScope scope;
+    private String scope;
 
     @Column(name = "apply_start_date_time", nullable = false)
     private Instant applyStartDateTime;
@@ -53,9 +46,8 @@ public class AvailabilityGenerationBatch extends  AbstractAuditingEntity<Long> i
     @Column(name = "daily_avg")
     private Integer dailyAvg;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "execution_status", nullable = false)
-    private BatchStatus executionStatus;
+    private String executionStatus;
 
     @Column(name = "interval_ended_notification_sent", nullable = false)
     private Boolean intervalEndedNotificationSent = false;

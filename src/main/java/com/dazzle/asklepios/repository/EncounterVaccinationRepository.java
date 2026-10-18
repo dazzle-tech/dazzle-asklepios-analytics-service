@@ -1,7 +1,6 @@
 package com.dazzle.asklepios.repository;
 
 import com.dazzle.asklepios.domain.EncounterVaccination;
-import com.dazzle.asklepios.domain.enumeration.EncounterVaccinationStatus;
 import io.micrometer.core.instrument.Tags;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +16,7 @@ public interface EncounterVaccinationRepository
 
     List<EncounterVaccination> findByEncounterIdAndStatusNotOrderByCreatedDateAsc(
             Long encounterId,
-            EncounterVaccinationStatus status
+            String status
     );
 
     @Query(value = """
