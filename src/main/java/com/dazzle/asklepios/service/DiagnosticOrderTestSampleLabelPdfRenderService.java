@@ -87,12 +87,12 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
             );
         }
 
-        // Labels printed from this endpoint carry the orderId instead of the printNumber.
+        // Labels printed from this endpoint carry the printNumber.
         return renderSampleLabels(
                 sampleLabels,
                 lang,
                 copies,
-                true
+                false
         );
     }
     /**
@@ -117,15 +117,6 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
             );
         }
 
-        // TODO(print_number): grouped printing depends entirely on printNumber, which is
-        // temporarily disabled. Remove this early return and restore the block below later.
-        LOG.warn("[GroupedSampleLabel] Grouped printing temporarily disabled (print_number). orderTestIds={}", orderTestIds);
-        return new GroupedSampleLabelsPrintResult(
-                reportPdfCommonService.renderEmptyPdf("Grouped sample label printing is temporarily disabled"),
-                List.of()
-        );
-
-        /* TODO(print_number): temporarily disabled - restore later
         Map<Long, DiagnosticOrderTest> orderTestById = orderTestRepository.findAllById(orderTestIds).stream()
                 .collect(Collectors.toMap(DiagnosticOrderTest::getId, ot -> ot));
 
@@ -244,7 +235,6 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
                 renderGroupedSampleLabels(labelsList, lang, copies),
                 missingDefinitionTestNames
         );
-        */
     }
 
     private String resolveTestName(DiagnosticOrderTest orderTest, Long orderTestId) {
@@ -555,14 +545,12 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
             DiagnosticOrderTestSampleLabelDTO dto,
             boolean useOrderId
     ) {
-        // TODO(print_number): temporarily disabled - labels always carry the orderId
-        // until printNumber is restored; then bring back the useOrderId branch below.
-        // if (useOrderId) {
-        return dto.orderId() != null
-                ? String.valueOf(dto.orderId())
-                : "—";
-        // }
-        // return nullSafe(dto.printNumber());
+        if (useOrderId) {
+            return dto.orderId() != null
+                    ? String.valueOf(dto.orderId())
+                    : "—";
+        }
+        return nullSafe(dto.printNumber());
     }
 
     private String nullSafe(String value) {

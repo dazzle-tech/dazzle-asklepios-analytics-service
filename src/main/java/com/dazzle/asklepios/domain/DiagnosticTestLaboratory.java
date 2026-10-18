@@ -79,7 +79,6 @@ public class DiagnosticTestLaboratory {
     @Column(length = 200)
     private String tubeType;
 
-    // TODO(analyzer_id): temporarily disabled - restore this field later
-    // @Column(name = "analyzer_id")
-    // private Long analyzerId;
+    @Column(name = "analyzer_id")
+    private Long analyzerId;
 }
