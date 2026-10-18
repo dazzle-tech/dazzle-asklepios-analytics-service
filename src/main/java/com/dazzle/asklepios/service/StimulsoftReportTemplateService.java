@@ -40,7 +40,7 @@ public class StimulsoftReportTemplateService {
     public Page<StimulsoftReportTemplateVM> findAll(StimulsoftTemplateType templateType, Pageable pageable) {
         Page<StimulsoftReportTemplate> page = templateType == null
                 ? repository.findAll(pageable)
-                : repository.findByTemplateType(templateType.name(), pageable);
+                : repository.findByTemplateType(templateType, pageable);
         return page.map(this::toVM);
     }
 
@@ -52,7 +52,7 @@ public class StimulsoftReportTemplateService {
     ) {
         Page<StimulsoftReportTemplate> page = templateType == null
                 ? repository.findByNameContainingIgnoreCase(name, pageable)
-                : repository.findByNameContainingIgnoreCaseAndTemplateType(name, templateType.name(), pageable);
+                : repository.findByNameContainingIgnoreCaseAndTemplateType(name, templateType, pageable);
         return page.map(this::toVM);
     }
 
@@ -78,7 +78,7 @@ public class StimulsoftReportTemplateService {
                 .orElse(null);
 
         List<StimulsoftReportTemplateVM> matched = repository
-                .findByTemplateType(StimulsoftTemplateType.DASHBOARD.name(), Pageable.unpaged())
+                .findByTemplateType(StimulsoftTemplateType.DASHBOARD, Pageable.unpaged())
                 .getContent()
                 .stream()
                 .filter(template -> !Boolean.FALSE.equals(template.getActive()))
@@ -187,13 +187,13 @@ public class StimulsoftReportTemplateService {
         );
         entity.setFacilityId(request.facilityId());
         entity.setDepartmentIds(request.departmentIds());
-        entity.setModule(request.module() == null ? null : request.module().name());
-        entity.setJobRole(request.jobRole() == null ? null : request.jobRole().name());
+        entity.setModule(request.module() == null ? null : request.module());
+        entity.setJobRole(request.jobRole() == null ? null : request.jobRole());
         entity.setUserIds(request.jobRole() == null ? null : request.userIds());
         entity.setTemplateType(
                 request.templateType() == null
-                        ? StimulsoftTemplateType.REPORT.name()
-                        : request.templateType().name()
+                        ? StimulsoftTemplateType.REPORT
+                        : request.templateType()
         );
 
         return toVM(repository.save(entity));
@@ -218,11 +218,11 @@ public class StimulsoftReportTemplateService {
 
         entity.setFacilityId(request.facilityId());
         entity.setDepartmentIds(request.departmentIds());
-        entity.setModule(request.module() == null ? null : request.module().name());
-        entity.setJobRole(request.jobRole() == null ? null : request.jobRole().name());
+        entity.setModule(request.module() == null ? null : request.module());
+        entity.setJobRole(request.jobRole() == null ? null : request.jobRole());
         entity.setUserIds(request.jobRole() == null ? null : request.userIds());
         if (request.templateType() != null) {
-            entity.setTemplateType(request.templateType().name());
+            entity.setTemplateType(request.templateType());
         }
 
         return toVM(repository.save(entity));
@@ -341,7 +341,7 @@ public class StimulsoftReportTemplateService {
                 entity.getDepartmentIds(),
                 entity.getModule(),
                 entity.getTemplateType() == null
-                        ? StimulsoftTemplateType.REPORT.name()
+                        ? StimulsoftTemplateType.REPORT
                         : entity.getTemplateType(),
                 entity.getJobRole(),
                 entity.getUserIds(),

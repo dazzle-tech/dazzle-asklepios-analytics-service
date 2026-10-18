@@ -187,7 +187,7 @@
                                     <span th:text="${item.result != null and !#strings.isEmpty(item.result) ? item.result : '—'}"></span>
 
                                     <span th:if="${item.marker != null}"
-                                          th:switch="${item.marker.name()}">
+                                          th:switch="${item.marker}">
 
         <span th:case="'ABNORMAL_MARKER'"> ⚠</span>
         <span th:case="'UPPER_LIMIT'"> ↑</span>
