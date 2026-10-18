@@ -97,9 +97,13 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
     }
     /**
      * Prints one label per group of selected order tests that share the same
-     * printNumber - a value assigned once per order at submit time (see
-     * {@link PrintNumberService}), never computed here. Tests with no
-     * printNumber (order not submitted yet, or was missing analyzer/tube
+     * (analyzer, tubeColor, tubeType) - checked live, here, every time.
+     * printNumber (the barcode value) is assigned once per order at submit
+     * time (see {@link PrintNumberService}) and only ever read here, never
+     * recomputed - but it is NOT used to decide grouping, since two unrelated
+     * groups sharing the same analyzer would otherwise get the identical
+     * {analyzerCode}{orderId} string and wrongly merge. Tests with no
+     * printNumber (order not submitted yet, or was missing analyzer
      * definition at submit time) or no collected sample are never printed -
      * they're reported back as "missing definition" so the UI can warn
      * the user instead of silently skipping them.
@@ -164,12 +168,23 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
             );
         }
 
-        // Grouping is purely by the already-assigned printNumber - decided once
-        // at order submit time, never recomputed here.
+        // Grouping (which tests share one label) is derived fresh from the live
+        // analyzer/tubeColor/tubeType match - NOT from the printNumber string.
+        // printNumber alone isn't a safe grouping key: two unrelated groups in
+        // the same order sharing the same analyzer get the identical
+        // {analyzerCode}{orderId} string, so grouping by that string would wrongly
+        // merge them. The printNumber VALUE itself is still only ever read here,
+        // never recomputed/overwritten.
         LinkedHashMap<String, List<Long>> groups = new LinkedHashMap<>();
         for (Long orderTestId : dtoByOrderTestId.keySet()) {
-            String printNumber = orderTestById.get(orderTestId).getPrintNumber();
-            groups.computeIfAbsent(printNumber, k -> new ArrayList<>()).add(orderTestId);
+            DiagnosticOrderTest orderTest = orderTestById.get(orderTestId);
+            DiagnosticTestLaboratory lab = labByTestId.get(orderTest.getTestId());
+
+            String groupKey = (lab != null && lab.getTubeColor() != null && lab.getTubeType() != null)
+                    ? lab.getAnalyzerId() + "|" + lab.getTubeColor() + "|" + lab.getTubeType()
+                    : "STANDALONE-" + orderTestId;
+
+            groups.computeIfAbsent(groupKey, k -> new ArrayList<>()).add(orderTestId);
         }
 
         List<String> lovKeysToResolve = new ArrayList<>();
