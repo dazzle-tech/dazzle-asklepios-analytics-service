@@ -69,7 +69,7 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
                 List.of(dto),
                 lang,
                 copies,
-                false
+                true
         );
     }
 
@@ -92,7 +92,7 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
                 sampleLabels,
                 lang,
                 copies,
-                false
+                true
         );
     }
     /**
