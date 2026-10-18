@@ -1,14 +1,7 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.AVPUScale;
-import com.dazzle.asklepios.domain.enumeration.EmergencyLevel;
-import com.dazzle.asklepios.domain.enumeration.PainLevel;
-import com.dazzle.asklepios.domain.enumeration.TriageDestination;
-import com.dazzle.asklepios.domain.enumeration.YesNoQuestion;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -46,8 +39,7 @@ public class EmergencyTriage extends AbstractAuditingEntity<Long> implements Ser
     private PatientEncounter encounter;
 
     @Column(name = "emergency_level", length = 50)
-    @Enumerated(EnumType.STRING)
-    private EmergencyLevel emergencyLevel;
+    private String emergencyLevel;
 
     @Column(name = "right_eye_light_response")
     private Boolean rightEyeLightResponse = false;
@@ -65,52 +57,40 @@ public class EmergencyTriage extends AbstractAuditingEntity<Long> implements Ser
     private String hpiAdditionalNotes;
 
     @Column(name = "life_saving", length = 50)
-    @Enumerated(EnumType.STRING)
-    private YesNoQuestion lifeSaving;
+    private String lifeSaving;
 
     @Column(name = "unresponsive", length = 50)
-    @Enumerated(EnumType.STRING)
-    private YesNoQuestion unresponsive;
+    private String unresponsive;
 
     @Column(name = "high_risk", length = 50)
-    @Enumerated(EnumType.STRING)
-    private YesNoQuestion highRisk;
+    private String highRisk;
 
     @Column(name = "avpu_scale", length = 50)
-    @Enumerated(EnumType.STRING)
-    private AVPUScale avpuScale;
+    private String avpuScale;
 
     @Column(name = "pain_score", length = 50)
-    @Enumerated(EnumType.STRING)
-    private PainLevel painScore;
+    private String painScore;
 
     @Column(name = "labs_required", length = 50)
-    @Enumerated(EnumType.STRING)
-    private YesNoQuestion labsRequired;
+    private String labsRequired;
 
     @Column(name = "imaging_required", length = 50)
-    @Enumerated(EnumType.STRING)
-    private YesNoQuestion imagingRequired;
+    private String imagingRequired;
 
     @Column(name = "iv_fluids_required", length = 50)
-    @Enumerated(EnumType.STRING)
-    private YesNoQuestion ivFluidsRequired;
+    private String ivFluidsRequired;
 
     @Column(name = "medication_required", length = 50)
-    @Enumerated(EnumType.STRING)
-    private YesNoQuestion medicationRequired;
+    private String medicationRequired;
 
     @Column(name = "ecg_required", length = 50)
-    @Enumerated(EnumType.STRING)
-    private YesNoQuestion ecgRequired;
+    private String ecgRequired;
 
     @Column(name = "consultation_required", length = 50)
-    @Enumerated(EnumType.STRING)
-    private YesNoQuestion consultationRequired;
+    private String consultationRequired;
 
     @Column(name = "destination", length = 50)
-    @Enumerated(EnumType.STRING)
-    private TriageDestination destination;
+    private String destination;
 
     @Column(name = "completed_date")
     private Instant completedDate ;

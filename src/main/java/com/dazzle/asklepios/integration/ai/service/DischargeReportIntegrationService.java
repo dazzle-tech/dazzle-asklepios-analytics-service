@@ -20,7 +20,6 @@ import com.dazzle.asklepios.domain.enumeration.PatientAllergyStatus;
 import com.dazzle.asklepios.domain.enumeration.ProcStatus;
 import com.dazzle.asklepios.domain.enumeration.TestResultType;
 import com.dazzle.asklepios.domain.enumeration.TestType;
-import com.dazzle.asklepios.domain.enumeration.Unit;
 import com.dazzle.asklepios.integration.ai.client.DischargeReportClient;
 import com.dazzle.asklepios.integration.ai.client.dto.discharge.ClinicalDocumentationDTO;
 import com.dazzle.asklepios.integration.ai.client.dto.discharge.DischargeReportRequestDTO;
@@ -130,7 +129,7 @@ public class DischargeReportIntegrationService {
         List<PatientDiagnosis> encounterDiagnoses = patientDiagnosisRepository.findByEncounterIdOrderByCreatedDateAsc(encounter.getId());
 
         String primaryDiagnosis = encounterDiagnoses.stream()
-                .filter(d -> d.getType() == DiagnosisType.PRIMARY && d.getDiagnosis() != null)
+                .filter(d -> DiagnosisType.PRIMARY.name().equals(d.getType()) && d.getDiagnosis() != null)
                 .map(d -> d.getDiagnosis().getIcdShortDescription())
                 .findFirst()
                 .orElse("Unknown");
@@ -139,19 +138,19 @@ public class DischargeReportIntegrationService {
 
         List<String> secondaryDiagnoses = allPatientDiagnoses.stream()
                 .filter(d -> d.getDiagnosis() != null)
-                .filter(d -> !(d.getType() == DiagnosisType.PRIMARY && d.getEncounterId().equals(encounter.getId())))
+                .filter(d -> !(DiagnosisType.PRIMARY.name().equals(d.getType()) && d.getEncounterId().equals(encounter.getId())))
                 .map(d -> d.getDiagnosis().getIcdShortDescription())
                 .collect(Collectors.toList());
 
         List<PatientAllergies> allergies = patientAllergiesRepository
-                .findByEncounterIdAndStatusOrderByCreatedDateAsc(encounter.getId(), PatientAllergyStatus.ACTIVE);
+                .findByEncounterIdAndStatusOrderByCreatedDateAsc(encounter.getId(), PatientAllergyStatus.ACTIVE.name());
         List<String> allergyNames = allergies.stream()
                 .map(this::resolveAllergyName)
                 .filter(name -> name != null && !name.isBlank())
                 .collect(Collectors.toList());
 
         List<UrgentCareMedicationOrder> medicationOrders = urgentCareMedicationOrderRepository
-                .findByEncounterIdAndStatusOrderByCreatedDateAsc(encounter.getId(), MedicationOrderStatus.ADMINISTERED);
+                .findByEncounterIdAndStatusOrderByCreatedDateAsc(encounter.getId(), MedicationOrderStatus.ADMINISTERED.name());
 
         // batch-resolve every LOV code used across medications (dose units + frequencies)
         // in a single lookup instead of one query per medication per field
@@ -180,7 +179,7 @@ public class DischargeReportIntegrationService {
         return new PatientRecordDTO(
                 String.valueOf(patient.getId()),
                 buildAge(patient.getDateOfBirth()),
-                patient.getSexAtBirth() != null ? patient.getSexAtBirth().name() : "Unknown",
+                patient.getSexAtBirth() != null ? patient.getSexAtBirth() : "Unknown",
                 admissionDate,
                 dischargeDate,
                 primaryDiagnosis,
@@ -237,7 +236,7 @@ public class DischargeReportIntegrationService {
 
     private List<String> buildConsultationNotes(Long encounterId) {
         return consultationRepository
-                .findByEncounterIdAndStatusNotOrderByCreatedDateAsc(encounterId, ConsultationStatus.CANCELLED)
+                .findByEncounterIdAndStatusNotOrderByCreatedDateAsc(encounterId, ConsultationStatus.CANCELLED.name())
                 .stream()
                 .map(this::formatConsultationNote)
                 .filter(note -> note != null && !note.isBlank())
@@ -343,7 +342,7 @@ public class DischargeReportIntegrationService {
         java.util.stream.Stream<String> lovValueKeys = results.stream()
                 .filter(result -> {
                     DiagnosticTestProfile profile = profileById.get(result.getProfileTestId());
-                    return profile != null && profile.getResultType() == TestResultType.LOV;
+                    return profile != null && TestResultType.LOV.name().equals(profile.getResultType());
                 })
                 .map(DiagnosticOrderTestResult::getResultValueText)
                 .filter(key -> key != null && !key.isBlank());
@@ -453,7 +452,7 @@ public class DischargeReportIntegrationService {
             DiagnosticOrderTestResult result,
             Map<String, String> lovDisplayByKey
     ) {
-        if (profile != null && profile.getResultType() == TestResultType.LOV) {
+        if (profile != null && TestResultType.LOV.name().equals(profile.getResultType())) {
             return resolveLov(result.getResultValueText(), lovDisplayByKey);
         }
 
@@ -500,12 +499,12 @@ public class DischargeReportIntegrationService {
         return Period.between(birthDate, LocalDate.now()).getYears();
     }
 
-    private String buildFrequencyText(Integer frequencyNumber, Unit frequencyUnit, Integer duration) {
+    private String buildFrequencyText(Integer frequencyNumber, String frequencyUnit, Integer duration) {
         if (frequencyNumber == null || frequencyUnit == null) {
             return "Unknown";
         }
 
-        String unit = frequencyUnit.name().toLowerCase();
+        String unit = frequencyUnit.toLowerCase();
 
         String frequency = "Every " + frequencyNumber + " " + unit;
 

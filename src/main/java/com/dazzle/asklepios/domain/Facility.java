@@ -1,11 +1,7 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.Currency;
-import com.dazzle.asklepios.domain.enumeration.FacilityType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -38,9 +34,8 @@ public class Facility extends AbstractAuditingEntity<Long> implements Serializab
     private String name;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
-    private FacilityType type;
+    private String type;
 
     @NotNull
     @Column(nullable = false, length = 50)
@@ -63,9 +58,8 @@ public class Facility extends AbstractAuditingEntity<Long> implements Serializab
     private String addressId;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
-    private Currency defaultCurrency;
+    private String defaultCurrency;
 
     @NotNull
     @Column(nullable = false, length = 10)

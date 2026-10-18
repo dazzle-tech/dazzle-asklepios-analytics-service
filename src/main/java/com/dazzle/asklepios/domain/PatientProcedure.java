@@ -1,12 +1,7 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.Priority;
-import com.dazzle.asklepios.domain.enumeration.ProcStatus;
-import com.dazzle.asklepios.domain.enumeration.ProcedureLevel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -71,13 +66,11 @@ public class PatientProcedure extends AbstractAuditingEntity<Long> implements Se
     @Column(name = "indication_id")
     private Long indicationId;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "procedure_level", nullable = false)
-    private ProcedureLevel procedureLevel;
+    private String procedureLevel;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "priority")
-    private Priority priority;
+    private String priority;
 
     @NotBlank
     @Column(name = "body_part", nullable = false)

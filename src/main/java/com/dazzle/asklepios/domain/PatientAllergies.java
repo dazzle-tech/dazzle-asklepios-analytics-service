@@ -1,12 +1,7 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.AllergenTypes;
-import com.dazzle.asklepios.domain.enumeration.PatientAllergyStatus;
-import com.dazzle.asklepios.domain.enumeration.Severity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -41,9 +36,8 @@ public class PatientAllergies extends AbstractAuditingEntity<Long> implements Se
     @Column(name = "encounter_id", nullable = false)
     private Long encounterId;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "allergen_type", nullable = false)
-    private AllergenTypes allergenType;
+    private String allergenType;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -53,9 +47,8 @@ public class PatientAllergies extends AbstractAuditingEntity<Long> implements Se
     @Column(name = "allergen_name")
     private String allergenName;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "severity", nullable = false)
-    private Severity severity;
+    private String severity;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "medication_class_id")
@@ -94,9 +87,8 @@ public class PatientAllergies extends AbstractAuditingEntity<Long> implements Se
     @Column(name = "allergic_reactions")
     private String allergicReactions;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private PatientAllergyStatus status;
+    private String status;
 
     @Column(name = "resolved_by")
     private String resolvedBy;

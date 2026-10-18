@@ -1,12 +1,7 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.MedFrequency;
-import com.dazzle.asklepios.domain.enumeration.PatientHistoryStatus;
-import com.dazzle.asklepios.domain.enumeration.UOM;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -60,23 +55,20 @@ public class CurrentMedication extends AbstractAuditingEntity<Long>
     @Column(name = "dosage", precision = 10, scale = 3)
     private BigDecimal dosage;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "unit", length = 50)
-    private UOM unit;
+    private String unit;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "frequency", length = 100)
-    private MedFrequency frequency;
+    private String frequency;
 
     @NotNull
     @Column(name = "start_date", nullable = false)
     @Temporal(TemporalType.DATE)
     private Date startDate;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)
     @Builder.Default
-    private PatientHistoryStatus status = PatientHistoryStatus.ACTIVE;
+    private String status = "ACTIVE";
 
     @Column(name = "cancelled_by", length = 50)
     private String cancelledBy;

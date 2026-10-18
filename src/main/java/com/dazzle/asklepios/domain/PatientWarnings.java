@@ -1,11 +1,7 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.PatientWarningStatus;
-import com.dazzle.asklepios.domain.enumeration.Severity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -49,10 +45,9 @@ public class PatientWarnings extends AbstractAuditingEntity<Long> implements Ser
     @NotBlank
     private String warning;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "severity", nullable = false)
     @NonNull
-    private Severity severity;
+    private String severity;
 
     @Column(name = "onset_date_undefined", nullable = false)
     private boolean onsetDateUndefined = true;
@@ -72,9 +67,8 @@ public class PatientWarnings extends AbstractAuditingEntity<Long> implements Ser
     @Column(name = "action_taken")
     private String actionTaken;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private PatientWarningStatus status;
+    private String status;
 
     @Column(name = "resolved_by")
     private String resolvedBy;

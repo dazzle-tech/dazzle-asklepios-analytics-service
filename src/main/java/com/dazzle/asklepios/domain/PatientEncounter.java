@@ -1,14 +1,8 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.EncounterPriority;
-import com.dazzle.asklepios.domain.enumeration.EncounterReason;
-import com.dazzle.asklepios.domain.enumeration.EncounterStatus;
-import com.dazzle.asklepios.domain.enumeration.EncounterType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -69,23 +63,20 @@ public class PatientEncounter extends AbstractAuditingEntity<Long> implements Se
 
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "encounter_type", nullable = false, length = 50)
-    private EncounterType encounterType;
+    private String encounterType;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "encounter_reason", nullable = false, length = 50)
-    private EncounterReason encounterReason;
+    private String encounterReason;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "follow_up_encounter_id")
     private PatientEncounter followUpEncounter;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "priority", nullable = false, length = 50)
-    private EncounterPriority priorityLevel;
+    private String priorityLevel;
 
     @Column(name = "origin_type", length = 255)
     private String originType;

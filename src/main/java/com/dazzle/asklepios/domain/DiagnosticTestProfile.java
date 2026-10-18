@@ -1,10 +1,7 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.TestResultType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -42,9 +39,8 @@ public class DiagnosticTestProfile {
     private String resultUnit;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "result_type", nullable = false)
-    private TestResultType resultType;
+    private String resultType;
 
     @NotNull
     @Column(name = "is_default")

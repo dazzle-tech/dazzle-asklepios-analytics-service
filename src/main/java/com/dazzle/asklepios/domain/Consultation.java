@@ -1,10 +1,7 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.ConsultationStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -42,7 +39,6 @@ public class Consultation extends AbstractAuditingEntity<Long> implements Serial
     @Column(name = "response_text")
     private String responseText;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 30)
-    private ConsultationStatus status;
+    private String status;
 }

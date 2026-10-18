@@ -1,14 +1,9 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.FinancialDetails;
-import com.dazzle.asklepios.domain.enumeration.TemplateStatus;
-import com.dazzle.asklepios.domain.enumeration.TemplateType;
 import com.dazzle.asklepios.service.dto.workingDays.WorkingDayJson;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -43,9 +38,8 @@ public class AvailabilityTemplate extends AbstractAuditingEntity<Long> implement
     @Column(name = "template_name", nullable = false)
     private String templateName;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "template_type", nullable = false)
-    private TemplateType templateType;
+    private String templateType;
 
     @Column(name = "resource_id", nullable = false)
     private Long resourceId;
@@ -53,9 +47,8 @@ public class AvailabilityTemplate extends AbstractAuditingEntity<Long> implement
     @Column(name = "template_color")
     private String templateColor;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private TemplateStatus status;
+    private String status;
 
     @Column(name = "version_no", nullable = false)
     private Integer versionNo = 1;
@@ -104,9 +97,8 @@ public class AvailabilityTemplate extends AbstractAuditingEntity<Long> implement
     @Column(name = "require_confirmation", nullable = false)
     private Boolean requireConfirmation = true;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "financial_details", nullable = false)
-    private FinancialDetails financialDetails = FinancialDetails.BOTH;
+    private String financialDetails = "BOTH";
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;

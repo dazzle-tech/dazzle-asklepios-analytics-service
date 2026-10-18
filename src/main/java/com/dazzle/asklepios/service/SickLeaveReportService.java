@@ -47,7 +47,7 @@ public class SickLeaveReportService {
         }
 
         String diagnosis = patientDiagnosisRepository
-                .findByEncounterIdAndType(encounterId, DiagnosisType.PRIMARY)
+                .findByEncounterIdAndType(encounterId, DiagnosisType.PRIMARY.name())
                 .map(diag -> diag.getDiagnosis().getIcdShortDescription())
                 .orElse(null);
 

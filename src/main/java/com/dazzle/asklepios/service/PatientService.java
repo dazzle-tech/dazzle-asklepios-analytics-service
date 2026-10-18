@@ -119,7 +119,7 @@ public class PatientService {
                 patient.getMedicalRecordNumber(),
                 patient.getDateOfBirth(),
                 age,
-                patient.getSexAtBirth() != null ? patient.getSexAtBirth().name() : null,
+                patient.getSexAtBirth(),
                 patient.getCreatedDate() != null ? java.util.Date.from(patient.getCreatedDate()) : null
         );
     }
@@ -160,7 +160,7 @@ public class PatientService {
                 fullName,
                 patient.getMedicalRecordNumber(),
                 patient.getDateOfBirth(),
-                patient.getSexAtBirth() != null ? patient.getSexAtBirth().name() : null,
+                patient.getSexAtBirth(),
 
                 patient.getMedicalRecordNumber(), // barcode
                 patient.getId().toString(),       // QR
@@ -195,9 +195,7 @@ public class PatientService {
 
         String age = calculateAge(patient.getDateOfBirth());
 
-        String gender = patient.getSexAtBirth() != null
-                ? patient.getSexAtBirth().name()
-                : null;
+        String gender = patient.getSexAtBirth();
 
         /* ===================== 2. Document ===================== */
 
@@ -205,7 +203,7 @@ public class PatientService {
                 .findFirstByPatientIdAndIsPrimaryTrue(patientId)
                 .orElse(null);
 
-        String documentType = document != null ? document.getType().name() : null;
+        String documentType = document != null ? document.getType() : null;
         String documentNumber = document != null ? document.getNumber() : null;
 
         /* ===================== 3. Address ===================== */

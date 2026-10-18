@@ -1,11 +1,7 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.DiagnosticStatus;
-import com.dazzle.asklepios.domain.enumeration.RadiologyImageStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -86,12 +82,10 @@ public class DiagnosticOrderTestReport extends AbstractAuditingEntity implements
     private Instant secondApprovedDate;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "processing_status", length = 50)
-    private DiagnosticStatus processingStatus;
+    private String processingStatus;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "image_status", length = 50)
-    private RadiologyImageStatus imageStatus;
+    private String imageStatus;
 }

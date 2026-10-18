@@ -1,7 +1,6 @@
 package com.dazzle.asklepios.repository;
 
 import com.dazzle.asklepios.domain.DiagnosticOrderTest;
-import com.dazzle.asklepios.domain.enumeration.DiagnosticOrderTestStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,7 +12,7 @@ public interface DiagnosticOrderTestRepository extends JpaRepository<DiagnosticO
     List<DiagnosticOrderTest> findByOrderIdIn(List<Long> orderIds);
     List<DiagnosticOrderTest> findByOrderIdInAndStatusNotOrderByIdAsc(
             List<Long> orderIds,
-            DiagnosticOrderTestStatus status
+            String status
     );
 
 }

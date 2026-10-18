@@ -1,6 +1,5 @@
 package com.dazzle.asklepios.web.rest.vm.prescription_report;
 
-import com.dazzle.asklepios.domain.enumeration.Gender;
 
 import java.time.Instant;
 import java.util.List;
@@ -22,7 +21,7 @@ public record PrescriptionReportVM(
         String primaryDocumentNumber,
         Instant dateOfBirth,
         String age,
-        Gender gender,
+        String gender,
         String phoneNumber,
         String email,
         String insurance,

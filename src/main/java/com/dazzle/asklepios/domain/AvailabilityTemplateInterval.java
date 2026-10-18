@@ -1,13 +1,9 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.DayOfWeek;
-import com.dazzle.asklepios.domain.enumeration.SlotStrategy;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -37,9 +33,8 @@ public class AvailabilityTemplateInterval extends AbstractAuditingEntity<Long> i
     @JoinColumn(name = "template_id", nullable = false)
     private AvailabilityTemplate template;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "day_of_week", nullable = false)
-    private DayOfWeek dayOfWeek;
+    private String dayOfWeek;
 
     @Column(name = "start_time", nullable = false)
     private LocalTime startTime;
@@ -47,9 +42,8 @@ public class AvailabilityTemplateInterval extends AbstractAuditingEntity<Long> i
     @Column(name = "end_time", nullable = false)
     private LocalTime endTime;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "slot_strategy", nullable = false)
-    private SlotStrategy slotStrategy;
+    private String slotStrategy;
 
     @Column(name = "slot_duration_minutes", nullable = false)
     private Integer slotDurationMinutes;

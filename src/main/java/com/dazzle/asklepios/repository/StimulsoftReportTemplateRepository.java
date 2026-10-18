@@ -1,7 +1,6 @@
 package com.dazzle.asklepios.repository;
 
 import com.dazzle.asklepios.domain.StimulsoftReportTemplate;
-import com.dazzle.asklepios.domain.enumeration.StimulsoftTemplateType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,11 +11,11 @@ public interface StimulsoftReportTemplateRepository extends JpaRepository<Stimul
 
     Page<StimulsoftReportTemplate> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
-    Page<StimulsoftReportTemplate> findByTemplateType(StimulsoftTemplateType templateType, Pageable pageable);
+    Page<StimulsoftReportTemplate> findByTemplateType(String templateType, Pageable pageable);
 
     Page<StimulsoftReportTemplate> findByNameContainingIgnoreCaseAndTemplateType(
             String name,
-            StimulsoftTemplateType templateType,
+            String templateType,
             Pageable pageable
     );
 

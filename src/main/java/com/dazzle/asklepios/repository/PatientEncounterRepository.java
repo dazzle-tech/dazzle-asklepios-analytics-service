@@ -1,8 +1,6 @@
 package com.dazzle.asklepios.repository;
 
 import com.dazzle.asklepios.domain.PatientEncounter;
-import com.dazzle.asklepios.domain.enumeration.EncounterStatus;
-import com.dazzle.asklepios.domain.enumeration.EncounterType;
 import com.dazzle.asklepios.service.dto.PatientEncounterReportDTO;
 import com.dazzle.asklepios.service.dto.reports.FinancialReportDTO;
 import org.springframework.data.domain.Page;
@@ -65,7 +63,7 @@ public interface PatientEncounterRepository extends JpaRepository<PatientEncount
     List<KpiDurationProjection> findDoorToDoctorTimes(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
-            @Param("encounterType") EncounterType encounterType
+            @Param("encounterType") String encounterType
     );
 
     @Query("""
@@ -83,7 +81,7 @@ public interface PatientEncounterRepository extends JpaRepository<PatientEncount
     List<KpiDurationProjection> findUccLengthOfStay(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
-            @Param("encounterType") EncounterType encounterType
+            @Param("encounterType") String encounterType
     );
 
     @Query("""
@@ -102,7 +100,7 @@ public interface PatientEncounterRepository extends JpaRepository<PatientEncount
     List<KpiDurationProjection> findTriageCompletionTimes(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
-            @Param("encounterType") EncounterType encounterType
+            @Param("encounterType") String encounterType
     );
 
 
@@ -117,7 +115,7 @@ public interface PatientEncounterRepository extends JpaRepository<PatientEncount
     long countLeftWithoutBeingSeen(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
-            @Param("encounterType") EncounterType encounterType,
+            @Param("encounterType") String encounterType,
             @Param("statuses") Collection<String> statuses
     );
 
@@ -131,7 +129,7 @@ public interface PatientEncounterRepository extends JpaRepository<PatientEncount
     long countEncountersByType(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
-            @Param("encounterType") EncounterType encounterType
+            @Param("encounterType") String encounterType
     );
 
 
@@ -148,7 +146,7 @@ public interface PatientEncounterRepository extends JpaRepository<PatientEncount
     long countDischargesByEncounterType(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
-            @Param("encounterType") EncounterType encounterType
+            @Param("encounterType") String encounterType
     );
 
     @Query(value = """

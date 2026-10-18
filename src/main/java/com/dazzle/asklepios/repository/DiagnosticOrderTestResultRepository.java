@@ -2,10 +2,6 @@ package com.dazzle.asklepios.repository;
 
 import com.dazzle.asklepios.domain.DiagnosticOrderTestReport;
 import com.dazzle.asklepios.domain.DiagnosticOrderTestResult;
-import com.dazzle.asklepios.domain.enumeration.DiagnosticStatus;
-import com.dazzle.asklepios.domain.enumeration.Severity;
-import com.dazzle.asklepios.domain.enumeration.TestType;
-import com.dazzle.asklepios.domain.enumeration.diagnostictest.TestResultMarker;
 import com.dazzle.asklepios.service.dto.reports.DiagnosticResultReportDTO;
 import com.dazzle.asklepios.service.dto.reports.criticalResult.CriticalResultCommunicationDTO;
 import feign.Param;
@@ -141,6 +137,6 @@ public interface DiagnosticOrderTestResultRepository extends JpaRepository<Diagn
             List<Long> orderTestIds,
             Instant from,
             Instant to,
-            DiagnosticStatus status
+            String status
     );
 }

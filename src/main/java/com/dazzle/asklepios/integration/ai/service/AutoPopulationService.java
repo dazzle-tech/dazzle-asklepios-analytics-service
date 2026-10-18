@@ -86,7 +86,7 @@ public class AutoPopulationService {
 
     private List<Map<String, Object>> buildMedications(Long patientId) {
         return currentMedicationRepository
-                .findByPatientIdAndStatus(patientId, PatientHistoryStatus.ACTIVE)
+                .findByPatientIdAndStatus(patientId, PatientHistoryStatus.ACTIVE.name())
                 .stream()
                 .map(this::formatMedication)
                 .toList();
@@ -96,13 +96,13 @@ public class AutoPopulationService {
         String name = medication.getActiveIngredient().getName();
 
         String dosage = medication.getDosage() != null
-                ? medication.getDosage().toPlainString() + (medication.getUnit() != null ? medication.getUnit().name() : "")
+                ? medication.getDosage().toPlainString() + (medication.getUnit() != null ? medication.getUnit() : "")
                 : null;
 
         Map<String, Object> medicationData = new HashMap<>();
         medicationData.put("name", name);
         medicationData.put("dosage", dosage);
-        medicationData.put("frequency", medication.getFrequency() != null ? medication.getFrequency().name() : null);
+        medicationData.put("frequency", medication.getFrequency());
         return medicationData;
     }
     private List<String> buildAllergies(Long patientId) {
@@ -143,7 +143,7 @@ public class AutoPopulationService {
     }
 
     private List<String> buildPastMedicalHistory(Long patientId) {
-        return patientProblemRepository.findByPatientIdAndStatus(patientId, PatientHistoryStatus.ACTIVE)
+        return patientProblemRepository.findByPatientIdAndStatus(patientId, PatientHistoryStatus.ACTIVE.name())
                 .stream()
                 .map(PatientProblem::getCondition)
                 .filter(condition -> condition != null && !condition.isBlank())

@@ -1,10 +1,7 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.AppointmentBookingGroupSourceType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -40,9 +37,8 @@ public class AppointmentBookingGroup extends AbstractAuditingEntity<Long> implem
     @Column(name = "practitioner_id")
     private Long practitionerId;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "source_type", nullable = false)
-    private AppointmentBookingGroupSourceType sourceType;
+    private String sourceType;
 
     @Column(name = "total_duration_minutes", nullable = false)
     private Integer totalDurationMinutes;

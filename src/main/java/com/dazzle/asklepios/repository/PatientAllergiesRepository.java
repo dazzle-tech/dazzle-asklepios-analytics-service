@@ -1,7 +1,6 @@
 package com.dazzle.asklepios.repository;
 
 import com.dazzle.asklepios.domain.PatientAllergies;
-import com.dazzle.asklepios.domain.enumeration.PatientAllergyStatus;
 import io.micrometer.core.instrument.Tags;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,12 +14,12 @@ public interface PatientAllergiesRepository extends JpaRepository<PatientAllergi
 
     List<PatientAllergies> findByEncounterIdAndStatusNotOrderByCreatedDateAsc(
             Long encounterId,
-            PatientAllergyStatus status
+            String status
     );
     @EntityGraph(attributePaths = {"allergen","medicationClass"})
     List<PatientAllergies> findByPatientIdAndStatusNotOrderByCreatedDateAsc(
             Long patientId,
-            PatientAllergyStatus status
+            String status
     );
 
 
@@ -28,7 +27,7 @@ public interface PatientAllergiesRepository extends JpaRepository<PatientAllergi
 
     List<PatientAllergies> findByEncounterIdAndStatusOrderByCreatedDateAsc(
             Long encounterId,
-            PatientAllergyStatus status
+            String status
     );
 
 }

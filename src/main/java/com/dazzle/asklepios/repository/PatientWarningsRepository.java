@@ -1,7 +1,6 @@
 package com.dazzle.asklepios.repository;
 
 import com.dazzle.asklepios.domain.PatientWarnings;
-import com.dazzle.asklepios.domain.enumeration.PatientWarningStatus;
 import io.micrometer.core.instrument.Tags;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +13,6 @@ public interface PatientWarningsRepository extends JpaRepository<PatientWarnings
 
     List<PatientWarnings> findByEncounterIdAndStatusNotOrderByCreatedDateAsc(
             Long encounterId,
-            PatientWarningStatus status
+            String status
     );
 }

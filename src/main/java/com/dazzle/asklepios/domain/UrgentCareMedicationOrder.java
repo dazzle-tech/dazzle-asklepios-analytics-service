@@ -1,11 +1,7 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.MedicationOrderStatus;
-import com.dazzle.asklepios.domain.enumeration.Unit;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -60,9 +56,8 @@ public class UrgentCareMedicationOrder extends AbstractAuditingEntity<Long>
     @Column(name = "frequency_number")
     private Integer frequencyNumber;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "frequency_unit", length = 20)
-    private Unit frequencyUnit;
+    private String frequencyUnit;
 
     @Column(name = "duration")
     private Integer duration;
@@ -73,7 +68,6 @@ public class UrgentCareMedicationOrder extends AbstractAuditingEntity<Long>
     @Column(name = "dose_time")
     private LocalDateTime doseTime;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)
-    private MedicationOrderStatus status;
+    private String status;
 }

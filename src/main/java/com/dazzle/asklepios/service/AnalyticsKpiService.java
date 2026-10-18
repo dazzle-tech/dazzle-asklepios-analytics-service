@@ -120,7 +120,7 @@ public class AnalyticsKpiService {
         Instant start = toStartOfDay(startDate);
         Instant end = toStartOfDay(endDate.plusDays(1));
 
-        long availableSlots = appointmentRepository.countAppointmentByStatusInAndStartDatetimeIsGreaterThanEqualAndEndDatetimeIsLessThan(List.of(AppointmentStatus.NEW), start, end);
+        long availableSlots = appointmentRepository.countAppointmentByStatusInAndStartDatetimeIsGreaterThanEqualAndEndDatetimeIsLessThan(List.of(AppointmentStatus.NEW.name()), start, end);
 
         long bookedSlots = appointmentRepository.countAppointmentByStatusInAndStartDatetimeIsGreaterThanEqualAndEndDatetimeIsLessThan(getBookedStatuses(), start, end);
 
@@ -191,7 +191,7 @@ public class AnalyticsKpiService {
         /*
          * Appointments whose final status is NO_SHOW.
          */
-        long noShowAppointments = appointmentRepository.countAppointmentByStatusInAndStartDatetimeIsGreaterThanEqualAndEndDatetimeIsLessThan(List.of(AppointmentStatus.NO_SHOW), start, end);
+        long noShowAppointments = appointmentRepository.countAppointmentByStatusInAndStartDatetimeIsGreaterThanEqualAndEndDatetimeIsLessThan(List.of(AppointmentStatus.NO_SHOW.name()), start, end);
 
         BigDecimal noShowRate = calculatePercentage(noShowAppointments, bookedAppointments);
 
@@ -404,7 +404,7 @@ public class AnalyticsKpiService {
 
         validateDates(startDate, endDate);
 
-        List<KpiDurationProjection> records = patientEncounterRepository.findDoorToDoctorTimes(startDate, endDate.plusDays(1), EncounterType.EMERGENCY);
+        List<KpiDurationProjection> records = patientEncounterRepository.findDoorToDoctorTimes(startDate, endDate.plusDays(1), EncounterType.EMERGENCY.name());
 
         if (records.isEmpty()) {
             return buildNoDataResponse(
@@ -463,7 +463,7 @@ public class AnalyticsKpiService {
                 patientEncounterRepository.findUccLengthOfStay(
                         startDate,
                         endDate.plusDays(1),
-                        EncounterType.EMERGENCY
+                        EncounterType.EMERGENCY.name()
                 );
 
         if (records.isEmpty()) {
@@ -523,7 +523,7 @@ public class AnalyticsKpiService {
                 patientEncounterRepository.findTriageCompletionTimes(
                         startDate,
                         endDate.plusDays(1),
-                        EncounterType.EMERGENCY
+                        EncounterType.EMERGENCY.name()
                 );
 
         if (records.isEmpty()) {
@@ -589,8 +589,8 @@ public class AnalyticsKpiService {
                 "NEW"
         );
 
-        long leftWithoutBeingSeen = patientEncounterRepository.countLeftWithoutBeingSeen(startDate, endExclusive, EncounterType.EMERGENCY, lwbsStatuses);
-        long totalUcc = patientEncounterRepository.countEncountersByType(startDate, endExclusive, EncounterType.EMERGENCY);
+        long leftWithoutBeingSeen = patientEncounterRepository.countLeftWithoutBeingSeen(startDate, endExclusive, EncounterType.EMERGENCY.name(), lwbsStatuses);
+        long totalUcc = patientEncounterRepository.countEncountersByType(startDate, endExclusive, EncounterType.EMERGENCY.name());
 
         if (totalUcc == 0) {
             return buildNoDataResponse(
@@ -650,7 +650,7 @@ public class AnalyticsKpiService {
                 patientEncounterRepository.countDischargesByEncounterType(
                         startDate,
                         endDate,
-                        EncounterType.EMERGENCY
+                        EncounterType.EMERGENCY.name()
                 );
 
         if (totalDischarges == 0) {
@@ -726,7 +726,7 @@ public class AnalyticsKpiService {
         long noShowAppointments =
                 appointmentRepository
                         .countAppointmentByStatusAndDepartmentIdAndStartDatetimeGreaterThanEqualAndEndDatetimeLessThan(
-                                AppointmentStatus.NO_SHOW,
+                                AppointmentStatus.NO_SHOW.name(),
                                 departmentId,
                                 start,
                                 end
@@ -1013,12 +1013,12 @@ public class AnalyticsKpiService {
         LOG.debug("[KPIS][CT_UTIL] queryWindowStart={} queryWindowEndExclusive={} resourceType={}",
                 start,
                 end,
-                TemplateType.DIAGNOSTIC_TEST
+                TemplateType.DIAGNOSTIC_TEST.name()
         );
 
         long bookedSlots = appointmentRepository
                 .countByResourceTypeAndResourceIdInAndStatusInAndStartDatetimeRange(
-                        TemplateType.DIAGNOSTIC_TEST,
+                        TemplateType.DIAGNOSTIC_TEST.name(),
                         ctDiagnosticTestIds,
                         getBookedStatuses(),
                         start,
@@ -1029,14 +1029,14 @@ public class AnalyticsKpiService {
 
         long unbookedSlots = appointmentRepository
                 .countByResourceTypeAndResourceIdInAndStatusAndStartDatetimeRange(
-                        TemplateType.DIAGNOSTIC_TEST,
+                        TemplateType.DIAGNOSTIC_TEST.name(),
                         ctDiagnosticTestIds,
-                        AppointmentStatus.NEW,
+                        AppointmentStatus.NEW.name(),
                         start,
                         end
                 );
 
-        LOG.debug("[KPIS][CT_UTIL] unbookedSlots={} unbookedStatus={}", unbookedSlots, AppointmentStatus.NEW);
+        LOG.debug("[KPIS][CT_UTIL] unbookedSlots={} unbookedStatus={}", unbookedSlots, AppointmentStatus.NEW.name());
 
         long totalSlots = bookedSlots + unbookedSlots;
         LOG.debug("[KPIS][CT_UTIL] totalSlots={} (booked + unbooked)", totalSlots);
@@ -1100,15 +1100,15 @@ public class AnalyticsKpiService {
      * <p>
      * CANCELLED is excluded.
      */
-    private List<AppointmentStatus> getBookedStatuses() {
+    private List<String> getBookedStatuses() {
 
         return List.of(
-                AppointmentStatus.BOOKED,
-                AppointmentStatus.CONFIRMED,
-                AppointmentStatus.CHECKED_IN,
-                AppointmentStatus.IN_SERVICE,
-                AppointmentStatus.COMPLETED,
-                AppointmentStatus.NO_SHOW
+                AppointmentStatus.BOOKED.name(),
+                AppointmentStatus.CONFIRMED.name(),
+                AppointmentStatus.CHECKED_IN.name(),
+                AppointmentStatus.IN_SERVICE.name(),
+                AppointmentStatus.COMPLETED.name(),
+                AppointmentStatus.NO_SHOW.name()
         );
     }
 

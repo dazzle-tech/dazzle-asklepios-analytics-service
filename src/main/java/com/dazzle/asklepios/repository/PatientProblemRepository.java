@@ -1,7 +1,6 @@
 package com.dazzle.asklepios.repository;
 
 import com.dazzle.asklepios.domain.PatientProblem;
-import com.dazzle.asklepios.domain.enumeration.PatientHistoryStatus;
 import feign.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,7 +11,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface PatientProblemRepository extends JpaRepository<PatientProblem, Long> {
-    List<PatientProblem> findByPatientIdAndStatus(Long patientId, PatientHistoryStatus status);
+    List<PatientProblem> findByPatientIdAndStatus(Long patientId, String status);
     @Query(value = """
     SELECT COUNT(DISTINCT pp.patient_id)
     FROM patient_problems pp

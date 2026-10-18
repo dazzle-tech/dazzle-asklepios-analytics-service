@@ -1,12 +1,8 @@
 
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.DiagnosticStatus;
-import com.dazzle.asklepios.domain.enumeration.diagnostictest.TestResultMarker;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -53,9 +49,8 @@ public class DiagnosticOrderTestResult extends AbstractAuditingEntity implements
     @Column(name = "result_value_text", columnDefinition = "text")
     private String resultValueText;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "marker", length = 50)
-    private TestResultMarker marker;
+    private String marker;
 
     @Column(name = "approved_by", length = 50)
     private String approvedBy;
@@ -79,9 +74,8 @@ public class DiagnosticOrderTestResult extends AbstractAuditingEntity implements
     private Instant reviewDate;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "processing_status", length = 50)
-    private DiagnosticStatus processingStatus=DiagnosticStatus.NEW;
+    private String processingStatus = "NEW";
 
     @Column(name = "normal_range_value", length = 150)
     private String normalRangeValue;

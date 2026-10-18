@@ -1,7 +1,6 @@
 package com.dazzle.asklepios.web.rest.vm.patient;
 
 import com.dazzle.asklepios.domain.Patient;
-import com.dazzle.asklepios.domain.enumeration.Gender;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +16,7 @@ public class PatientBasicInformationResponseVM {
     private String lastName;
     private String medicalRecordNumber;
     private Date dateOfBirth;
-    private Gender sexAtBirth;
+    private String sexAtBirth;
 
     public static PatientBasicInformationResponseVM ofEntity(Patient patient) {
         if (patient == null) {

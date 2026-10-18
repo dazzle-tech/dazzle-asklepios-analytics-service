@@ -1,7 +1,5 @@
 package com.dazzle.asklepios.service.dto.prescription;
 
-import com.dazzle.asklepios.domain.enumeration.EncounterReason;
-import com.dazzle.asklepios.domain.enumeration.Gender;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -21,12 +19,12 @@ public record PrescriptionPrintDTO(
         String primaryDocumentNumber,
         Date dateOfBirth,
         String age,
-        Gender gender,
+        String gender,
         String phoneNumber,
         String email,
         String encounterId,
         LocalDate encounterDateTime,
-        EncounterReason encounterReason,
+        String encounterReason,
         String encounterDepartment,
 
         List<PrescriptionDiagnosisDTO> diagnoses,

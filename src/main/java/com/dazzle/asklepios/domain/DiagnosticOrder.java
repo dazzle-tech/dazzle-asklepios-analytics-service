@@ -1,11 +1,8 @@
 
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.DiagnosticStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -58,9 +55,8 @@ public class DiagnosticOrder extends AbstractAuditingEntity implements Serializa
     private PatientEncounter encounter;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 50)
-    private DiagnosticStatus status=DiagnosticStatus.NEW;
+    private String status = "NEW";
 
     @Column(name = "order_number", nullable = false)
     private String orderNumber;
@@ -79,13 +75,11 @@ public class DiagnosticOrder extends AbstractAuditingEntity implements Serializa
     @Column(name = "is_urgent", nullable = false)
     private Boolean isUrgent = false;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "lab_status", length = 50)
-    private DiagnosticStatus labStatus;
+    private String labStatus;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "rad_status", length = 50)
-    private DiagnosticStatus radStatus;
+    private String radStatus;
 
     @NotNull
     @Column(name = "from_department_id")

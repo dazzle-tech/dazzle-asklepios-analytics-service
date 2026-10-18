@@ -1,11 +1,7 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.WaitingListPriority;
-import com.dazzle.asklepios.domain.enumeration.WaitingListStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -46,13 +42,11 @@ public class AppointmentWaitingList extends AbstractAuditingEntity<Long> impleme
     @Column(name = "practitioner_id")
     private Long practitionerId;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "priority", nullable = false)
-    private WaitingListPriority priority;
+    private String priority;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private WaitingListStatus status;
+    private String status;
 
     @Column(name = "preferred_date")
     private LocalDate preferredDate;

@@ -40,7 +40,7 @@ public class StimulsoftReportTemplateService {
     public Page<StimulsoftReportTemplateVM> findAll(StimulsoftTemplateType templateType, Pageable pageable) {
         Page<StimulsoftReportTemplate> page = templateType == null
                 ? repository.findAll(pageable)
-                : repository.findByTemplateType(templateType, pageable);
+                : repository.findByTemplateType(templateType.name(), pageable);
         return page.map(this::toVM);
     }
 
@@ -52,7 +52,7 @@ public class StimulsoftReportTemplateService {
     ) {
         Page<StimulsoftReportTemplate> page = templateType == null
                 ? repository.findByNameContainingIgnoreCase(name, pageable)
-                : repository.findByNameContainingIgnoreCaseAndTemplateType(name, templateType, pageable);
+                : repository.findByNameContainingIgnoreCaseAndTemplateType(name, templateType.name(), pageable);
         return page.map(this::toVM);
     }
 
@@ -78,7 +78,7 @@ public class StimulsoftReportTemplateService {
                 .orElse(null);
 
         List<StimulsoftReportTemplateVM> matched = repository
-                .findByTemplateType(StimulsoftTemplateType.DASHBOARD, Pageable.unpaged())
+                .findByTemplateType(StimulsoftTemplateType.DASHBOARD.name(), Pageable.unpaged())
                 .getContent()
                 .stream()
                 .filter(template -> !Boolean.FALSE.equals(template.getActive()))
@@ -120,7 +120,7 @@ public class StimulsoftReportTemplateService {
         }
 
         StimulsoftReportTemplate template = findEntityById(request.templateId());
-        if (template.getTemplateType() != StimulsoftTemplateType.DASHBOARD) {
+        if (!StimulsoftTemplateType.DASHBOARD.name().equals(template.getTemplateType())) {
             throw new BadRequestAlertException(
                     "Only a dashboard can be set as the default",
                     "dashboardDefault",
@@ -187,13 +187,13 @@ public class StimulsoftReportTemplateService {
         );
         entity.setFacilityId(request.facilityId());
         entity.setDepartmentIds(request.departmentIds());
-        entity.setModule(request.module());
-        entity.setJobRole(request.jobRole());
+        entity.setModule(request.module() == null ? null : request.module().name());
+        entity.setJobRole(request.jobRole() == null ? null : request.jobRole().name());
         entity.setUserIds(request.jobRole() == null ? null : request.userIds());
         entity.setTemplateType(
                 request.templateType() == null
-                        ? StimulsoftTemplateType.REPORT
-                        : request.templateType()
+                        ? StimulsoftTemplateType.REPORT.name()
+                        : request.templateType().name()
         );
 
         return toVM(repository.save(entity));
@@ -218,11 +218,11 @@ public class StimulsoftReportTemplateService {
 
         entity.setFacilityId(request.facilityId());
         entity.setDepartmentIds(request.departmentIds());
-        entity.setModule(request.module());
-        entity.setJobRole(request.jobRole());
+        entity.setModule(request.module() == null ? null : request.module().name());
+        entity.setJobRole(request.jobRole() == null ? null : request.jobRole().name());
         entity.setUserIds(request.jobRole() == null ? null : request.userIds());
         if (request.templateType() != null) {
-            entity.setTemplateType(request.templateType());
+            entity.setTemplateType(request.templateType().name());
         }
 
         return toVM(repository.save(entity));
@@ -279,7 +279,7 @@ public class StimulsoftReportTemplateService {
             return viewerUserId != null && allowedUserIds.contains(viewerUserId);
         }
 
-        return viewerRole != null && viewerRole == template.getJobRole();
+        return viewerRole != null && viewerRole.name().equals(template.getJobRole());
     }
 
     private boolean matchesFacility(StimulsoftReportTemplate template, Long facilityId) {
@@ -341,7 +341,7 @@ public class StimulsoftReportTemplateService {
                 entity.getDepartmentIds(),
                 entity.getModule(),
                 entity.getTemplateType() == null
-                        ? StimulsoftTemplateType.REPORT
+                        ? StimulsoftTemplateType.REPORT.name()
                         : entity.getTemplateType(),
                 entity.getJobRole(),
                 entity.getUserIds(),

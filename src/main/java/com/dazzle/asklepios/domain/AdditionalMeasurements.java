@@ -1,10 +1,7 @@
 package com.dazzle.asklepios.domain;
 
-import com.dazzle.asklepios.domain.enumeration.AgeGroupType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -44,9 +41,8 @@ public class AdditionalMeasurements extends AbstractAuditingEntity<Long> impleme
     private Long encounterId;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "age_group", nullable = false, length = 20)
-    private AgeGroupType ageGroup;
+    private String ageGroup;
 
     @Column(name = "hearing_test", columnDefinition = "text")
     private String hearingTest;

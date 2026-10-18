@@ -1,6 +1,5 @@
 package com.dazzle.asklepios.service.dto.laboratory;
 
-import com.dazzle.asklepios.domain.enumeration.diagnostictest.TestResultMarker;
 
 public record LaboratoryResultItemDTO(
         String resultDate,
@@ -10,7 +9,7 @@ public record LaboratoryResultItemDTO(
 
         String result,
         String unit,
-        TestResultMarker marker,
+        String marker,
         String reviewedDate,
         String reviewedBy
 ) {
