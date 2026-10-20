@@ -92,7 +92,7 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
                 sampleLabels,
                 lang,
                 copies,
-                true
+                false
         );
     }
     /**
