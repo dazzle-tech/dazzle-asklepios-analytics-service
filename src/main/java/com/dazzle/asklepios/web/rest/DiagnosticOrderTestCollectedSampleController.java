@@ -130,8 +130,11 @@ public class DiagnosticOrderTestCollectedSampleController {
                 result.missingDefinitionTestNames().size()
         );
 
+        // URLEncoder encodes spaces as '+' (form-urlencoded style), but the
+        // frontend decodes with decodeURIComponent, which only understands
+        // %20 for spaces and leaves '+' untouched - so convert it here.
         String missingDefinitionHeader = result.missingDefinitionTestNames().stream()
-                .map(name -> URLEncoder.encode(name, StandardCharsets.UTF_8))
+                .map(name -> URLEncoder.encode(name, StandardCharsets.UTF_8).replace("+", "%20"))
                 .reduce((a, b) -> a + "," + b)
                 .orElse("");
 
