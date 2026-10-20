@@ -72,7 +72,7 @@ public class DiagnosticOrderTestCollectedSampleService {
                 ));
 
         DiagnosticOrderTestCollectedSample lastSample = sampleRepository
-                .findTopByOrderTestIdOrderByCreatedDateDescIdDesc(orderTestId)
+                .findTopByOrderTestIdAndRejectedFalseOrderByCreatedDateDescIdDesc(orderTestId)
                 .orElseThrow(() -> new BadRequestAlertException(
                         "no_sample",
                         "diagnostic_order_test_collected_samples",
@@ -84,16 +84,17 @@ public class DiagnosticOrderTestCollectedSampleService {
 
     /**
      * Same as {@link #getSampleLabel}, but returns empty instead of throwing when
-     * there's no collected sample (e.g. a test still NEW/REJECTED). Used by bulk
-     * print flows that need to skip such tests without failing the whole batch -
-     * throwing from here would mark the caller's transaction rollback-only even
-     * if the caller catches the exception, since this bean is @Transactional too.
+     * there's no usable collected sample (test still NEW/no sample collected yet,
+     * or its only sample was rejected). Used by bulk print flows that need to skip
+     * such tests without failing the whole batch - throwing from here would mark
+     * the caller's transaction rollback-only even if the caller catches the
+     * exception, since this bean is @Transactional too.
      */
     @Transactional(readOnly = true)
     public Optional<DiagnosticOrderTestSampleLabelDTO> tryGetSampleLabel(Long orderTestId) {
         return orderTestRepository.findById(orderTestId)
                 .flatMap(orderTest -> sampleRepository
-                        .findTopByOrderTestIdOrderByCreatedDateDescIdDesc(orderTestId)
+                        .findTopByOrderTestIdAndRejectedFalseOrderByCreatedDateDescIdDesc(orderTestId)
                         .map(sample -> buildSampleLabelDto(orderTest, sample)));
     }
 
@@ -187,7 +188,7 @@ public class DiagnosticOrderTestCollectedSampleService {
                 ));
 
         List<DiagnosticOrderTestCollectedSample> samples =
-                sampleRepository.findAllByOrderTestIdOrderByCreatedDateDescIdDesc(orderTestId);
+                sampleRepository.findAllByOrderTestIdAndRejectedFalseOrderByCreatedDateDescIdDesc(orderTestId);
 
         return samples.stream()
                 .map(sample -> buildSampleLabelDto(orderTest, sample))

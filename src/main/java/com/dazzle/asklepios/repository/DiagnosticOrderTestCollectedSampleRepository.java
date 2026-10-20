@@ -12,7 +12,7 @@ public interface DiagnosticOrderTestCollectedSampleRepository
         extends JpaRepository<DiagnosticOrderTestCollectedSample, Long> {
 
     Optional<DiagnosticOrderTestCollectedSample>
-    findTopByOrderTestIdOrderByCreatedDateDescIdDesc(Long orderTestId);
-    List<DiagnosticOrderTestCollectedSample> findAllByOrderTestIdOrderByCreatedDateDescIdDesc(Long orderTestId);
+    findTopByOrderTestIdAndRejectedFalseOrderByCreatedDateDescIdDesc(Long orderTestId);
+    List<DiagnosticOrderTestCollectedSample> findAllByOrderTestIdAndRejectedFalseOrderByCreatedDateDescIdDesc(Long orderTestId);
     boolean existsByOrderTestId(Long orderTestId);
 }
