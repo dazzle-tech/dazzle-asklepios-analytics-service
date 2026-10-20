@@ -69,7 +69,7 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
                 List.of(dto),
                 lang,
                 copies,
-                true
+                false
         );
     }
 
