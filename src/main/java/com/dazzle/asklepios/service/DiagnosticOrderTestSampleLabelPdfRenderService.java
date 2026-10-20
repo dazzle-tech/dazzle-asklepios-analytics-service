@@ -542,8 +542,8 @@ public class DiagnosticOrderTestSampleLabelPdfRenderService {
     }
 
     /**
-     * Barcode contains printNumber (analyzerCode+orderId) instead of MRN,
-     * or the plain orderId when useOrderId is set.
+     * Barcode contains printNumber (analyzerCode+orderId+tubeColorCode) instead
+     * of MRN, or the plain orderId when useOrderId is set.
      */
     public String buildBarcodeImage(
             DiagnosticOrderTestSampleLabelDTO dto,
