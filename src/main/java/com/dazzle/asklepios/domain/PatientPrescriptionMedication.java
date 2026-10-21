@@ -36,9 +36,14 @@ public class PatientPrescriptionMedication extends AbstractAuditingEntity<Long> 
     @JoinColumn(name = "prescription_header_id", nullable = false)
     private PatientPrescription prescriptionHeader;
 
-    @JoinColumn(name = "medications_id", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    // Brand: only set on prescriptions recorded before pharmaceuticals.
+    @JoinColumn(name = "medications_id")
+    @ManyToOne(fetch = FetchType.LAZY)
     private BrandMedication medications;
+
+    @JoinColumn(name = "pharmaceutical_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Pharmaceutical pharmaceutical;
 
     @Column(name = "other_medication_name", length = 255)
     private String otherMedicationName;
@@ -115,4 +120,17 @@ public class PatientPrescriptionMedication extends AbstractAuditingEntity<Long> 
     @Column(name = "status", length = 50, nullable = false)
     private String status;
 
+    /**
+     * Medication name shown on reports: the "Other" name typed by the doctor, otherwise the pharmaceutical name,
+     * otherwise the brand name (older prescriptions).
+     */
+    public String getMedicationDisplayName() {
+        if (otherMedicationName != null && !otherMedicationName.isBlank()) {
+            return otherMedicationName.trim();
+        }
+        if (pharmaceutical != null && pharmaceutical.getPharmaceuticalName() != null) {
+            return pharmaceutical.getPharmaceuticalName();
+        }
+        return medications != null ? medications.getName() : null;
+    }
 }

@@ -272,17 +272,7 @@ public class PrescriptionReportService {
                                 + m.getIndicationIcd().getIcdShortDescription();
                     }
 
-                    String medicationName = null;
-
-                    if (m.getOtherMedicationName() != null
-                            && !m.getOtherMedicationName().trim().isEmpty()) {
-
-                        medicationName = m.getOtherMedicationName().trim();
-
-                    } else if (m.getMedications() != null) {
-
-                        medicationName = m.getMedications().getName();
-                    }
+                    String medicationName = m.getMedicationDisplayName();
 
                     return new PrescriptionMedicationDTO(
                             m.getActiveIngredient() != null
