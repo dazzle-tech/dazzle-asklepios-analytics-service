@@ -219,7 +219,7 @@ public class MedicationTestOrdersService {
     }
 
     private String formatMedication(PatientPrescriptionMedication medication) {
-        String medicationName = medication.getMedications() != null ? medication.getMedications().getName() : "";
+        String medicationName = medication.getMedicationDisplayName() != null ? medication.getMedicationDisplayName() : "";
         String instruction = resolveInstruction(medication);
         ActiveIngredients activeIngredient =
                 activeIngredientsRepository.findById(medication.getActiveIngredient().getId())

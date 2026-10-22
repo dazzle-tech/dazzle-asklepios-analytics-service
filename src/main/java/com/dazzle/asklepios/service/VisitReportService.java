@@ -334,7 +334,7 @@ public class VisitReportService {
                 .stream()
                 .map(m -> new PrescriptionMedicationDTO(
                         m.getActiveIngredient().getName(),
-                        m.getMedications() != null ? m.getMedications().getName() : null,
+                        m.getMedicationDisplayName(),
                         resolveInstruction(m),
                         m.getDuration(),
                         m.getDurationType(),
