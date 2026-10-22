@@ -370,7 +370,7 @@ public class VisitReportService {
                         : null
                 )
                 .filter(value -> value != null && !value.isBlank())
-                .orElse("General assessment");
+                .orElse(null);
     }
 
     private List<OrderedDiagnosticsDTO> getDiagnosticsByEncounterId(Long encounterId) {
