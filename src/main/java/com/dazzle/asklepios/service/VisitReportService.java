@@ -15,6 +15,7 @@ import com.dazzle.asklepios.domain.PatientWarnings;
 import com.dazzle.asklepios.domain.Practitioner;
 import com.dazzle.asklepios.domain.PrescriptionInstruction;
 import com.dazzle.asklepios.domain.enumeration.AllergenTypes;
+import com.dazzle.asklepios.domain.enumeration.DiagnosisType;
 import com.dazzle.asklepios.domain.enumeration.DiagnosticOrderTestStatus;
 import com.dazzle.asklepios.domain.enumeration.PrescriptionStatus;
 import com.dazzle.asklepios.repository.BodyMeasurementsRepository;
@@ -25,6 +26,7 @@ import com.dazzle.asklepios.repository.DiagnosticTestRepository;
 import com.dazzle.asklepios.repository.EncounterAssessmentRepository;
 import com.dazzle.asklepios.repository.EncounterPlanRepository;
 import com.dazzle.asklepios.repository.PatientAllergyRepository;
+import com.dazzle.asklepios.repository.PatientDiagnosisRepository;
 import com.dazzle.asklepios.repository.PatientEncounterRepository;
 import com.dazzle.asklepios.repository.PatientPrescriptionRepository;
 import com.dazzle.asklepios.repository.PatientProcedureRepository;
@@ -93,6 +95,7 @@ public class VisitReportService {
     private final PractitionersRepository practitionersRepository;
 
     private final EncounterAssessmentRepository encounterAssessmentRepository;
+    private final PatientDiagnosisRepository patientDiagnosisRepository;
 
 
     public VisitReportDTO getVisitReport(Long encounterId) {
@@ -194,6 +197,7 @@ public class VisitReportService {
                 diagnostics,
                 medicationDTOS,
                 procedures,
+                buildDiagnosis(encounterId),
                 plan,
                 assessment,
                 null,
@@ -356,6 +360,17 @@ public class VisitReportService {
             LOG.debug("[safeParse] failed to parse value={}", value, e);
             return null;
         }
+    }
+
+    private String buildDiagnosis(Long encounterId) {
+        return patientDiagnosisRepository
+                .findByEncounterIdAndType(encounterId, DiagnosisType.PRIMARY.name())
+                .map(patientDiagnosis -> patientDiagnosis.getDiagnosis() != null
+                        ? patientDiagnosis.getDiagnosis().getIcdShortDescription()
+                        : null
+                )
+                .filter(value -> value != null && !value.isBlank())
+                .orElse("General assessment");
     }
 
     private List<OrderedDiagnosticsDTO> getDiagnosticsByEncounterId(Long encounterId) {

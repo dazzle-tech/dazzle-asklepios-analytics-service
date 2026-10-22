@@ -21,6 +21,7 @@ public record VisitReportDTO(
         List<OrderedDiagnosticsDTO> diagnostics,
         List<PrescriptionMedicationDTO> medications,
         List<ProceduresDTO> procedures,
+        String primaryDiagnosis,
         String plan,
         String assessment,
         String physicianFullName,

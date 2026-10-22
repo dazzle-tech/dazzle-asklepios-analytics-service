@@ -117,9 +117,9 @@
                     <td th:text="${labels.physicalExaminationSummery}">Physical Examination Summary</td>
                     <td th:text="${report.encounterInfo?.physicalExaminationSummery}">—</td>
                 </tr>
-                <tr th:if="${report.observation?.primaryDiagnosis != null and !#strings.isEmpty(report.observation?.primaryDiagnosis)}">
+                <tr th:if="${report?.primaryDiagnosis != null and !#strings.isEmpty(report?.primaryDiagnosis)}">
                     <td th:text="${labels.primaryDiagnosis}">Primary Diagnosis</td>
-                    <td th:text="${report.observation?.primaryDiagnosis}">—</td>
+                    <td th:text="${report?.primaryDiagnosis}">—</td>
                 </tr>
                 <tr th:if="${report?.assessment != null and !#strings.isEmpty(report?.assessment)}">
                     <td th:text="${labels.assessment}">Assessment</td>
