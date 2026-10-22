@@ -2,11 +2,13 @@ package com.dazzle.asklepios.integration.ai.controller;
 
 import com.dazzle.asklepios.integration.ai.service.AmbientDraftService;
 import com.dazzle.asklepios.integration.ai.client.dto.ambientdraft.AmbientDraftOptionsDTO;
+import com.dazzle.asklepios.integration.ai.client.dto.ambientdraft.AmbientRegenerateRequestDTO;
 import tools.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -56,5 +58,15 @@ public class AmbientDraftController {
                         suggestOrders
                 )
         );
+    }
+
+    @PostMapping(
+            value = "/ambient-draft/regenerate",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public JsonNode regenerate(@RequestBody AmbientRegenerateRequestDTO request) {
+        LOG.debug("REST ambient section regenerate section={}", request.section());
+        return ambientDraftService.regenerate(request);
     }
 }
