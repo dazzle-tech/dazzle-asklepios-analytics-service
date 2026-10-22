@@ -106,7 +106,6 @@ public class NurseSummaryPdfRenderService {
         // 5. Clinical Observation
         labels.put("clinicalObservation", isArabic ? "5. الملاحظة السريرية" : "5. Clinical Observation");
         labels.put("reasonOfVisit", isArabic ? "سبب الزيارة" : "Reason of Visit");
-        labels.put("diagnosis", isArabic ? "التشخيص" : "Diagnosis");
         labels.put("patientConditions", isArabic ? "حالة المريض" : "Patient Conditions");
         labels.put("functionalStatus", isArabic ? "الحالة الوظيفية" : "Functional Status");
         labels.put("cognitiveCheck", isArabic ? "التقييم الإدراكي" : "Cognitive Check");
