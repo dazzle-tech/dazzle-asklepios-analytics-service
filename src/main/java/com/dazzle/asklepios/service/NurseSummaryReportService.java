@@ -12,7 +12,6 @@ import com.dazzle.asklepios.domain.PatientServiceAndProduct;
 import com.dazzle.asklepios.domain.PatientWarnings;
 import com.dazzle.asklepios.domain.VitalSigns;
 import com.dazzle.asklepios.domain.enumeration.AllergenTypes;
-import com.dazzle.asklepios.domain.enumeration.DiagnosisType;
 import com.dazzle.asklepios.domain.enumeration.EncounterVaccinationStatus;
 import com.dazzle.asklepios.domain.enumeration.PatientAllergyStatus;
 import com.dazzle.asklepios.domain.enumeration.PatientWarningStatus;
@@ -21,7 +20,6 @@ import com.dazzle.asklepios.repository.BodyMeasurementsRepository;
 import com.dazzle.asklepios.repository.EncounterVaccinationRepository;
 import com.dazzle.asklepios.repository.PainAssessmentRepository;
 import com.dazzle.asklepios.repository.PatientAllergiesRepository;
-import com.dazzle.asklepios.repository.PatientDiagnosisRepository;
 import com.dazzle.asklepios.repository.PatientEncounterRepository;
 import com.dazzle.asklepios.repository.PatientObservationsComplaintsRepository;
 import com.dazzle.asklepios.repository.PatientServiceAndProductRepository;
@@ -66,7 +64,6 @@ public class NurseSummaryReportService {
     private final EncounterVaccinationRepository encounterVaccinationRepository;
     private final PatientServiceAndProductRepository patientServiceAndProductRepository;
     private final PatientEncounterRepository encounterRepository;
-    private final PatientDiagnosisRepository patientDiagnosisRepository;
     private final PainAssessmentRepository painAssessmentRepository;
     private final ReportCommonService reportCommonService;
 
@@ -96,7 +93,6 @@ public class NurseSummaryReportService {
                 observation != null ? observation.functionalStatus() : null,
                 patient != null ? patient.getPatientConditions() : null,
                 observation != null ? observation.cognitiveCheck() : null,
-                buildDiagnosis(encounterId),
                 null
         );
 
@@ -228,7 +224,6 @@ public class NurseSummaryReportService {
                 entity.getFunctionalStatus(),
                 entity.getPatientConditions(),
                 entity.getCognitiveCheck(),
-                null,
                 null
         );
     }
@@ -346,16 +341,6 @@ public class NurseSummaryReportService {
                 safe(third),
                 safe(last)
         ).trim();
-    }
-    String buildDiagnosis(Long encounterId) {
-        return patientDiagnosisRepository
-                .findByEncounterIdAndType(encounterId, DiagnosisType.PRIMARY.name())
-                .map(patientDiagnosis -> patientDiagnosis.getDiagnosis() != null
-                        ? patientDiagnosis.getDiagnosis().getIcdShortDescription()
-                        : null
-                )
-                .filter(value -> value != null && !value.isBlank())
-                .orElse("General assessment");
     }
     private String safe(String value) {
         return value == null ? "" : value;
