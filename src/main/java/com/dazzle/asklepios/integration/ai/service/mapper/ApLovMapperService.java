@@ -53,6 +53,29 @@ public class ApLovMapperService {
     }
 
     /**
+     * Map a value (OCR / LLM) -> LOV key of the given LOV code
+     */
+    public String mapToKey(String lovCode, String text) {
+
+        if (text == null || text.isBlank()) {
+            return null;
+        }
+
+        String input = normalize(text);
+
+        return findValues(lovCode).stream()
+                .filter(v -> (v.getLovDisplayVale() != null && normalize(v.getLovDisplayVale()).equals(input))
+                        || (v.getValueCode() != null && normalize(v.getValueCode()).equals(input)))
+                .map(ApLovValue::getKey)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public List<ApLovValue> findValues(String lovCode) {
+        return apLovValueRepository.findByLovCodeAndIsValidTrue(lovCode);
+    }
+
+    /**
      * Main matching logic
      */
     private boolean matches(String input, ApLovValue value) {

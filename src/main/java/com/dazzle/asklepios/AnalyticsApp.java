@@ -7,6 +7,7 @@ import com.dazzle.asklepios.integration.ai.config.AiOcrParsingProperties;
 import com.dazzle.asklepios.integration.ai.config.AiRecommendationsProperties;
 import com.dazzle.asklepios.integration.ai.config.AutoPopulationProperties;
 import com.dazzle.asklepios.integration.ai.config.ClinicalSummaryVoiceProperties;
+import com.dazzle.asklepios.integration.ai.config.ConvoVoiceAgentProperties;
 import com.dazzle.asklepios.integration.ai.config.DischargeReportProperties;
 import com.dazzle.asklepios.integration.ai.config.MedicationTestOrdersValidationProperties;
 import com.dazzle.asklepios.integration.ai.config.PatientTimelineProperties;
@@ -37,7 +38,8 @@ import org.springframework.core.env.Environment;
         AutoPopulationProperties.class,
         DischargeReportProperties.class,
         AiOcrParsingProperties.class,
-        ClinicalSummaryVoiceProperties.class
+        ClinicalSummaryVoiceProperties.class,
+        ConvoVoiceAgentProperties.class
 })
 @EnableFeignClients
 @SpringBootApplication
