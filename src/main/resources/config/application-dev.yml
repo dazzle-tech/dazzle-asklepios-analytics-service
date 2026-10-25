@@ -55,6 +55,10 @@ ai:
    base-url: http://clinical-summary-voice:8037
    timeout-seconds: 120
 
+  convo-voice-agent:
+    base-url: http://convo-voice-agent:8036
+    timeout-seconds: 300
+
 spring:
   devtools:
     restart:
