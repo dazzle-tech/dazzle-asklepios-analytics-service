@@ -440,6 +440,13 @@ tr:nth-child(even) { background: #fcfcfd; }
     line-height: 1.2;
 }
 
+.auth-sub {
+    font-size: 6.5pt;
+    font-weight: 700;
+    color: #64748b;
+    margin: 1px 0 3px 0;
+}
+
 .auth-email {
     font-size: 6.5pt;
     font-weight: 700;

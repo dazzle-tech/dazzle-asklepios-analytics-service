@@ -232,6 +232,16 @@
     <div class="footer">
       <div class="footer-left">
         <div class="signature-line"></div>
+        <p class="auth-name"
+           th:if="${report.practitionerName != null and !#strings.isEmpty(report.practitionerName)}"
+           th:text="${report.practitionerName}">
+          Practitioner Name
+        </p>
+        <p class="auth-sub"
+           th:if="${report.practitionerSpecialty != null and !#strings.isEmpty(report.practitionerSpecialty)}"
+           th:text="${report.practitionerSpecialty}">
+          Specialty
+        </p>
         <p class="signature-label" th:text="${labels.prescriberSignature}">
           Prescriber Signature
         </p>

@@ -11,6 +11,8 @@ public record PrescriptionPrintDTO(
         Instant prescriptionDateTime,
         String prescriberName,
         String prescriberEmail,
+        String practitionerName,
+        String practitionerSpecialty,
         String facilityName,
         String fromDepartment,
         String patientName,

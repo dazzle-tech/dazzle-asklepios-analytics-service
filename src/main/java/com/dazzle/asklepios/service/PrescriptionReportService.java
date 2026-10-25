@@ -9,6 +9,7 @@ import com.dazzle.asklepios.domain.PatientEncounter;
 import com.dazzle.asklepios.domain.PatientPrescription;
 import com.dazzle.asklepios.domain.PatientPrescriptionMedication;
 import com.dazzle.asklepios.domain.PatientWarnings;
+import com.dazzle.asklepios.domain.Practitioner;
 import com.dazzle.asklepios.domain.PrescriptionInstruction;
 import com.dazzle.asklepios.domain.enumeration.AllergenTypes;
 import com.dazzle.asklepios.domain.enumeration.PrescriptionStatus;
@@ -220,6 +221,17 @@ public class PrescriptionReportService {
 
         String age = calculateAge(patient.getDateOfBirth());
 
+        Practitioner practitioner = encounter.getPractitioner();
+
+        String practitionerName = practitioner != null
+                ? ((practitioner.getFirstName() == null ? "" : practitioner.getFirstName()) + " " +
+                (practitioner.getLastName() == null ? "" : practitioner.getLastName())).trim()
+                : null;
+
+        String practitionerSpecialty = practitioner != null
+                ? practitioner.getSpecialty()
+                : null;
+
         String facilityName = fromDepartment.getFacility() != null
                 ? fromDepartment.getFacility().getName()
                 : null;
@@ -316,6 +328,8 @@ public class PrescriptionReportService {
 
                 reportCommonService.getDisplayUserName(prescription.getCreatedBy()),
                 reportCommonService.getUserEmail(prescription.getCreatedBy()),
+                practitionerName,
+                practitionerSpecialty,
                 facilityName,
                 fromDepartment.getName(),
 
