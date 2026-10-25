@@ -188,7 +188,7 @@
 
                                     <span th:if="${item.marker != null}"
                                           th:switch="${item.marker}"
-                                          th:style="${item.marker.toString() != 'NORMAL_MARKER' and item.marker.toString() != 'UNKNOWN'} ? 'color:#d32f2f;font-weight:bold;'">
+                                          th:style="${item.marker.toString() == 'CRITICAL_UPPER' or item.marker.toString() == 'CRITICAL_LOWER'} ? 'color:#d32f2f;font-weight:bold;'">
 
         <span th:case="'ABNORMAL_MARKER'"> ⚠</span>
         <span th:case="'UPPER_LIMIT'"> ↑</span>
