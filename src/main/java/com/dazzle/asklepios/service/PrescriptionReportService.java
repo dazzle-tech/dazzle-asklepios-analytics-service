@@ -229,7 +229,7 @@ public class PrescriptionReportService {
                 : null;
 
         String practitionerSpecialty = practitioner != null
-                ? practitioner.getSpecialty()
+                ? reportCommonService.formatEnum(practitioner.getSpecialty())
                 : null;
 
         String facilityName = fromDepartment.getFacility() != null
