@@ -58,7 +58,7 @@ ai:
 
   convo-voice-agent:
     base-url: ${gateway.base-url}/api/ai/v1/convo-voice-agent
-    timeout-seconds: 300
+    timeout-seconds: 3000
 
 spring:
   devtools:
