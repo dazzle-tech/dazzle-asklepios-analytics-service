@@ -18,7 +18,7 @@ import java.util.Map;
 public interface ConvoVoiceAgentClient {
 
     @PostMapping(
-            value = "/api/v1/draft",
+            value = "/draft",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     JsonNode draft(
@@ -27,7 +27,7 @@ public interface ConvoVoiceAgentClient {
     );
 
     @PostMapping(
-            value = "/api/v1/sections/regenerate",
+            value = "/sections/regenerate",
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     JsonNode regenerate(
