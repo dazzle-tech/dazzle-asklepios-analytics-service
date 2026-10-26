@@ -41,9 +41,16 @@ public class AmbientDraftController {
             @RequestParam(value = "noteForm", required = false) String noteForm,
             @RequestParam(value = "patientContext", required = false) String patientContext,
             @RequestParam(value = "suggestIcd10", required = false) Boolean suggestIcd10,
-            @RequestParam(value = "suggestOrders", required = false) Boolean suggestOrders
+            @RequestParam(value = "suggestOrders", required = false) Boolean suggestOrders,
+            @RequestParam(value = "ambientId", required = false) Long ambientId
     ) {
-        LOG.debug("REST ambient draft size={} suggestIcd10={} suggestOrders={}", audio.getSize(), suggestIcd10, suggestOrders);
+        LOG.debug(
+            "REST ambient draft size={} ambientId={} suggestIcd10={} suggestOrders={}",
+            audio.getSize(),
+            ambientId,
+            suggestIcd10,
+            suggestOrders
+        );
 
         return ambientDraftService.draft(
                 audio,
@@ -56,7 +63,8 @@ public class AmbientDraftController {
                         patientContext,
                         suggestIcd10,
                         suggestOrders
-                )
+                ),
+                ambientId
         );
     }
 

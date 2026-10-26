@@ -15,6 +15,7 @@ management:
 service:
   asklepios-setup-service-url: http://localhost:8082
   asklepios-gateway-service-url: http://localhost:8080
+  asklepios-patient-service-url: http://localhost:8083
 
 ai:
 
