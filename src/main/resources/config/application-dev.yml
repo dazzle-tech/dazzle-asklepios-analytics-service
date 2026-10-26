@@ -56,7 +56,7 @@ ai:
    timeout-seconds: 120
 
   convo-voice-agent:
-    base-url: http://localhost:8036
+    base-url: http://convo-voice-agent:8036
     timeout-seconds: 300
 
 spring:
