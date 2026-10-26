@@ -19,7 +19,7 @@ public class ConvoVoiceAgentFeignConfig {
     public Request.Options convoVoiceAgentRequestOptions(ConvoVoiceAgentProperties properties) {
         int timeout = properties.timeoutSeconds() != null
                 ? properties.timeoutSeconds()
-                : 300;
+                : 1200;
 
         return new Request.Options(
                 timeout,
