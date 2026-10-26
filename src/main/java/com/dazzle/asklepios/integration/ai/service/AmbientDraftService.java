@@ -1,6 +1,7 @@
 package com.dazzle.asklepios.integration.ai.service;
 
 import com.dazzle.asklepios.integration.ai.client.ConvoVoiceAgentClient;
+import com.dazzle.asklepios.integration.ai.client.EncounterAmbientClient;
 import com.dazzle.asklepios.integration.ai.client.dto.ambientdraft.AmbientDraftOptionsDTO;
 import com.dazzle.asklepios.integration.ai.client.dto.ambientdraft.AmbientRegenerateRequestDTO;
 import com.dazzle.asklepios.integration.ai.service.mapper.AmbientDraftMapperService;
@@ -29,13 +30,19 @@ public class AmbientDraftService {
 
     private final ConvoVoiceAgentClient convoVoiceAgentClient;
     private final AmbientDraftMapperService ambientDraftMapperService;
+    private final EncounterAmbientClient encounterAmbientClient;
 
-    public AmbientDraftService(ConvoVoiceAgentClient convoVoiceAgentClient, AmbientDraftMapperService ambientDraftMapperService) {
+    public AmbientDraftService(
+        ConvoVoiceAgentClient convoVoiceAgentClient,
+        AmbientDraftMapperService ambientDraftMapperService,
+        EncounterAmbientClient encounterAmbientClient
+    ) {
         this.convoVoiceAgentClient = convoVoiceAgentClient;
         this.ambientDraftMapperService = ambientDraftMapperService;
+        this.encounterAmbientClient = encounterAmbientClient;
     }
 
-    public JsonNode draft(MultipartFile audio, AmbientDraftOptionsDTO options) {
+    public JsonNode draft(MultipartFile audio, AmbientDraftOptionsDTO options, Long ambientId) {
         if (audio == null || audio.isEmpty()) {
             throw new BadRequestAlertException("Please record the visit first.", ENTITY_NAME, "audio.required");
         }
@@ -73,7 +80,9 @@ public class AmbientDraftService {
             throw new BadRequestAlertException(message, ENTITY_NAME, "draft.failed");
         }
 
-        return ambientDraftMapperService.map(draft);
+        JsonNode mapped = ambientDraftMapperService.map(draft);
+        storeDraft(ambientId, mapped);
+        return mapped;
     }
 
     public JsonNode regenerate(AmbientRegenerateRequestDTO request) {
@@ -123,6 +132,20 @@ public class AmbientDraftService {
         }
 
         return ambientDraftMapperService.map(section);
+    }
+
+    private void storeDraft(Long ambientId, JsonNode draft) {
+        if (ambientId == null || draft == null || draft.isNull()) {
+            return;
+        }
+        try {
+            ObjectNode body = JsonNodeFactory.instance.objectNode();
+            body.set("draft", draft);
+            encounterAmbientClient.updateDraft(ambientId, body.toString());
+            log.info("Stored ambient draft on encounter ambient id={}", ambientId);
+        } catch (RuntimeException exception) {
+            log.error("Could not store ambient draft on encounter ambient id={}", ambientId, exception);
+        }
     }
 
     private static void putIfPresent(ObjectNode body, String name, String value) {
