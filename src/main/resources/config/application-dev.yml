@@ -57,7 +57,7 @@ ai:
 
   convo-voice-agent:
     base-url: http://convo-voice-agent:8036
-    timeout-seconds: 300
+    timeout-seconds: 1200
 
 spring:
   devtools:
@@ -71,9 +71,9 @@ spring:
       indent-output: true
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql://localhost:5433/postgres
+    url: jdbc:postgresql://localhost:5432/test
     username: postgres
-    password: qse123H
+    password: 123456
     hikari:
       poolName: Hikari
       auto-commit: false
