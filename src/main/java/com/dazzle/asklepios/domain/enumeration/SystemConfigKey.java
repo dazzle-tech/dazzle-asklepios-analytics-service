@@ -8,5 +8,6 @@ public enum SystemConfigKey {
     LOGIN_BACKGROUND,
     FAVICON,
     SIDEBAR_LOGO,
+    PRESCRIPTION_STAMP,
 
 }
