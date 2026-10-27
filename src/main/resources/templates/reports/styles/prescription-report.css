@@ -380,6 +380,8 @@ tr:nth-child(even) { background: #fcfcfd; }
 .footer {
     display: table;
     width: 100%;
+    page-break-inside: avoid;
+    break-inside: avoid;
     margin-top: 28px;
     padding-top: 28px;
     border-top: 1px solid #f1f5f9;
@@ -387,14 +389,15 @@ tr:nth-child(even) { background: #fcfcfd; }
 
 .footer-left {
     display: table-cell;
-    width: 50%;
-    vertical-align: bottom;
+    width: 35%;
+    vertical-align: top;
 }
 
 .signature-line {
     width: 220px;
     height: 2px;
     background: #e2e8f0;
+    margin-top: 5px;
     margin-bottom: 8px;
 }
 
@@ -406,9 +409,21 @@ tr:nth-child(even) { background: #fcfcfd; }
     letter-spacing: 0.5px;
 }
 
+.footer-center {
+    display: table-cell;
+    width: 30%;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.report-stamp {
+    width: 45mm;
+    height: auto;
+}
+
 .footer-right {
     display: table-cell;
-    width: 50%;
+    width: 35%;
     text-align: right;
     vertical-align: top;
 }
@@ -425,7 +440,7 @@ tr:nth-child(even) { background: #fcfcfd; }
     color: #cbd5e1;
     text-transform: uppercase;
     letter-spacing: 1.2px;
-    margin-bottom: 4px;
+    margin-top: 4px;
 }
 
 .verification-badge {
@@ -546,7 +561,7 @@ body.rtl .diag-date {
 }
 
 body.rtl .footer-right {
-    text-align: right;
+    text-align: left;
 }
 
 body.rtl .auth-block,

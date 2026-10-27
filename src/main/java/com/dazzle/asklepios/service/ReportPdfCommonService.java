@@ -158,6 +158,26 @@ public class ReportPdfCommonService {
         }
     }
 
+    public String getPrescriptionStampBase64() {
+        try {
+            String storageKey = repository.findByConfigKey(SystemConfigKey.PRESCRIPTION_STAMP.name())
+                    .map(config -> config.getConfigValue())
+                    .filter(value -> value != null && !value.isBlank())
+                    .orElse(null);
+
+            if (storageKey == null) {
+                return "";
+            }
+
+            try (InputStream inputStream = new java.net.URL(publicUrl(storageKey)).openStream()) {
+                byte[] bytes = inputStream.readAllBytes();
+                return Base64.getEncoder().encodeToString(bytes);
+            }
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
     private String getDefaultLogoBase64() {
         try {
             ClassPathResource resource = new ClassPathResource("static/logo.png");

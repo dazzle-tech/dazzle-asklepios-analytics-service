@@ -247,11 +247,15 @@
         </p>
       </div>
 
+      <div class="footer-center">
+        <img class="report-stamp"
+             th:if="${stamp != null and !#strings.isEmpty(stamp)}"
+             th:src="'data:image/png;base64,' + ${stamp}" />
+      </div>
+
       <div class="footer-right">
         <div class="auth-block">
-          <p class="auth-label" th:text="${labels.digitallyAuthenticatedBy}">
-            Digitally Authenticated By
-          </p>
+          <div class="signature-line"></div>
 
           <div class="verification-badge">
             <div class="auth-name" th:text="${report.prescriberName}">Prescriber Name</div>
@@ -261,6 +265,10 @@
               &lt;email@example.com&gt;
             </div>
           </div>
+
+          <p class="auth-label" th:text="${labels.digitallyAuthenticatedBy}">
+            Digitally Authenticated By
+          </p>
         </div>
       </div>
     </div>
