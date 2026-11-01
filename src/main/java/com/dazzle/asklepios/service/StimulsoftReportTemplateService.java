@@ -58,9 +58,9 @@ public class StimulsoftReportTemplateService {
 
     /**
      * Dashboards the viewer may open.
-     * No job role on the template: every user.
-     * Job role only: users with that role.
-     * Job role plus user ids: only those users.
+     * No job role on the template: every user, unless user ids are set.
+     * Job role and no user ids: every user who currently has that role.
+     * Job role plus user ids: only those users, and only while their current role still matches.
      * The designer list stays on {@link #findAll} and is not filtered here.
      */
     @Transactional(readOnly = true)
@@ -270,16 +270,19 @@ public class StimulsoftReportTemplateService {
     }
 
     private boolean matchesAudience(StimulsoftReportTemplate template, JobRole viewerRole, Long viewerUserId) {
-        if (template.getJobRole() == null) {
-            return true;
-        }
-
+        JobRole dashboardRole = template.getJobRole();
         List<Long> allowedUserIds = parseIdList(template.getUserIds());
-        if (!allowedUserIds.isEmpty()) {
-            return viewerUserId != null && allowedUserIds.contains(viewerUserId);
+        boolean userListed = viewerUserId != null && allowedUserIds.contains(viewerUserId);
+
+        if (dashboardRole == null) {
+            return allowedUserIds.isEmpty() || userListed;
         }
 
-        return viewerRole != null && viewerRole.name().equals(template.getJobRole());
+        if (viewerRole == null || dashboardRole != viewerRole) {
+            return false;
+        }
+
+        return allowedUserIds.isEmpty() || userListed;
     }
 
     private boolean matchesFacility(StimulsoftReportTemplate template, Long facilityId) {
