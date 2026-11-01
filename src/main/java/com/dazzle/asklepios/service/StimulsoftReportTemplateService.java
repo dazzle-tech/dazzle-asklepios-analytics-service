@@ -120,7 +120,7 @@ public class StimulsoftReportTemplateService {
         }
 
         StimulsoftReportTemplate template = findEntityById(request.templateId());
-        if (!StimulsoftTemplateType.DASHBOARD.name().equals(template.getTemplateType())) {
+        if (!StimulsoftTemplateType.DASHBOARD.equals(template.getTemplateType())) {
             throw new BadRequestAlertException(
                     "Only a dashboard can be set as the default",
                     "dashboardDefault",
