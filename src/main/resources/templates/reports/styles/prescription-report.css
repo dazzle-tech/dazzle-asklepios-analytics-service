@@ -352,9 +352,10 @@ tr:nth-child(even) { background: #fcfcfd; }
 }
 
 .med-name {
-    font-weight: 900;
+    font-weight: 700;
     font-size: 8pt;
-    text-transform: uppercase;
+    text-transform: none;
+    letter-spacing: 0;
     line-height: 1.25;
     width: 140px;
 }
@@ -364,6 +365,79 @@ tr:nth-child(even) { background: #fcfcfd; }
     color: #64748b;
     font-size: 7pt;
     line-height: 1.35;
+}
+
+.medication-notes-list {
+    width: 100%;
+}
+
+.med-notes-card {
+    width: 100%;
+    border: 1px solid #dbe3ee;
+    background: #ffffff;
+    margin-bottom: 8px;
+}
+
+.med-notes-card:last-child {
+    margin-bottom: 0;
+}
+
+.med-notes-card-header {
+    background: #f8fafc;
+    border-bottom: 1px solid #e5edf5;
+    padding: 7px 10px;
+    font-size: 8pt;
+    font-weight: 800;
+    color: #1e293b;
+    letter-spacing: 0;
+    text-transform: none;
+    page-break-after: avoid;
+    break-after: avoid;
+}
+
+.med-notes-card-body {
+    width: 100%;
+}
+
+.med-notes-row {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    border-top: 0.8px solid #e5edf5;
+}
+
+.med-notes-card-body > .med-notes-row:first-child {
+    border-top: none;
+}
+
+.med-notes-cell {
+    display: table-cell;
+    vertical-align: top;
+    padding: 7px 10px;
+    border-right: 0.8px solid #e5edf5;
+}
+
+.med-notes-cell.half {
+    width: 50%;
+}
+
+.med-notes-cell.full {
+    width: 100%;
+    border-right: none;
+}
+
+.med-notes-cell:last-child {
+    border-right: none;
+}
+
+.med-notes-value {
+    display: block;
+    font-size: 7.2pt;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.35;
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
 .empty-message {
@@ -538,6 +612,16 @@ body.rtl .info-box.no-border {
     border-left: none;
 }
 
+body.rtl .med-notes-cell {
+    border-right: none;
+    border-left: 0.8px solid #e5edf5;
+}
+
+body.rtl .med-notes-cell:last-child,
+body.rtl .med-notes-cell.full {
+    border-left: none;
+}
+
 /* Date time spacing */
 body.rtl .date-time-info strong {
     margin-left: 0;
@@ -592,6 +676,7 @@ body.rtl th,
 body.rtl .badge-urgent,
 body.rtl .badge-severe,
 body.rtl .med-name,
+body.rtl .med-notes-card-header,
 body.rtl .signature-label,
 body.rtl .auth-label {
     text-transform: none;

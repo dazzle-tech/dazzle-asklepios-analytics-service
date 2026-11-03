@@ -133,7 +133,6 @@
           <th th:text="${labels.medicationName}">Medication Name</th>
           <th th:text="${labels.instructions}">Instructions</th>
           <th th:text="${labels.duration}">Duration</th>
-          <th class="text-center" th:text="${labels.refills}">Refills</th>
           <th th:text="${labels.administrationInstructions}">Administration Instructions</th>
           <th th:text="${labels.indication}">Indication</th>
         </tr>
@@ -149,7 +148,6 @@
                   th:text="' ' + ${med.durationType}">
                   </span>
           </td>
-          <td class="text-center" th:text="${med.numberOfRefills}">0</td>
           <td class="text-muted" th:text="${med.administrationInstructions}">Admin instruction</td>
           <td class="text-muted" th:text="${med.indicationIcd}">Indication</td>
         </tr>
@@ -163,6 +161,74 @@
       No active prescription medications found.
     </div>
   </section>
+
+  <section class="report-section medication-notes-section"
+           th:if="${medicationsWithNotes != null and !#lists.isEmpty(medicationsWithNotes)}">
+    <div class="section-header">
+      <h2 class="section-title" th:text="${labels.medicationNotesDocumentation}">
+        Medication Notes &amp; Documentation
+      </h2>
+    </div>
+
+    <div class="medication-notes-list">
+      <div class="med-notes-card"
+           th:each="med : ${medicationsWithNotes}"
+           th:with="hasNotes=${med.notes != null and !#strings.isEmpty(#strings.trim(med.notes))},
+                    hasExtra=${med.extraDocumentation != null and !#strings.isEmpty(#strings.trim(med.extraDocumentation))},
+                    hasRefillCount=${med.numberOfRefills != null},
+                    hasRefillInterval=${med.refillInterval != null and !#strings.isEmpty(#strings.trim(med.refillInterval))},
+                    hasRefills=${med.numberOfRefills != null or (med.refillInterval != null and !#strings.isEmpty(#strings.trim(med.refillInterval)))},
+                    hasParams=${med.parametersToMonitor != null and !#strings.isEmpty(#strings.trim(med.parametersToMonitor))}">
+
+        <div class="med-notes-card-header"
+             th:text="${med.medicationName != null and !#strings.isEmpty(med.medicationName)
+                        ? med.medicationName
+                        : med.activeIngredient}">
+          Medication
+        </div>
+
+        <div class="med-notes-card-body">
+          <div class="med-notes-row"
+               th:if="${hasNotes or hasExtra}">
+            <div class="med-notes-cell"
+                 th:classappend="${hasNotes and hasExtra} ? ' half' : ' full'"
+                 th:if="${hasNotes}">
+              <span class="info-label" th:text="${labels.notes}">Notes</span>
+              <div class="med-notes-value" th:text="${med.notes}"></div>
+            </div>
+
+            <div class="med-notes-cell"
+                 th:classappend="${hasNotes and hasExtra} ? ' half' : ' full'"
+                 th:if="${hasExtra}">
+              <span class="info-label" th:text="${labels.extraDocumentation}">Extra Documentation</span>
+              <div class="med-notes-value" th:text="${med.extraDocumentation}"></div>
+            </div>
+          </div>
+
+          <div class="med-notes-row med-notes-row-bottom"
+               th:if="${hasRefills or hasParams}">
+            <div class="med-notes-cell"
+                 th:classappend="${hasRefills and hasParams} ? ' half' : ' full'"
+                 th:if="${hasRefills}">
+              <span class="info-label" th:text="${labels.refills}">Refills</span>
+              <div class="med-notes-value"
+                   th:text="${hasRefillCount and hasRefillInterval
+                              ? med.numberOfRefills + ' · ' + med.refillInterval
+                              : (hasRefillCount ? med.numberOfRefills : med.refillInterval)}">0</div>
+            </div>
+
+            <div class="med-notes-cell"
+                 th:classappend="${hasRefills and hasParams} ? ' half' : ' full'"
+                 th:if="${hasParams}">
+              <span class="info-label" th:text="${labels.parametersToMonitor}">Parameters to Monitor</span>
+              <div class="med-notes-value" th:text="${med.parametersToMonitor}"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="report-section">
     <div class="section-header">
       <h2 class="section-title" th:text="${labels.clinicalObservationsDiagnoses}">
