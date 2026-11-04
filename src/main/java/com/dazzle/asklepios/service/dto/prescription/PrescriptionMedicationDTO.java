@@ -1,7 +1,5 @@
 package com.dazzle.asklepios.service.dto.prescription;
 
-import java.time.LocalDate;
-
 public record PrescriptionMedicationDTO(
         String activeIngredient,
         String medicationName,
@@ -12,6 +10,11 @@ public record PrescriptionMedicationDTO(
         Long numberOfRefills,
         String administrationInstructions,
         Boolean substitutionAllowed,
-        String indicationIcd
+        String indicationIcd,
+        String notes,
+        String extraDocumentation,
+        String parametersToMonitor,
+        String refillInterval,
+        String refillsAndParameters
 ) {
 }

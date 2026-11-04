@@ -310,7 +310,17 @@ public class PrescriptionReportService {
 
                             m.getAllowedSubstitute(),
 
-                            indication
+                            indication,
+
+                            m.getNotes(),
+
+                            m.getExtraDocumentation(),
+
+                            m.getParametersToMonitor(),
+
+                            buildRefillInterval(m),
+
+                            buildRefillsAndParameters(m)
                     );
                 })
                 .toList();
@@ -553,6 +563,59 @@ public class PrescriptionReportService {
             LOG.debug("[safeParse] failed to parse value={}", value, e);
             return null;
         }
+    }
+
+    private String buildRefillInterval(PatientPrescriptionMedication medication) {
+        if (medication == null) {
+            return null;
+        }
+
+        Integer refillValue = medication.getRefillValue();
+        String refillUnitDisplay = resolveLovDisplayValue(medication.getRefillUnit());
+
+        if (refillValue == null && (refillUnitDisplay == null || refillUnitDisplay.isBlank())) {
+            return null;
+        }
+
+        if (refillValue != null && refillUnitDisplay != null && !refillUnitDisplay.isBlank()) {
+            return refillValue + " " + refillUnitDisplay;
+        }
+
+        if (refillValue != null) {
+            return String.valueOf(refillValue);
+        }
+
+        return refillUnitDisplay;
+    }
+
+    private String buildRefillsAndParameters(PatientPrescriptionMedication medication) {
+        if (medication == null) {
+            return null;
+        }
+
+        StringBuilder sb = new StringBuilder();
+
+        if (medication.getNumberOfRefills() != null) {
+            sb.append(medication.getNumberOfRefills());
+        }
+
+        String refillInterval = buildRefillInterval(medication);
+        if (refillInterval != null && !refillInterval.isBlank()) {
+            if (!sb.isEmpty()) {
+                sb.append('\n');
+            }
+            sb.append(refillInterval.trim());
+        }
+
+        if (medication.getParametersToMonitor() != null && !medication.getParametersToMonitor().isBlank()) {
+            if (!sb.isEmpty()) {
+                sb.append('\n');
+            }
+            sb.append(medication.getParametersToMonitor().trim());
+        }
+
+        String value = sb.toString().trim();
+        return value.isEmpty() ? null : value;
     }
 
     private String resolveAllergyName(PatientAllergies allergy) {
