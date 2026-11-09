@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:attr="lang=${lang}, dir=${dir}">
+<head>
+  <meta charset="UTF-8"/>
+  <title th:text="${labels.title}">Dental Treatment Plan</title>
+  <style th:utext="${reportCss}"></style>
+</head>
+<body>
+<header class="header">
+  <img class="report-logo" th:src="'data:image/png;base64,' + ${logo}" alt=""/>
+  <div>
+    <h1 class="org-name" th:text="${report.facilityName != null and !#strings.isEmpty(report.facilityName) ? report.facilityName : 'FACILITY NAME'}">FACILITY NAME</h1>
+  </div>
+  <p class="plan-number">
+    <span th:text="${labels.plan}">Plan</span>
+    <span th:text="${report.planNumber}">DTP-00009</span>
+  </p>
+</header>
+
+<h2 class="main-title" th:text="${labels.title}">Dental Treatment Plan</h2>
+
+<section class="section">
+  <h3 class="section-title" th:text="${labels.patient}">A. Patient and plan</h3>
+  <div class="grid">
+    <div><span class="label" th:text="${labels.name}">Patient name</span><span class="value" th:text="${report.patientName}">—</span></div>
+    <div><span class="label" th:text="${labels.mrn}">MRN</span><span class="value" th:text="${report.mrn}">—</span></div>
+    <div><span class="label" th:text="${labels.dob}">DOB / Age</span><span class="value" th:text="${report.dob} + ' (' + ${report.age} + ')'">—</span></div>
+    <div><span class="label" th:text="${labels.gender}">Gender</span><span class="value" th:text="${report.gender}">—</span></div>
+    <div><span class="label" th:text="${labels.plan}">Plan</span><span class="value" th:text="${report.planNumber}">—</span></div>
+    <div><span class="label" th:text="${labels.planTitle}">Title</span><span class="value" th:text="${report.title}">—</span></div>
+    <div><span class="label" th:text="${labels.status}">Status</span><span class="value" th:text="${report.status}">—</span></div>
+    <div><span class="label" th:text="${labels.practitioner}">Practitioner</span><span class="value" th:text="${report.practitioner}">—</span></div>
+    <div><span class="label" th:text="${labels.encounter}">Origin encounter</span><span class="value" th:text="${report.originEncounter}">—</span></div>
+    <div><span class="label" th:text="${labels.created}">Created</span><span class="value" th:text="${report.created}">—</span></div>
+    <div><span class="label" th:text="${labels.updated}">Updated</span><span class="value" th:text="${report.updated}">—</span></div>
+    <div><span class="label" th:text="${labels.generated}">Generated</span><span class="value" th:text="${report.generatedAt}">—</span></div>
+  </div>
+</section>
+
+<section class="section">
+  <h3 class="section-title" th:text="${labels.chart}">B. Dental chart</h3>
+  <div class="unavailable" th:if="${!report.chartAvailable}" th:text="${report.chartMessage}">Dental chart unavailable</div>
+  <div class="chart" th:if="${report.chartAvailable}">
+    <div class="sides"><span th:text="${labels.right}">R</span><span th:text="${labels.left}">L</span></div>
+    <div class="arch">
+      <div class="tooth" th:each="tooth : ${report.upperTeeth}" th:classappend="${(tooth.highlighted ? 'highlighted' : '') + (tooth.missing ? ' missing' : '')}">
+        <img th:if="${tooth.image != null}" th:src="${tooth.image}" alt=""/>
+        <div class="schematic" th:if="${tooth.image == null}"></div>
+        <div class="tooth-label" th:text="${tooth.label}">1</div>
+      </div>
+    </div>
+    <div class="arch">
+      <div class="tooth" th:each="tooth : ${report.lowerTeeth}" th:classappend="${(tooth.highlighted ? 'highlighted' : '') + (tooth.missing ? ' missing' : '')}">
+        <img th:if="${tooth.image != null}" th:src="${tooth.image}" alt=""/>
+        <div class="schematic" th:if="${tooth.image == null}"></div>
+        <div class="tooth-label" th:text="${tooth.label}">32</div>
+      </div>
+    </div>
+    <p class="legend" th:text="${labels.legend}">Highlighted teeth are covered by this plan’s non-cancelled treatments.</p>
+  </div>
+</section>
+
+<section class="section">
+  <h3 class="section-title" th:text="${labels.sessions}">C. Sessions and treatments</h3>
+  <p th:if="${#lists.isEmpty(report.sessions)}" th:text="${labels.noTreatments}">This plan has no treatments.</p>
+  <div th:each="session : ${report.sessions}">
+    <h4 class="session-title" th:text="${session.title}">Session 1</h4>
+    <table>
+      <thead>
+      <tr>
+        <th th:text="${labels.area}">Tooth / Area</th>
+        <th th:text="${labels.surface}">Surface</th>
+        <th th:text="${labels.cdt}">CDT</th>
+        <th th:text="${labels.procedure}">Billing Service</th>
+        <th th:text="${labels.price}">Unit Price</th>
+        <th th:text="${labels.quantity}">Quantity</th>
+        <th th:text="${labels.discount}">Discount Amount</th>
+        <th th:text="${labels.lineNet}">Net Total</th>
+        <th th:text="${labels.rowStatus}">Status</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="line : ${session.lines}" th:classappend="${line.cancelled} ? 'cancelled'">
+        <td>
+          <div th:text="${line.area}">—</div>
+          <ul class="details" th:if="${!#lists.isEmpty(line.details)}">
+            <li th:each="detail : ${line.details}" th:text="${detail}">Notes</li>
+          </ul>
+        </td>
+        <td th:text="${line.surface}">—</td>
+        <td th:text="${line.cdt}">—</td>
+        <td th:text="${line.procedure}">—</td>
+        <td th:text="${line.price}">0.00</td>
+        <td th:text="${line.quantity}">1</td>
+        <td th:text="${line.discount}">0.00</td>
+        <td th:text="${line.net}">0.00</td>
+        <td th:text="${line.status}">Pending</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="section">
+  <h3 class="section-title" th:text="${labels.estimate}">D. Treatment plan estimate</h3>
+  <table class="totals">
+    <tr><th th:text="${labels.gross}">Gross</th><td th:text="${report.gross}">0.00</td></tr>
+    <tr><th th:text="${labels.discount}">Discount</th><td th:text="${report.discount}">0.00</td></tr>
+    <tr><th th:text="${labels.net}">Estimated net</th><td th:text="${report.net}">0.00</td></tr>
+  </table>
+  <p class="note" th:text="${labels.estimateNote}">This is a treatment plan estimate, not an invoice or an outstanding payment.</p>
+</section>
+
+<section class="section" th:if="${!#lists.isEmpty(report.images)}">
+  <h3 class="section-title" th:text="${labels.images}">E. Selected images</h3>
+  <div th:each="image, iter : ${report.images}" th:classappend="${iter.index > 0} ? 'image-page'">
+    <img th:src="${image.src}" alt=""/>
+    <p class="image-caption">
+      <span th:text="${image.name}">file</span>
+      <span th:if="${image.description != null and !#strings.isEmpty(image.description)}" th:text="' — ' + ${image.description}"></span>
+      <span th:text="' · ' + ${image.encounter} + ' · ' + ${image.uploaded}"></span>
+    </p>
+  </div>
+</section>
+</body>
+</html>
