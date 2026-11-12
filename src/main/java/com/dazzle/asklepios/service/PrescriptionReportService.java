@@ -454,7 +454,7 @@ public class PrescriptionReportService {
         if (medication.getDose() != null) {
             LOG.debug("[buildCustomInstruction] medicationId={} dose={}", medication.getId(), medication.getDose());
 
-            String dosePart = medication.getDose().toString();
+            String dosePart = medication.getDose().stripTrailingZeros().toPlainString();
 
             if (medication.getDoesUnit() != null && !medication.getDoesUnit().isBlank()) {
                 LOG.debug("[buildCustomInstruction] medicationId={} doseUnitKey={}",

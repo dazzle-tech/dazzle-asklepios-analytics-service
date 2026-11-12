@@ -266,7 +266,7 @@ public class VisitReportService {
         List<String> parts = new ArrayList<>();
 
         if (medication.getDose() != null) {
-            String dosePart = medication.getDose().toString();
+            String dosePart = medication.getDose().stripTrailingZeros().toPlainString();
 
             if (medication.getDoesUnit() != null && !medication.getDoesUnit().isBlank()) {
                 String unitDisplay =

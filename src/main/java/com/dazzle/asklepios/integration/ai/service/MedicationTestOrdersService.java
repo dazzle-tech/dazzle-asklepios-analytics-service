@@ -260,7 +260,7 @@ public class MedicationTestOrdersService {
     private String buildCustomInstruction(PatientPrescriptionMedication medication) {
         StringBuilder sb = new StringBuilder();
         if (medication.getDose() != null) {
-            sb.append(medication.getDose());
+            sb.append(medication.getDose().stripTrailingZeros().toPlainString());
         }
         if (medication.getDoesUnit() != null && !medication.getDoesUnit().isBlank()) {
             if (sb.length() > 0) sb.append(" ");
