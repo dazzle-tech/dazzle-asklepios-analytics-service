@@ -52,6 +52,10 @@ public class ReportPdfCommonService {
     }
 
     public byte[] renderPdfWithChromium(String html) {
+        return renderPdfWithChromium(html, false);
+    }
+
+    public byte[] renderPdfWithChromium(String html, boolean pageNumbers) {
         try (Playwright playwright = Playwright.create()) {
 
             Browser browser = playwright.chromium().launch(
@@ -67,11 +71,20 @@ public class ReportPdfCommonService {
                             .setWaitUntil(WaitUntilState.NETWORKIDLE)
             );
 
-            byte[] pdfBytes = page.pdf(
-                    new Page.PdfOptions()
-                            .setPrintBackground(true)
-                            .setPreferCSSPageSize(true)
-            );
+            Page.PdfOptions options = new Page.PdfOptions()
+                    .setPrintBackground(true)
+                    .setPreferCSSPageSize(true);
+            if (pageNumbers) {
+                options.setDisplayHeaderFooter(true)
+                        .setHeaderTemplate("<span></span>")
+                        .setFooterTemplate(
+                                "<div style=\"font-size:8px;width:100%;text-align:center;color:#64748b;\">"
+                                        + "<span class=\"pageNumber\"></span> / <span class=\"totalPages\"></span>"
+                                        + "</div>"
+                        );
+            }
+
+            byte[] pdfBytes = page.pdf(options);
 
             browserContext.close();
             browser.close();
