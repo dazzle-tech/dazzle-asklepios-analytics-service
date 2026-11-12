@@ -1,19 +1,26 @@
 package com.dazzle.asklepios.service;
 
+import com.dazzle.asklepios.domain.Department;
+import com.dazzle.asklepios.domain.Patient;
+import com.dazzle.asklepios.domain.PatientProcedure;
+import com.dazzle.asklepios.domain.PatientProcedurePerformance;
+import com.dazzle.asklepios.repository.DepartmentsRepository;
+import com.dazzle.asklepios.repository.FacilityRepository;
+import com.dazzle.asklepios.repository.PatientProcedurePerformanceRepository;
+import com.dazzle.asklepios.repository.PatientProcedureRepository;
+import com.dazzle.asklepios.repository.PatientRepository;
+import com.dazzle.asklepios.repository.ProcedureRepository;
 import com.dazzle.asklepios.service.dto.reports.procedure.ProcedureReportVerificationDTO;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.ZoneOffset;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,17 +30,18 @@ import java.util.stream.Stream;
  */
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class ProcedureReportVerificationService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProcedureReportVerificationService.class);
 
     private final ReportVerificationService reportVerificationService;
-    private final JdbcTemplate jdbc;
-
-    public ProcedureReportVerificationService(ReportVerificationService reportVerificationService, JdbcTemplate jdbc) {
-        this.reportVerificationService = reportVerificationService;
-        this.jdbc = jdbc;
-    }
+    private final PatientProcedureRepository patientProcedureRepository;
+    private final PatientProcedurePerformanceRepository performanceRepository;
+    private final PatientRepository patientRepository;
+    private final ProcedureRepository procedureRepository;
+    private final FacilityRepository facilityRepository;
+    private final DepartmentsRepository departmentsRepository;
 
     public ProcedureReportVerificationDTO verify(String token) {
         return reportVerificationService.verify(token)
@@ -45,48 +53,55 @@ public class ProcedureReportVerificationService {
     }
 
     private ProcedureReportVerificationDTO lookup(Long id, Instant issuedAt) {
-        List<Map<String, Object>> rows = jdbc.queryForList("""
-                SELECT pp.id, pp.status, p.name AS procedure_name,
-                       pa.first_name, pa.second_name, pa.third_name, pa.last_name, pa.medical_record_number,
-                       COALESCE(f.name, df.name) AS facility_name,
-                       perf.actual_start_time, perf.actual_end_time
-                FROM patient_procedure pp
-                LEFT JOIN procedure p ON p.id = pp.procedure_id
-                LEFT JOIN patients pa ON pa.id = pp.patient_id
-                LEFT JOIN facility f ON f.id = pp.to_facility_id
-                LEFT JOIN department d ON d.id = pp.from_department_id
-                LEFT JOIN facility df ON df.id = d.facility_id
-                LEFT JOIN LATERAL (
-                    SELECT actual_start_time, actual_end_time
-                    FROM patient_procedure_performance
-                    WHERE patient_procedure_id = pp.id
-                    ORDER BY id DESC LIMIT 1
-                ) perf ON TRUE
-                WHERE pp.id = ?
-                """, id);
-        if (rows.isEmpty()) {
+        Optional<PatientProcedure> found = patientProcedureRepository.findById(id);
+        if (found.isEmpty()) {
             LOG.info("[ProcedureReportVerification] signed token for missing procedure id={}", id);
             return ProcedureReportVerificationDTO.invalid();
         }
-        Map<String, Object> r = rows.get(0);
-        Instant performed = Objects.requireNonNullElse(instant(r.get("actual_end_time")), instant(r.get("actual_start_time")));
+        PatientProcedure proc = found.get();
+
+        Patient patient = proc.getPatient() == null ? null
+                : patientRepository.findById(proc.getPatient().getId()).orElse(null);
+        String procedureName = proc.getProcedure() == null ? null
+                : procedureRepository.findById(proc.getProcedure().getId()).map(p -> p.getName()).orElse(null);
+        PatientProcedurePerformance perf = performanceRepository.findFirstByPatientProcedureIdOrderByIdDesc(id).orElse(null);
+        Instant performed = perf == null ? null
+                : Objects.requireNonNullElse(perf.getActualEndTime(), perf.getActualStartTime());
+
         return new ProcedureReportVerificationDTO(
                 true,
                 "PRC-" + String.format(Locale.ROOT, "%06d", id),
-                text(r.get("facility_name")),
-                text(r.get("procedure_name")),
-                text(r.get("status")),
-                initials(r.get("first_name"), r.get("second_name"), r.get("third_name"), r.get("last_name")),
-                maskMrn(text(r.get("medical_record_number"))),
+                facilityName(proc),
+                procedureName,
+                proc.getStatus(),
+                patient == null ? null
+                        : initials(patient.getFirstName(), patient.getSecondName(), patient.getThirdName(), patient.getLastName()),
+                patient == null ? null : maskMrn(patient.getMedicalRecordNumber()),
                 performed,
                 issuedAt
         );
     }
 
+    /** The performing facility, else the requesting department's facility. */
+    private String facilityName(PatientProcedure proc) {
+        if (proc.getToFacilityId() != null) {
+            Optional<String> name = facilityRepository.findById(proc.getToFacilityId()).map(f -> f.getName());
+            if (name.isPresent()) {
+                return name.get();
+            }
+        }
+        if (proc.getFromDepartmentId() == null) {
+            return null;
+        }
+        return departmentsRepository.findById(proc.getFromDepartmentId())
+                .map(Department::getFacility)
+                .map(f -> f.getName())
+                .orElse(null);
+    }
+
     /** "masa nabeel zahran" becomes "M. N. Z." */
-    static String initials(Object... names) {
+    static String initials(String... names) {
         String value = Stream.of(names)
-                .map(ProcedureReportVerificationService::text)
                 .filter(n -> n != null && !n.isBlank())
                 .map(n -> n.trim().substring(0, 1).toUpperCase(Locale.ROOT) + ".")
                 .collect(Collectors.joining(" "));
@@ -103,16 +118,5 @@ public class ProcedureReportVerificationService {
             return v.charAt(0) + "*".repeat(v.length() - 1);
         }
         return v.substring(0, 2) + "*".repeat(v.length() - 3) + v.charAt(v.length() - 1);
-    }
-
-    private static String text(Object value) {
-        return value == null ? null : value.toString();
-    }
-
-    private static Instant instant(Object value) {
-        if (value instanceof Timestamp ts) {
-            return ts.toLocalDateTime().toInstant(ZoneOffset.UTC);
-        }
-        return value instanceof Instant i ? i : null;
     }
 }
