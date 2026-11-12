@@ -33,6 +33,8 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(PathPatternRequestMatcher.pathPattern("/setup/api/**")).permitAll()
+                        .requestMatchers(PathPatternRequestMatcher.pathPattern(org.springframework.http.HttpMethod.GET,
+                                "/api/analytics/public/procedure-report/verify")).permitAll()
                         .requestMatchers(PathPatternRequestMatcher.pathPattern("/api/admin/**")).hasAuthority(AuthoritiesConstants.ADMIN)
                         .requestMatchers(PathPatternRequestMatcher.pathPattern("/api/**")).authenticated()
                         .requestMatchers(PathPatternRequestMatcher.pathPattern("/appointment/**")).authenticated()
