@@ -4,6 +4,7 @@ import com.dazzle.asklepios.domain.ApLovValue;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -16,6 +17,8 @@ public interface ApLovValueRepository extends JpaRepository<ApLovValue, String> 
     List<ApLovValue> findByLovKeyAndIsValidTrue(String lovKey);
 
     List<ApLovValue> findByLovCodeAndIsValidTrue(String lovCode);
+
+    List<ApLovValue> findByLovCodeInAndLovDisplayValeIn(Collection<String> lovCodes, Collection<String> displayValues);
 
     List<ApLovValue> findByParentValueId(String parentValueId);
 

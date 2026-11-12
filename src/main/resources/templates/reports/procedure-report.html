@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:attr="lang=${lang}, dir=${dir}">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${labels.title}">Procedure Report</title>
+  <style th:utext="${reportCss}"></style>
+</head>
+<body th:class="${dir}" th:with="h=${report.header}, p=${report.patient}, pre=${report.preAssessment},
+      perf=${report.performance}, mon=${report.monitoring}, post=${report.postCare}">
+
+<div class="watermark" th:if="${h.cancelled}" th:text="${labels.cancelledWatermark}">CANCELLED</div>
+
+<!-- ============ MASTHEAD ============ -->
+<header class="masthead">
+  <div class="masthead-logo">
+    <img th:if="${logo != null and !#strings.isEmpty(logo)}" th:src="'data:image/png;base64,' + ${logo}" alt=""/>
+  </div>
+  <div class="masthead-org">
+    <div class="org-name" th:text="${h.facilityName ?: ''}">Facility</div>
+    <div class="org-dept" th:text="${h.departmentName ?: ''}">Department</div>
+  </div>
+  <div class="masthead-meta">
+    <div><span th:text="${labels.docId}">Doc ID</span> <strong class="ltr-text" th:text="${h.documentNumber}">PRC-000001</strong></div>
+    <div><span th:text="${labels.printedAt}">Printed</span> <strong class="ltr-text" th:text="${h.printedAt}">01/01/2026 10:00</strong></div>
+    <div th:if="${h.printedBy != null}"><span th:text="${labels.printedBy}">Printed by</span> <strong th:text="${h.printedBy}">User</strong></div>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<div class="hero">
+  <div class="hero-main">
+    <div class="eyebrow" th:text="${labels.title}">Procedure Report</div>
+    <h1 class="procedure-name" th:text="${h.procedureName}">Procedure name</h1>
+    <div class="chips">
+      <span class="chip" th:if="${h.procedureCode != null}">
+        <span class="chip-k" th:text="${labels.code}">Code</span><span class="ltr-text" th:text="${h.procedureCode}">X</span>
+      </span>
+      <span class="chip" th:if="${!#strings.isEmpty(h.category)}">
+        <span class="chip-k" th:text="${labels.category}">Category</span><span th:text="${h.category}">X</span>
+      </span>
+      <span class="chip" th:if="${!#strings.isEmpty(h.level)}">
+        <span class="chip-k" th:text="${labels.level}">Level</span><span th:text="${h.level}">X</span>
+      </span>
+      <span class="chip" th:if="${!#strings.isEmpty(h.priority)}">
+        <span class="chip-k" th:text="${labels.priority}">Priority</span><span th:text="${h.priority}">X</span>
+      </span>
+      <span class="chip">
+        <span class="chip-k" th:text="${labels.bodyPart}">Body Part</span>
+        <span th:text="${report.request.side != '—'} ? ${report.request.bodyPart + ' · ' + report.request.side} : ${report.request.bodyPart}">X</span>
+      </span>
+    </div>
+  </div>
+  <div class="hero-status">
+    <span class="status-pill" th:classappend="'tone-' + ${h.statusTone}"
+          th:text="${labels['status_' + h.statusCode] ?: h.statusCode}">Completed</span>
+  </div>
+</div>
+
+<div class="banner banner-warning" th:if="${h.preliminary}" th:text="${labels.preliminary}">Preliminary</div>
+
+<!-- ============ ALLERGY STRIP ============ -->
+<div class="allergy-strip" th:classappend="${#lists.isEmpty(report.allergies)} ? 'is-clear' : 'is-alert'">
+  <span class="allergy-title" th:text="${#lists.isEmpty(report.allergies)} ? ${labels.noKnownAllergies} : ${labels.allergyAlert}">Allergy</span>
+  <span class="allergy-pill" th:each="a : ${report.allergies}" th:classappend="${a.severe} ? 'severe'">
+    <strong th:text="${a.allergen}">Penicillin</strong>
+    <span th:if="${!#strings.isEmpty(a.severity)}" th:text="${a.severity}">Severe</span>
+  </span>
+</div>
+
+<!-- ============ TIMELINE ============ -->
+<div class="timeline-card avoid-break">
+  <div class="card-caption" th:text="${labels.timeline}">Timeline</div>
+  <ol class="timeline">
+    <li th:each="s : ${report.timeline}" class="step"
+        th:classappend="${'state-' + s.state + ' tone-' + s.tone}">
+      <span class="step-dot"></span>
+      <span class="step-label" th:text="${labels[s.labelKey]}">Step</span>
+      <span class="step-time ltr-text" th:text="${s.time ?: '—'}">—</span>
+      <span class="step-sub" th:if="${s.subtitle != null}" th:text="${s.subtitle}">sub</span>
+    </li>
+  </ol>
+</div>
+
+<!-- ============ KPI TILES ============ -->
+<div class="kpi-grid avoid-break">
+  <div class="kpi" th:each="k : ${report.kpis}" th:classappend="'tone-' + ${k.tone}">
+    <div class="kpi-label" th:text="${labels[k.labelKey]}">KPI</div>
+    <div class="kpi-value" dir="auto" th:text="${k.value}">1h 20m</div>
+    <div class="kpi-hint ltr-text" th:if="${k.hint != null}"
+         th:text="${k.labelKey == 'kpiComplications'} ? ${k.hint + ' ' + labels.kpiSevere} : ${k.hint}">hint</div>
+  </div>
+</div>
+
+<!-- ============ PATIENT & ENCOUNTER ============ -->
+<section class="report-section avoid-break">
+  <h2 class="section-title" th:text="${labels.secPatient}">Patient</h2>
+  <div class="info-grid cols-4">
+    <div class="info"><span class="k" th:text="${labels.patientName}">Name</span><span class="v" th:text="${p.name}">—</span></div>
+    <div class="info"><span class="k" th:text="${labels.mrn}">MRN</span><span class="v ltr-text" th:text="${p.mrn}">—</span></div>
+    <div class="info"><span class="k" th:text="${labels.gender}">Gender</span><span class="v" th:text="${p.gender}">—</span></div>
+    <div class="info"><span class="k" th:text="${labels.dobAge}">DOB</span>
+      <span class="v"><span class="ltr-text" th:text="${p.dateOfBirth}">—</span>
+        <small dir="auto" class="age" th:if="${p.age != '—'}" th:text="'(' + ${p.age} + ')'"></small></span></div>
+    <div class="info"><span class="k" th:text="${labels.encounterNumber}">Enc</span><span class="v ltr-text" th:text="${p.encounterNumber}">—</span></div>
+    <div class="info"><span class="k" th:text="${labels.encounterDate}">Date</span><span class="v ltr-text" th:text="${p.encounterDate}">—</span></div>
+    <div class="info"><span class="k" th:text="${labels.encounterDepartment}">Dept</span><span class="v" th:text="${p.encounterDepartment}">—</span></div>
+    <div class="info"><span class="k" th:text="${labels.attendingPractitioner}">Dr</span><span class="v" th:text="${p.attendingPractitioner}">—</span></div>
+  </div>
+</section>
+
+<!-- ============ REQUEST ============ -->
+<section class="report-section avoid-break" th:with="r=${report.request}">
+  <h2 class="section-title" th:text="${labels.secRequest}">Request</h2>
+  <div class="info-grid cols-4">
+    <div class="info"><span class="k" th:text="${labels.requestedBy}">By</span><span class="v" th:text="${r.requestedBy}">—</span></div>
+    <div class="info"><span class="k" th:text="${labels.requestedAt}">At</span><span class="v ltr-text" th:text="${r.requestedAt}">—</span></div>
+    <div class="info"><span class="k" th:text="${labels.fromDepartment}">From</span><span class="v" th:text="${r.fromDepartment}">—</span></div>
+    <div class="info"><span class="k" th:text="${labels.scheduledAt}">Scheduled</span><span class="v ltr-text" th:text="${r.scheduledAt}">—</span></div>
+    <div class="info"><span class="k" th:text="${labels.toFacility}">Facility</span><span class="v" th:text="${r.toFacility}">—</span></div>
+    <div class="info"><span class="k" th:text="${labels.toDepartment}">Dept</span><span class="v" th:text="${r.toDepartment}">—</span></div>
+    <div class="info span-2"><span class="k" th:text="${labels.indication}">Indication</span><span class="v" th:text="${r.indication}">—</span></div>
+  </div>
+  <div class="note-row" th:if="${r.notes != null or r.extraDocumentation != null}">
+    <div class="note" th:if="${r.notes != null}">
+      <span class="k" th:text="${labels.notes}">Notes</span><p th:text="${r.notes}">notes</p>
+    </div>
+    <div class="note" th:if="${r.extraDocumentation != null}">
+      <span class="k" th:text="${labels.extraDocumentation}">Extra</span><p th:text="${r.extraDocumentation}">extra</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REGISTRATION ============ -->
+<section class="report-section avoid-break" th:with="g=${report.registration}">
+  <h2 class="section-title" th:text="${labels.secRegistration}">Registration</h2>
+  <div class="info-grid cols-4" th:if="${g.recorded}">
+    <div class="info">
+      <span class="k" th:text="${labels.consentForm}">Consent</span>
+      <span class="v"><span class="mini-badge" th:classappend="${g.consentForm == '—'} ? 'tone-neutral' : 'tone-success'" th:text="${g.consentForm}">Signed</span></span>
+    </div>
+    <div class="info"><span class="k" th:text="${labels.registeredAt}">At</span><span class="v ltr-text" th:text="${g.registeredAt}">—</span></div>
+    <div class="info"><span class="k" th:text="${labels.location}">Location</span><span class="v" th:text="${g.location}">—</span></div>
+    <div class="info"><span class="k" th:text="${labels.performingPractitioner}">Practitioner</span>
+      <span class="v" th:text="${g.performingPractitioner}">—</span>
+      <small class="sub" th:if="${g.performingPractitionerSpecialty != null}" th:text="${g.performingPractitionerSpecialty}"></small>
+    </div>
+  </div>
+  <div class="empty" th:unless="${g.recorded}" th:text="${labels.notRecorded}">Not recorded</div>
+</section>
+
+<!-- ============ TEAM ============ -->
+<section class="report-section avoid-break">
+  <h2 class="section-title" th:text="${labels.secTeam}">Team</h2>
+  <table class="data-table" th:if="${!#lists.isEmpty(report.staff)}">
+    <thead><tr>
+      <th th:text="${labels.staffName}">Name</th>
+      <th th:text="${labels.jobRole}">Role</th>
+      <th th:text="${labels.responsibility}">Responsibility</th>
+      <th class="center" th:text="${labels.presentAtTimeOut}">Present</th>
+    </tr></thead>
+    <tbody>
+    <tr th:each="s : ${report.staff}">
+      <td class="strong" th:text="${s.name}">Name</td>
+      <td th:text="${s.jobRole}">Role</td>
+      <td th:text="${s.responsibility}">Resp</td>
+      <td class="center"><span class="tick" th:classappend="${s.present} ? 'on' : 'off'"></span></td>
+    </tr>
+    </tbody>
+  </table>
+  <div class="empty" th:if="${#lists.isEmpty(report.staff)}" th:text="${labels.noStaff}">No staff</div>
+</section>
+
+<!-- ============ PRE-PROCEDURE ============ -->
+<section class="report-section">
+  <h2 class="section-title" th:text="${labels.secPre}">Pre</h2>
+  <div th:if="${pre.recorded}" class="two-col">
+    <div class="panel avoid-break">
+      <div class="panel-title" th:text="${labels.preparation}">Preparation</div>
+      <div class="yn-row">
+        <span class="yn"><span class="tick" th:classappend="${pre.fastingRequired} ? 'on' : 'off'"></span><span th:text="${labels.fastingRequired}">Fasting</span></span>
+        <span class="yn"><span class="tick" th:classappend="${pre.patientPrepared} ? 'on' : 'off'"></span><span th:text="${labels.patientPrepared}">Prepared</span></span>
+      </div>
+      <div class="note compact" th:if="${pre.specialInstructions != null}">
+        <span class="k" th:text="${labels.specialInstructions}">Special</span><p th:text="${pre.specialInstructions}">text</p>
+      </div>
+
+      <div class="panel-title spaced">
+        <span th:text="${labels.safetyChecklist}">Safety</span>
+        <span class="counter ltr-text" th:text="${pre.safetyChecked} + ' / ' + ${#lists.size(pre.safetyChecklist)}">6 / 6</span>
+      </div>
+      <ul class="checklist">
+        <li th:each="c : ${pre.safetyChecklist}" th:classappend="${c.checked} ? 'is-on' : 'is-off'">
+          <span class="tick" th:classappend="${c.checked} ? 'on' : 'off'"></span><span th:text="${labels[c.labelKey]}">Item</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="panel avoid-break">
+      <div class="panel-title" th:text="${labels.preVitals}">Vitals</div>
+      <div class="vital-tiles">
+        <div class="vital"><span class="k" th:text="${labels.bloodPressure}">BP</span><span class="v ltr-text" th:text="${pre.vitals.bloodPressure}">—</span><span class="u">mmHg</span></div>
+        <div class="vital"><span class="k" th:text="${labels.heartRate}">HR</span><span class="v ltr-text" th:text="${pre.vitals.heartRate}">—</span><span class="u" th:text="${labels.unitHr}">bpm</span></div>
+        <div class="vital"><span class="k" th:text="${labels.temperature}">T</span><span class="v ltr-text" th:text="${pre.vitals.temperature}">—</span><span class="u">°C</span></div>
+        <div class="vital"><span class="k" th:text="${labels.oxygenSaturation}">SpO2</span><span class="v ltr-text" th:text="${pre.vitals.oxygenSaturation}">—</span><span class="u">%</span></div>
+      </div>
+      <div class="panel-title spaced" th:text="${labels.preAnesthesia}">Pre anesthesia</div>
+      <div class="info-grid cols-2">
+        <div class="info"><span class="k" th:text="${labels.asaScore}">ASA</span><span class="v" th:text="${pre.asaScore}">—</span></div>
+        <div class="info"><span class="k" th:text="${labels.airwayGrade}">Airway</span><span class="v" th:text="${pre.airwayGrade}">—</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="empty" th:unless="${pre.recorded}" th:text="${labels.notRecorded}">Not recorded</div>
+</section>
+
+<!-- ============ INTRA-PROCEDURE ============ -->
+<section class="report-section avoid-break">
+  <h2 class="section-title" th:text="${labels.secIntra}">Intra</h2>
+  <div th:if="${perf.recorded}" class="three-col">
+    <div class="panel">
+      <div class="panel-title" th:text="${labels.procedurePeriod}">Period</div>
+      <div class="kv"><span th:text="${labels.actualStart}">Start</span><strong class="ltr-text" th:text="${perf.actualStart}">—</strong></div>
+      <div class="kv"><span th:text="${labels.actualEnd}">End</span><strong class="ltr-text" th:text="${perf.actualEnd}">—</strong></div>
+      <div class="kv accent"><span th:text="${labels.duration}">Duration</span><strong dir="auto" th:text="${perf.duration}">—</strong></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title" th:text="${labels.anesthesia}">Anesthesia</div>
+      <th:block th:if="${perf.anesthesiaUsed}">
+        <div class="kv"><span th:text="${labels.anesthesiaType}">Type</span><strong th:text="${perf.anesthesiaType}">—</strong></div>
+        <div class="kv"><span th:text="${labels.anesthesiaStart}">Start</span><strong class="ltr-text" th:text="${perf.anesthesiaStart}">—</strong></div>
+        <div class="kv"><span th:text="${labels.anesthesiaEnd}">End</span><strong class="ltr-text" th:text="${perf.anesthesiaEnd}">—</strong></div>
+        <div class="kv accent"><span th:text="${labels.duration}">Duration</span><strong dir="auto" th:text="${perf.anesthesiaDuration}">—</strong></div>
+        <div class="kv"><span th:text="${labels.administeredBy}">By</span><strong th:text="${perf.anesthesiaAdministeredBy}">—</strong></div>
+      </th:block>
+      <div class="muted" th:unless="${perf.anesthesiaUsed}" th:text="${labels.noAnesthesia}">None</div>
+    </div>
+    <div class="panel">
+      <div class="panel-title" th:text="${labels.teamTimeOut}">Time-out</div>
+      <div class="timeout" th:classappend="${perf.timeOut} ? 'is-on' : 'is-off'">
+        <span class="tick big" th:classappend="${perf.timeOut} ? 'on' : 'off'"></span>
+        <span th:text="${perf.timeOut} ? ${labels.timeOutDone} : ${labels.timeOutNotDone}">Done</span>
+      </div>
+    </div>
+  </div>
+  <div class="empty" th:unless="${perf.recorded}" th:text="${labels.notRecorded}">Not recorded</div>
+</section>
+
+<!-- ============ VITAL MONITORING ============ -->
+<section class="report-section">
+  <h2 class="section-title" th:text="${labels.secMonitoring}">Monitoring</h2>
+  <th:block th:if="${!#lists.isEmpty(mon.readings)}">
+    <div class="chart-card avoid-break" th:if="${mon.chartSvg != null}">
+      <div class="legend">
+        <span class="lg"><svg width="18" height="10"><line x1="1" y1="5" x2="17" y2="5" th:attr="stroke=${chartColors.heartRate}" stroke-width="2"/><circle cx="9" cy="5" r="3" th:attr="fill=${chartColors.heartRate}"/></svg><span th:text="${labels.heartRate}">HR</span></span>
+        <span class="lg"><svg width="18" height="10"><line x1="1" y1="5" x2="17" y2="5" th:attr="stroke=${chartColors.oxygen}" stroke-width="2" stroke-dasharray="4 2"/><rect x="6" y="2" width="6" height="6" fill="#fff" th:attr="stroke=${chartColors.oxygen}" stroke-width="1.5"/></svg><span th:text="${labels.oxygenSaturation}">SpO2</span></span>
+        <span class="lg"><svg width="14" height="16"><polyline points="2,2 7,7 12,2" fill="none" th:attr="stroke=${chartColors.bloodPressure}" stroke-width="1.8"/><line x1="7" y1="7" x2="7" y2="11" th:attr="stroke=${chartColors.bloodPressure}" stroke-width="1.4"/><polyline points="2,16 7,11 12,16" fill="none" th:attr="stroke=${chartColors.bloodPressure}" stroke-width="1.8"/></svg><span th:text="${labels.legendSbpDbp}">BP</span></span>
+        <span class="lg"><svg width="18" height="10"><line x1="1" y1="5" x2="17" y2="5" th:attr="stroke=${chartColors.respiratory}" stroke-width="2" stroke-dasharray="3 2"/><polygon points="9,1 5,8 13,8" th:attr="fill=${chartColors.respiratory}"/></svg><span th:text="${labels.respiratoryRate}">RR</span></span>
+      </div>
+      <div class="chart" th:utext="${mon.chartSvg}"></div>
+    </div>
+
+    <div class="summary-chips">
+      <span class="sum"><span th:text="${labels.hrRange}">HR</span><strong class="ltr-text" th:text="${mon.heartRateRange}">—</strong></span>
+      <span class="sum"><span th:text="${labels.spo2Lowest}">SpO2</span><strong class="ltr-text" th:text="${mon.oxygenSaturationLowest}">—</strong></span>
+      <span class="sum"><span th:text="${labels.sbpRange}">SBP</span><strong class="ltr-text" th:text="${mon.systolicRange}">—</strong></span>
+      <span class="sum"><span th:text="${labels.totalFluids}">Fluids</span><strong class="ltr-text" th:text="${mon.totalFluids}">—</strong><small th:text="${labels.unitMl}">mL</small></span>
+      <span class="sum"><span th:text="${labels.totalUrine}">Urine</span><strong class="ltr-text" th:text="${mon.totalUrine}">—</strong><small th:text="${labels.unitMl}">mL</small></span>
+    </div>
+
+    <table class="data-table dense numeric">
+      <thead><tr>
+        <th th:text="${labels.time}">Time</th>
+        <th><span th:text="${labels.heartRate}">HR</span><small th:text="${labels.unitHr}">bpm</small></th>
+        <th><span th:text="${labels.oxygenSaturation}">SpO2</span><small>%</small></th>
+        <th><span th:text="${labels.bloodPressure}">BP</span><small>mmHg</small></th>
+        <th><span th:text="${labels.respiratoryRate}">RR</span><small th:text="${labels.unitRr}">/min</small></th>
+        <th><span th:text="${labels.temperature}">T</span><small>°C</small></th>
+        <th><span th:text="${labels.etco2}">EtCO2</span><small>mmHg</small></th>
+        <th><span th:text="${labels.fluidsGiven}">Fluids</span><small th:text="${labels.unitMl}">mL</small></th>
+        <th><span th:text="${labels.urineOutput}">Urine</span><small th:text="${labels.unitMl}">mL</small></th>
+      </tr></thead>
+      <tbody>
+      <tr th:each="v : ${mon.readings}">
+        <td class="strong" th:text="${v.recordedAt}">10:00</td>
+        <td th:text="${v.heartRate}">—</td>
+        <td th:text="${v.oxygenSaturation}">—</td>
+        <td th:text="${v.bloodPressure}">—</td>
+        <td th:text="${v.respiratoryRate}">—</td>
+        <td th:text="${v.temperature}">—</td>
+        <td th:text="${v.etco2}">—</td>
+        <td th:text="${v.fluidsGiven}">—</td>
+        <td th:text="${v.urineOutput}">—</td>
+      </tr>
+      </tbody>
+    </table>
+  </th:block>
+  <div class="empty" th:if="${#lists.isEmpty(mon.readings)}" th:text="${labels.noVitals}">No vitals</div>
+</section>
+
+<!-- ============ VITALS ACROSS PHASES ============ -->
+<section class="report-section avoid-break" th:if="${!#lists.isEmpty(report.vitalsComparison)}">
+  <h2 class="section-title" th:text="${labels.secVitalsJourney}">Journey</h2>
+  <table class="data-table journey">
+    <thead><tr>
+      <th></th>
+      <th class="center" th:text="${labels.phasePre}">Pre</th>
+      <th class="center" th:text="${labels.phaseIntra}">Intra</th>
+      <th class="center" th:text="${labels.phasePost}">Post</th>
+      <th class="center" th:text="${labels.trend}">Trend</th>
+    </tr></thead>
+    <tbody>
+    <tr th:each="row : ${report.vitalsComparison}">
+      <td class="strong" th:text="${labels[row.labelKey]}">BP</td>
+      <td class="center ltr-text" th:text="${row.pre}">—</td>
+      <td class="center ltr-text" th:text="${row.intra}">—</td>
+      <td class="center ltr-text strong" th:text="${row.post}">—</td>
+      <td class="center"><span class="trend" th:classappend="'trend-' + ${row.trend}"></span></td>
+    </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ MEDICATIONS ============ -->
+<section class="report-section avoid-break" th:if="${!#lists.isEmpty(report.medications)}">
+  <h2 class="section-title" th:text="${labels.secMedications}">Medications</h2>
+  <table class="data-table">
+    <thead><tr>
+      <th th:text="${labels.medication}">Medication</th>
+      <th th:text="${labels.dose}">Dose</th>
+      <th th:text="${labels.givenAt}">At</th>
+      <th th:text="${labels.givenBy}">By</th>
+    </tr></thead>
+    <tbody>
+    <tr th:each="m : ${report.medications}">
+      <td class="strong" th:text="${m.name}">Drug</td>
+      <td class="ltr-text" th:text="${m.dose}">5 mg</td>
+      <td class="ltr-text" th:text="${m.givenAt}">—</td>
+      <td th:text="${m.givenBy}">—</td>
+    </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ COMPLICATIONS ============ -->
+<section class="report-section avoid-break">
+  <h2 class="section-title" th:text="${labels.secComplications}">Complications</h2>
+  <table class="data-table" th:if="${!#lists.isEmpty(report.complications)}">
+    <thead><tr>
+      <th th:text="${labels.complicationType}">Type</th>
+      <th class="center" th:text="${labels.severity}">Severity</th>
+      <th th:text="${labels.actionsTaken}">Actions</th>
+    </tr></thead>
+    <tbody>
+    <tr th:each="c : ${report.complications}">
+      <td class="strong" th:text="${c.type}">Bleeding</td>
+      <td class="center"><span class="mini-badge" th:classappend="'tone-' + ${c.tone}" th:text="${c.severity}">Mild</span></td>
+      <td th:text="${c.actionsTaken ?: '—'}">—</td>
+    </tr>
+    </tbody>
+  </table>
+  <div class="all-clear" th:if="${#lists.isEmpty(report.complications)}">
+    <span class="tick on"></span><span th:text="${labels.noComplications}">None</span>
+  </div>
+</section>
+
+<!-- ============ OUTCOME ============ -->
+<section class="report-section avoid-break" th:if="${perf.recorded or perf.result != null}">
+  <h2 class="section-title" th:text="${labels.secOutcome}">Outcome</h2>
+  <div class="outcome-head" th:if="${perf.recorded}">
+    <span class="k" th:text="${labels.outcome}">Outcome</span>
+    <span class="outcome-value" th:text="${perf.outcome}">Successful</span>
+  </div>
+  <div class="note-row">
+    <div class="note" th:if="${perf.result != null}"><span class="k" th:text="${labels.result}">Result</span><p th:text="${perf.result}">r</p></div>
+    <div class="note" th:if="${perf.observations != null}"><span class="k" th:text="${labels.observations}">Obs</span><p th:text="${perf.observations}">o</p></div>
+    <div class="note" th:if="${perf.additionalNotes != null}"><span class="k" th:text="${labels.additionalNotes}">Notes</span><p th:text="${perf.additionalNotes}">n</p></div>
+  </div>
+</section>
+
+<!-- ============ POST-PROCEDURE CARE ============ -->
+<section class="report-section">
+  <h2 class="section-title" th:text="${labels.secPost}">Post</h2>
+  <th:block th:if="${post.recorded}">
+    <div class="dx-row" th:if="${!#lists.isEmpty(post.diagnoses)}">
+      <span class="k" th:text="${labels.postDiagnoses}">Dx</span>
+      <span class="dx" th:each="d : ${post.diagnoses}" th:text="${d}">I10 — Hypertension</span>
+    </div>
+
+    <div class="recovery-grid avoid-break">
+      <!-- Aldrete ring -->
+      <div class="panel aldrete">
+        <div class="panel-title" th:text="${labels.aldrete}">Aldrete</div>
+        <div class="aldrete-body">
+          <div class="ring" th:classappend="${post.aldreteScoreValue == null} ? 'tone-neutral' : (${post.aldreteDischargeReady} ? 'tone-success' : 'tone-warning')">
+            <svg viewBox="0 0 80 80" width="78" height="78">
+              <circle cx="40" cy="40" r="34" fill="none" stroke="#e2e8f0" stroke-width="8"/>
+              <circle th:if="${post.aldreteScoreValue != null and post.aldreteScoreValue > 0}"
+                      class="ring-value" cx="40" cy="40" r="34" fill="none" stroke-width="8" stroke-linecap="round"
+                      transform="rotate(-90 40 40)" th:attr="stroke-dasharray=${post.aldreteRingDash}"/>
+            </svg>
+            <div class="ring-label">
+              <strong th:text="${post.aldreteScoreValue ?: '—'}">8</strong><small>/10</small>
+            </div>
+          </div>
+          <ul class="aldrete-parts">
+            <li th:each="a : ${post.aldreteComponents}">
+              <span class="part-k" th:text="${labels[a.labelKey]}">Activity</span>
+              <span class="part-v" th:text="${a.value}">value</span>
+              <span class="part-s ltr-text" th:if="${a.score != null}" th:text="${a.score}">2</span>
+            </li>
+          </ul>
+        </div>
+        <div class="aldrete-verdict" th:if="${post.aldreteScoreValue != null}"
+             th:classappend="${post.aldreteDischargeReady} ? 'tone-success' : 'tone-warning'"
+             th:text="${post.aldreteDischargeReady} ? ${labels.aldReady} : ${labels.aldNotReady}">verdict</div>
+      </div>
+
+      <!-- Discharge readiness -->
+      <div class="panel">
+        <div class="panel-title">
+          <span th:text="${labels.dischargeReadiness}">Readiness</span>
+          <span class="counter ltr-text" th:text="${post.dischargeCriteriaMet} + ' / ' + ${#lists.size(post.dischargeCriteria)}">4 / 6</span>
+        </div>
+        <div class="progress"><span th:style="'width:' + ${post.dischargeCriteriaPercent} + '%'"></span></div>
+        <ul class="checklist single">
+          <li th:each="c : ${post.dischargeCriteria}" th:classappend="${c.checked} ? 'is-on' : 'is-off'">
+            <span class="tick" th:classappend="${c.checked} ? 'on' : 'off'"></span><span th:text="${labels[c.labelKey]}">Item</span>
+          </li>
+        </ul>
+        <div class="flag" th:classappend="${post.nauseaVomiting} ? 'tone-warning' : 'tone-success'">
+          <span th:text="${labels.nauseaVomiting}">Nausea</span>
+          <strong th:text="${post.nauseaVomiting} ? ${labels.yes} : ${labels.no}">No</strong>
+        </div>
+      </div>
+
+      <!-- Pain -->
+      <div class="panel">
+        <div class="panel-title" th:text="${labels.pain}">Pain</div>
+        <div class="pain-score" th:classappend="'tone-' + ${post.painTone}">
+          <strong class="ltr-text" th:text="${post.painScore}">3</strong><small th:if="${post.painScoreValue != null}">/10</small>
+        </div>
+        <div class="pain-scale" th:if="${post.painScoreValue != null}">
+          <div class="pain-bar"></div>
+          <span class="pain-marker" th:style="'left:' + ${post.painScoreValue * 10} + '%'"></span>
+          <div class="pain-ticks ltr-text"><span>0</span><span>5</span><span>10</span></div>
+        </div>
+        <div class="kv"><span th:text="${labels.painTool}">Tool</span><strong th:text="${post.painAssessmentType}">—</strong></div>
+        <div class="muted small" th:if="${post.painDescription != null}" th:text="${post.painDescription}">desc</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="panel avoid-break">
+        <div class="panel-title" th:text="${labels.postVitals}">Vitals</div>
+        <div class="vital-tiles">
+          <div class="vital"><span class="k" th:text="${labels.bloodPressure}">BP</span><span class="v ltr-text" th:text="${post.vitals.bloodPressure}">—</span><span class="u">mmHg</span></div>
+          <div class="vital"><span class="k" th:text="${labels.heartRate}">HR</span><span class="v ltr-text" th:text="${post.vitals.heartRate}">—</span><span class="u" th:text="${labels.unitHr}">bpm</span></div>
+          <div class="vital"><span class="k" th:text="${labels.temperature}">T</span><span class="v ltr-text" th:text="${post.vitals.temperature}">—</span><span class="u">°C</span></div>
+          <div class="vital"><span class="k" th:text="${labels.oxygenSaturation}">SpO2</span><span class="v ltr-text" th:text="${post.vitals.oxygenSaturation}">—</span><span class="u">%</span></div>
+        </div>
+      </div>
+      <div class="panel avoid-break">
+        <div class="panel-title" th:text="${labels.equipmentCount}">Count</div>
+        <div class="yn-row">
+          <span class="yn"><span class="tick" th:classappend="${post.equipmentCountDone} ? 'on' : 'off'"></span>
+            <span th:text="${post.equipmentCountDone} ? ${labels.yes} : ${labels.no}">Yes</span></span>
+        </div>
+        <div class="kv" th:if="${post.countStatus != null}"><span th:text="${labels.countStatus}">Status</span><strong th:text="${post.countStatus}">Correct</strong></div>
+        <div class="kv"><span th:text="${labels.recordedAtBy}">Recorded</span>
+          <strong class="stacked"><span class="ltr-text" th:text="${post.recordedAt}">—</span><span th:text="${post.recordedBy}">—</span></strong></div>
+      </div>
+    </div>
+
+    <div class="note-row">
+      <div class="note" th:if="${post.patientCondition != null}"><span class="k" th:text="${labels.patientCondition}">Cond</span><p th:text="${post.patientCondition}">c</p></div>
+      <div class="note" th:if="${post.recoveryNotes != null}"><span class="k" th:text="${labels.recoveryNotes}">Recovery</span><p th:text="${post.recoveryNotes}">r</p></div>
+      <div class="note" th:if="${post.additionalObservations != null}"><span class="k" th:text="${labels.additionalObservations}">Obs</span><p th:text="${post.additionalObservations}">o</p></div>
+    </div>
+  </th:block>
+  <div class="empty" th:unless="${post.recorded}" th:text="${labels.notRecorded}">Not recorded</div>
+</section>
+
+<!-- ============ EQUIPMENT ============ -->
+<section class="report-section avoid-break" th:if="${!#lists.isEmpty(report.equipment)}">
+  <h2 class="section-title" th:text="${labels.secEquipment}">Equipment</h2>
+  <table class="data-table">
+    <thead><tr>
+      <th th:text="${labels.item}">Item</th>
+      <th th:text="${labels.type}">Type</th>
+      <th class="center" th:text="${labels.quantity}">Qty</th>
+      <th th:text="${labels.notes}">Notes</th>
+    </tr></thead>
+    <tbody>
+    <tr th:each="e : ${report.equipment}">
+      <td class="strong" th:text="${e.name}">Item</td>
+      <td th:text="${e.type}">Service</td>
+      <td class="center ltr-text" th:text="${e.quantity}">1</td>
+      <td class="muted" th:text="${e.notes ?: '—'}">—</td>
+    </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ HOME INSTRUCTIONS ============ -->
+<section class="report-section avoid-break" th:if="${perf.homeInstruction != null or perf.homeInstructionNotes != null}">
+  <h2 class="section-title" th:text="${labels.secHome}">Home</h2>
+  <div class="home-card">
+    <div class="home-tag" th:if="${perf.homeInstruction != null}" th:text="${perf.homeInstruction}">Wound care</div>
+    <p th:if="${perf.homeInstructionNotes != null}" th:text="${perf.homeInstructionNotes}">Details</p>
+  </div>
+</section>
+
+<!-- ============ CANCELLATION ============ -->
+<section class="report-section avoid-break" th:if="${report.cancellation != null}">
+  <h2 class="section-title" th:text="${labels.secCancellation}">Cancellation</h2>
+  <div class="cancel-card">
+    <div class="kv"><span th:text="${labels.cancelledAt}">At</span><strong class="ltr-text" th:text="${report.cancellation.cancelledAt}">—</strong></div>
+    <div class="kv"><span th:text="${labels.cancelledBy}">By</span><strong th:text="${report.cancellation.cancelledBy}">—</strong></div>
+    <div class="kv"><span th:text="${labels.cancellationReason}">Reason</span><strong th:text="${report.cancellation.reason}">—</strong></div>
+  </div>
+</section>
+
+<!-- ============ SIGNATURES ============ -->
+<section class="report-section avoid-break">
+  <h2 class="section-title" th:text="${labels.secSignatures}">Signatures</h2>
+  <div class="sig-wrap">
+    <div class="signatures">
+      <div class="sig" th:each="s : ${report.signatures}">
+        <div class="sig-space"></div>
+        <div class="sig-line"></div>
+        <div class="sig-name" th:text="${s.name}">Name</div>
+        <div class="sig-sub" th:if="${s.subtitle != null}" th:text="${s.subtitle}">Specialty</div>
+        <div class="sig-role" th:text="${labels[s.labelKey]}">Role</div>
+      </div>
+    </div>
+    <div class="verify-card" th:if="${verification != null}">
+      <div class="verify-qr" th:utext="${verification.qrSvg}"></div>
+      <div class="verify-text">
+        <strong th:text="${labels.verifyTitle}">Verify this report</strong>
+        <span th:text="${labels.verifyHint}">Scan to confirm</span>
+        <span class="verify-doc ltr-text" th:text="${report.header.documentNumber}">PRC-000001</span>
+      </div>
+    </div>
+  </div>
+  <p class="disclaimer" th:text="${labels.disclaimer}">Disclaimer</p>
+</section>
+
+</body>
+</html>

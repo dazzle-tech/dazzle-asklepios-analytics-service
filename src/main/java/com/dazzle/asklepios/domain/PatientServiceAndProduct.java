@@ -40,6 +40,26 @@ public class PatientServiceAndProduct extends AbstractAuditingEntity<Long> imple
     @Column(name = "service_id")
     private Long serviceId;
 
+    @Column(name = "brand_medication_id")
+    private Long brandMedicationId;
+
+    @Column(name = "diagnostic_test_id")
+    private Long diagnosticTestId;
+
+    @Column(name = "procedure_id")
+    private Long procedureId;
+
+    @Column(name = "vaccine_brand_id")
+    private Long vaccineBrandId;
+
+    @Column(name = "billing_item_type", length = 50)
+    private String billingItemType;
+
+    @Column(name = "payment_status", length = 50)
+    private String paymentStatus;
+
+    @Column(name = "notes")
+    private String notes;
 
     @Column(name = "quantity", nullable = false)
     private Long quantity = 1L;
