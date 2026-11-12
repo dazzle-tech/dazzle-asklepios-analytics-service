@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -58,8 +59,8 @@ public class PatientPrescriptionMedication extends AbstractAuditingEntity<Long> 
     @Column(name = "instructions", columnDefinition = "text")
     private String instructions;
 
-    @Column(name = "dose")
-    private Long dose;
+    @Column(name = "dose", precision = 10, scale = 2)
+    private BigDecimal dose;
 
     @Column(name = "does_unit", length = 100)
     private String doesUnit;
