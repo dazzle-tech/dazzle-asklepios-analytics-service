@@ -83,7 +83,6 @@ public class ExternalDocumentService {
                 .collect(Collectors.joining(" "));
 
         return new DocumentPatientDTO(
-                String.valueOf(patient.getId()),
                 fullName.isBlank() ? null : fullName,
                 toAiSex(patient.getSexAtBirth()),
                 toIsoDate(patient.getDateOfBirth())
