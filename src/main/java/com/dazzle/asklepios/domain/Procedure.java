@@ -19,6 +19,7 @@ import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 @Entity
 @Getter
@@ -49,8 +50,8 @@ public class Procedure extends AbstractAuditingEntity<Long> implements Serializa
     private String currency;
 
     @NotNull
-    @Column(nullable = false)
-    private  Long price;
+    @Column(nullable = false, precision = 19, scale = 2)
+    private BigDecimal price;
 
     @NotNull
     @Column(name = "category_type", nullable = false, length = 255)
