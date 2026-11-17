@@ -1,0 +1,37 @@
+name: Build Hotfix Image (no deploy)
+
+on:
+  push:
+    branches:
+      - 'hotfix/**'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build Docker Image
+        run: |
+          docker build -t swr.me-east-1.myhuaweicloud.com/cos/asklepios-analytics:${{ github.sha }} .
+
+      - name: Log in to Huawei SWR
+        env:
+          SWR_USERNAME: ${{ secrets.SWR_USERNAME }}
+          SWR_TOKEN: ${{ secrets.SWR_TOKEN }}
+        run: |
+          echo "$SWR_TOKEN" | docker login swr.me-east-1.myhuaweicloud.com -u "$SWR_USERNAME" --password-stdin
+
+      - name: Push Docker Image to SWR
+        run: |
+          docker push swr.me-east-1.myhuaweicloud.com/cos/asklepios-analytics:${{ github.sha }}
+
+      - name: Logout of Huawei SWR
+        run: docker logout swr.me-east-1.myhuaweicloud.com
+
+      - name: Image tag to deploy
+        run: |
+          echo "### Image ready" >> "$GITHUB_STEP_SUMMARY"
+          echo "Use this as analytics_tag in the Deploy workflow: \`${{ github.sha }}\`" >> "$GITHUB_STEP_SUMMARY"
