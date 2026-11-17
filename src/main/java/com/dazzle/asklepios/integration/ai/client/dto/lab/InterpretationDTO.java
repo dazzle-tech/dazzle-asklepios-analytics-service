@@ -8,5 +8,7 @@ import java.util.List;
 public record InterpretationDTO(
         String severity,
         List<KeyFindingDTO> key_findings,
+        List<PatternDTO> patterns,
+        List<TrendDTO> trends,
         List<String> follow_up_considerations
 ) {}

@@ -8,5 +8,7 @@ public record KeyFindingDTO(
         String value,
         String unit,
         String flag,
-        String finding
+        String finding,
+        String reference_range,
+        String timestamp
 ) {}
