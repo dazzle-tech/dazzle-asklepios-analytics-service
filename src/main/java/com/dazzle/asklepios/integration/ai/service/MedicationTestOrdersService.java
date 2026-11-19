@@ -2,6 +2,8 @@
 package com.dazzle.asklepios.integration.ai.service;
 
 import com.dazzle.asklepios.domain.ActiveIngredients;
+import com.dazzle.asklepios.domain.ApLovValue;
+import com.dazzle.asklepios.domain.PatientAllergies;
 import com.dazzle.asklepios.domain.DiagnosticOrder;
 import com.dazzle.asklepios.domain.DiagnosticOrderTest;
 import com.dazzle.asklepios.domain.DiagnosticTest;
@@ -14,6 +16,7 @@ import com.dazzle.asklepios.domain.enumeration.DiagnosisType;
 import com.dazzle.asklepios.domain.enumeration.PrescriptionInstructionsType;
 import com.dazzle.asklepios.domain.enumeration.PrescriptionStatus;
 import com.dazzle.asklepios.integration.ai.client.MedicationTestOrdersValidationClient;
+import com.dazzle.asklepios.integration.ai.client.dto.medvalidation.AllergyDTO;
 import com.dazzle.asklepios.integration.ai.client.dto.medvalidation.DiagnosisDTO;
 import com.dazzle.asklepios.integration.ai.client.dto.medvalidation.EncounterDTO;
 import com.dazzle.asklepios.integration.ai.client.dto.medvalidation.MedicationLookupRequestDTO;
@@ -23,6 +26,8 @@ import com.dazzle.asklepios.integration.ai.client.dto.medvalidation.TestOrdersLo
 import com.dazzle.asklepios.integration.ai.client.dto.medvalidation.TestValidationRequestDTO;
 import com.dazzle.asklepios.integration.ai.client.dto.medvalidation.ValidationResponseDTO;
 import com.dazzle.asklepios.repository.ActiveIngredientsRepository;
+import com.dazzle.asklepios.repository.ApLovValueRepository;
+import com.dazzle.asklepios.repository.PatientAllergyRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderTestRepository;
 import com.dazzle.asklepios.repository.DiagnosticTestRepository;
@@ -44,8 +49,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 import java.util.stream.Collectors;
 
 @Service
@@ -65,6 +74,10 @@ public class MedicationTestOrdersService {
     private final DiagnosticOrderTestRepository diagnosticOrderTestRepository;
     private final DiagnosticTestRepository diagnosticTestRepository;
     private final ActiveIngredientsRepository activeIngredientsRepository;
+    private final PatientAllergyRepository patientAllergyRepository;
+    private final ApLovValueRepository apLovValueRepository;
+
+    private static final String UNKNOWN = "Unknown";
 
     public ValidationResponseDTO validateMedication(MedicationLookupRequestDTO request) {
         LOG.debug("Medication validation request={} ", request);
@@ -112,7 +125,8 @@ public class MedicationTestOrdersService {
                 patientDTO,
                 encounterDTO,
                 listOfDiagnosis,
-                medications
+                medications,
+                buildActiveAllergies(patient.getId())
         );
     }
 
@@ -202,6 +216,65 @@ public class MedicationTestOrdersService {
                 .map(this::formatDiagnosis)
                 .filter(dto -> dto != null)
                 .collect(Collectors.toList());
+    }
+
+    // Criticality and reactions are stored as LOV keys; the AI expects their display names
+    private List<AllergyDTO> buildActiveAllergies(Long patientId) {
+        List<PatientAllergies> allergies =
+                patientAllergyRepository.findAllByPatientIdAndStatusOrderByIdAsc(patientId, "ACTIVE");
+        if (allergies.isEmpty()) {
+            return List.of();
+        }
+
+        List<String> lovKeys = allergies.stream()
+                .flatMap(a -> Stream.concat(Stream.of(a.getCriticality()), splitKeys(a.getAllergicReactions()).stream()))
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        Map<String, String> lovNames = lovKeys.isEmpty() ? Map.of() : apLovValueRepository.findByKeyIn(lovKeys).stream()
+                .filter(lov -> lov.getLovDisplayVale() != null)
+                .collect(Collectors.toMap(ApLovValue::getKey, ApLovValue::getLovDisplayVale, (a, b) -> a));
+
+        return allergies.stream()
+                .map(allergy -> toAllergyDTO(allergy, lovNames))
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    // The AI accepts any value but rejects blank required fields; criticality is optional in our form
+    private AllergyDTO toAllergyDTO(PatientAllergies allergy, Map<String, String> lovNames) {
+        String name = allergy.getAllergenName();
+        if ((name == null || name.isBlank()) && allergy.getAllergen() != null) {
+            name = allergy.getAllergen().getName();
+        }
+        String criticality = Optional.ofNullable(lovNames.get(allergy.getCriticality())).orElse(UNKNOWN);
+
+        if (name == null || name.isBlank()) {
+            LOG.warn("[MED_VALIDATION] Skipping allergy id={} with no allergen name", allergy.getId());
+            return null;
+        }
+
+        List<String> reactions = splitKeys(allergy.getAllergicReactions()).stream()
+                .map(lovNames::get)
+                .filter(Objects::nonNull)
+                .toList();
+
+        return new AllergyDTO(name.trim(), orUnknown(allergy.getAllergenType()), orUnknown(allergy.getSeverity()),
+                criticality, reactions, orUnknown(allergy.getStatus()));
+    }
+
+    private String orUnknown(String value) {
+        return value == null || value.isBlank() ? UNKNOWN : value;
+    }
+
+    private List<String> splitKeys(String value) {
+        if (value == null || value.isBlank()) {
+            return List.of();
+        }
+        return Arrays.stream(value.split(","))
+                .map(String::trim)
+                .filter(key -> !key.isEmpty())
+                .toList();
     }
 
     private DiagnosisDTO formatDiagnosis(PatientDiagnosis diagnosis) {
