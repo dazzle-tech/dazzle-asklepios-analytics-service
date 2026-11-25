@@ -2,6 +2,7 @@
 package com.dazzle.asklepios.integration.ai.service;
 
 import com.dazzle.asklepios.domain.ActiveIngredients;
+import com.dazzle.asklepios.domain.ApLovValue;
 import com.dazzle.asklepios.domain.DiagnosticOrder;
 import com.dazzle.asklepios.domain.DiagnosticOrderTest;
 import com.dazzle.asklepios.domain.DiagnosticTest;
@@ -23,6 +24,7 @@ import com.dazzle.asklepios.integration.ai.client.dto.medvalidation.TestOrdersLo
 import com.dazzle.asklepios.integration.ai.client.dto.medvalidation.TestValidationRequestDTO;
 import com.dazzle.asklepios.integration.ai.client.dto.medvalidation.ValidationResponseDTO;
 import com.dazzle.asklepios.repository.ActiveIngredientsRepository;
+import com.dazzle.asklepios.repository.ApLovValueRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderRepository;
 import com.dazzle.asklepios.repository.DiagnosticOrderTestRepository;
 import com.dazzle.asklepios.repository.DiagnosticTestRepository;
@@ -44,7 +46,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -65,6 +69,9 @@ public class MedicationTestOrdersService {
     private final DiagnosticOrderTestRepository diagnosticOrderTestRepository;
     private final DiagnosticTestRepository diagnosticTestRepository;
     private final ActiveIngredientsRepository activeIngredientsRepository;
+    private final ApLovValueRepository apLovValueRepository;
+
+    private static final String UNKNOWN = "Unknown";
 
     public ValidationResponseDTO validateMedication(MedicationLookupRequestDTO request) {
         LOG.debug("Medication validation request={} ", request);
@@ -142,9 +149,7 @@ public class MedicationTestOrdersService {
 
         List<String> tests = diagnosticOrderRepository.findByOrderNumber(request.orderNumber())
                 .stream()
-                .map(DiagnosticOrder::getId)
-                .flatMap(orderId -> diagnosticOrderTestRepository.findByOrderIdOrderByIdAsc(orderId).stream())
-                .map(this::formatTest)
+                .flatMap(order -> buildOrderTests(order).stream())
                 .toList();
 
         return new TestValidationRequestDTO(
@@ -228,11 +233,46 @@ public class MedicationTestOrdersService {
         return "Medication Name: " + medicationName + " | Active Ingredients: " + activeIngredientName + " - " + safe(instruction);
     }
 
-    private String formatTest(DiagnosticOrderTest test) {
+    // Tests of one order; reason keys are resolved to their LOV names in one query
+    private List<String> buildOrderTests(DiagnosticOrder order) {
+        List<DiagnosticOrderTest> orderTests = diagnosticOrderTestRepository.findByOrderIdOrderByIdAsc(order.getId());
+        List<String> reasonKeys = orderTests.stream()
+                .map(DiagnosticOrderTest::getReason)
+                .filter(key -> key != null && !key.isBlank())
+                .distinct()
+                .toList();
+        Map<String, String> reasonNames = reasonKeys.isEmpty() ? Map.of() : apLovValueRepository.findByKeyIn(reasonKeys).stream()
+                .filter(lov -> lov.getLovDisplayVale() != null)
+                .collect(Collectors.toMap(ApLovValue::getKey, ApLovValue::getLovDisplayVale, (a, b) -> a));
+        String priority = Boolean.TRUE.equals(order.getIsUrgent()) ? "Urgent" : "Regular";
+        return orderTests.stream()
+                // Map.of() throws on a null key, so tests without a reason skip the lookup
+                .map(test -> formatTest(test, test.getReason() == null ? null : reasonNames.get(test.getReason()), priority))
+                .toList();
+    }
+
+    private String formatTest(DiagnosticOrderTest test, String reason, String priority) {
         DiagnosticTest diagnosticTest = diagnosticTestRepository.findById(test.getTestId()).orElse(null);
         String testName = diagnosticTest != null ? diagnosticTest.getName() : "";
-        String internalCode = diagnosticTest != null ? diagnosticTest.getInternalCode() : "";;
-        return "Order Type: Laboratory | Test Name: " + testName + " | Internal Code: " + internalCode + " | Status: " + safe(String.valueOf(test.getStatus()));
+        String internalCode = diagnosticTest != null ? diagnosticTest.getInternalCode() : "";
+        String orderType = diagnosticTest != null ? formatTestType(diagnosticTest.getType()) : UNKNOWN;
+        String line = "Order Type: " + orderType + " | Test Name: " + testName + " | Internal Code: " + internalCode + " | Status: " + safe(String.valueOf(test.getStatus()));
+        // Reason is optional, like in the AI service sample
+        if (reason != null && !reason.isBlank()) {
+            line += " | Reason: " + reason;
+        }
+        return line + " | Priority: " + priority;
+    }
+
+    // LABORATORY -> Laboratory, RADIOLOGY -> Radiology
+    private String formatTestType(String type) {
+        if (type == null || type.isBlank()) {
+            return UNKNOWN;
+        }
+        return Arrays.stream(type.trim().toLowerCase().split("_"))
+                .filter(word -> !word.isEmpty())
+                .map(word -> Character.toUpperCase(word.charAt(0)) + word.substring(1))
+                .collect(Collectors.joining(" "));
     }
 
     private String resolveInstruction(PatientPrescriptionMedication medication) {
