@@ -6,5 +6,6 @@ public record MedicationValidationRequestDTO(
         PatientDTO patient,
         EncounterDTO encounter,
         List<DiagnosisDTO> listOfDiagnosis,
-        List<String> medications
+        List<String> medications,
+        List<AllergyDTO> allergies
 ) {}
