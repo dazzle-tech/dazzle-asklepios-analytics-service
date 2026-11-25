@@ -156,9 +156,7 @@ public class MedicationTestOrdersService {
 
         List<String> tests = diagnosticOrderRepository.findByOrderNumber(request.orderNumber())
                 .stream()
-                .map(DiagnosticOrder::getId)
-                .flatMap(orderId -> diagnosticOrderTestRepository.findByOrderIdOrderByIdAsc(orderId).stream())
-                .map(this::formatTest)
+                .flatMap(order -> buildOrderTests(order).stream())
                 .toList();
 
         return new TestValidationRequestDTO(
@@ -247,7 +245,10 @@ public class MedicationTestOrdersService {
         if ((name == null || name.isBlank()) && allergy.getAllergen() != null) {
             name = allergy.getAllergen().getName();
         }
-        String criticality = Optional.ofNullable(lovNames.get(allergy.getCriticality())).orElse(UNKNOWN);
+        // Map.of() throws on a null key, so a missing criticality skips the lookup
+        String criticality = allergy.getCriticality() == null
+                ? UNKNOWN
+                : Optional.ofNullable(lovNames.get(allergy.getCriticality())).orElse(UNKNOWN);
 
         if (name == null || name.isBlank()) {
             LOG.warn("[MED_VALIDATION] Skipping allergy id={} with no allergen name", allergy.getId());
@@ -301,11 +302,46 @@ public class MedicationTestOrdersService {
         return "Medication Name: " + medicationName + " | Active Ingredients: " + activeIngredientName + " - " + safe(instruction);
     }
 
-    private String formatTest(DiagnosticOrderTest test) {
+    // Tests of one order; reason keys are resolved to their LOV names in one query
+    private List<String> buildOrderTests(DiagnosticOrder order) {
+        List<DiagnosticOrderTest> orderTests = diagnosticOrderTestRepository.findByOrderIdOrderByIdAsc(order.getId());
+        List<String> reasonKeys = orderTests.stream()
+                .map(DiagnosticOrderTest::getReason)
+                .filter(key -> key != null && !key.isBlank())
+                .distinct()
+                .toList();
+        Map<String, String> reasonNames = reasonKeys.isEmpty() ? Map.of() : apLovValueRepository.findByKeyIn(reasonKeys).stream()
+                .filter(lov -> lov.getLovDisplayVale() != null)
+                .collect(Collectors.toMap(ApLovValue::getKey, ApLovValue::getLovDisplayVale, (a, b) -> a));
+        String priority = Boolean.TRUE.equals(order.getIsUrgent()) ? "Urgent" : "Regular";
+        return orderTests.stream()
+                // Map.of() throws on a null key, so tests without a reason skip the lookup
+                .map(test -> formatTest(test, test.getReason() == null ? null : reasonNames.get(test.getReason()), priority))
+                .toList();
+    }
+
+    private String formatTest(DiagnosticOrderTest test, String reason, String priority) {
         DiagnosticTest diagnosticTest = diagnosticTestRepository.findById(test.getTestId()).orElse(null);
         String testName = diagnosticTest != null ? diagnosticTest.getName() : "";
-        String internalCode = diagnosticTest != null ? diagnosticTest.getInternalCode() : "";;
-        return "Order Type: Laboratory | Test Name: " + testName + " | Internal Code: " + internalCode + " | Status: " + safe(String.valueOf(test.getStatus()));
+        String internalCode = diagnosticTest != null ? diagnosticTest.getInternalCode() : "";
+        String orderType = diagnosticTest != null ? formatTestType(diagnosticTest.getType()) : UNKNOWN;
+        String line = "Order Type: " + orderType + " | Test Name: " + testName + " | Internal Code: " + internalCode + " | Status: " + safe(String.valueOf(test.getStatus()));
+        // Reason is optional, like in the AI service sample
+        if (reason != null && !reason.isBlank()) {
+            line += " | Reason: " + reason;
+        }
+        return line + " | Priority: " + priority;
+    }
+
+    // LABORATORY -> Laboratory, RADIOLOGY -> Radiology
+    private String formatTestType(String type) {
+        if (type == null || type.isBlank()) {
+            return UNKNOWN;
+        }
+        return Arrays.stream(type.trim().toLowerCase().split("_"))
+                .filter(word -> !word.isEmpty())
+                .map(word -> Character.toUpperCase(word.charAt(0)) + word.substring(1))
+                .collect(Collectors.joining(" "));
     }
 
     private String resolveInstruction(PatientPrescriptionMedication medication) {
