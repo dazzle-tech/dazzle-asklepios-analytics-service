@@ -88,6 +88,7 @@ public class AnalyticsApp {
         app.setDefaultProperties(defProperties);
         Environment env = app.run(args).getEnvironment();
         logApplicationStartup(env);
+        LOG.info("Hotfix test build: hotfix/analytics-test");
     }
 
     private static void logApplicationStartup(Environment env) {
