@@ -6,5 +6,7 @@ public enum MedicationOrderStatus {
     CANCELLED,
     DISCARDED,
     NEW,
-    SUBMITTED
+    SUBMITTED,
+    // Medication-level only: its doses have mixed statuses; never stored on a dose
+    PARTIALLY
 }
